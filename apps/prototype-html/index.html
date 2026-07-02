@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CampusMove | MinhaJardineira</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="phone-frame" aria-label="Protótipo CampusMove">
+    <div class="app-shell">
+      <header class="app-header">
+        <button class="icon-button" data-action="back" aria-label="Voltar">←</button>
+        <div class="header-title"><strong id="screen-context">MinhaJardineira</strong><span id="header-subtitle">IFCE Campus Maracanaú</span></div>
+        <button class="icon-button" data-go="accessibility" aria-label="Abrir acessibilidade">♿</button>
+      </header>
+
+      <div class="screen-area">
+        <section id="welcome" class="screen screen-welcome active" data-title="MinhaJardineira" aria-labelledby="welcome-title">
+          <div class="welcome-orbit" aria-hidden="true"></div>
+          <img class="brand-logo" src="assets/campusmove-logo.png" alt="CampusMove">
+          <h1 id="welcome-title" data-simple="Veja sua rota e horários com facilidade.">Mobilidade acadêmica simples, acessível e em tempo real.</h1>
+          <span class="product-badge">MVP piloto: MinhaJardineira — IFCE Maracanaú</span>
+          <article class="assistant-card featured"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Eu sou o Movinho. Vou te ajudar a encontrar campus, rota e horários.</p></div></article>
+          <button class="primary-button" data-go="profile-select">Começar</button>
+          <div class="shortcut-row" aria-label="Atalhos de acessibilidade"><button data-access="largeText">Texto maior</button><button data-access="highContrast">Alto contraste</button><button data-access="simpleLanguage">Linguagem simples</button></div>
+          <p class="privacy-note">Usamos sua localização apenas para exibir rotas e horários mais precisos. Você pode ajustar isso a qualquer momento.</p>
+        </section>
+
+        <section id="profile-select" class="screen" data-title="Perfil" aria-labelledby="profile-title">
+          <p class="eyebrow">Primeiro acesso</p><h2 id="profile-title">Como você vai usar o CampusMove hoje?</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas.</p></div></article>
+          <div class="profile-grid" role="listbox" aria-label="Perfis disponíveis">
+            <button class="select-card" data-profile="Aluno"><span>🎓</span><strong>Aluno</strong><small>Rotas, horários, eventos e perfil acadêmico.</small></button>
+            <button class="select-card" data-profile="Motorista"><span>🚌</span><strong>Motorista</strong><small>Acesso restrito à operação da rota.</small></button>
+            <button class="select-card" data-profile="Administrador"><span>🛡️</span><strong>Administrador</strong><small>Ambiente restrito para equipe autorizada.</small></button>
+            <button class="select-card" data-profile="Visitante"><span>📍</span><strong>Visitante</strong><small>Eventos e rotas públicas sem senha.</small></button>
+          </div>
+          <p class="inline-alert" id="profile-alert" aria-live="polite"></p><button class="primary-button" data-action="continue-profile">Continuar</button>
+        </section>
+
+        <section id="campus" class="screen" data-title="Instituição" aria-labelledby="campus-title">
+          <p class="eyebrow">SaaS multi-instituição</p><h2 id="campus-title">Escolha sua instituição</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.</p></div></article>
+          <p class="note-card">CampusMove é multi-instituição. Neste MVP, apenas IFCE Campus Maracanaú está ativo.</p>
+          <section class="choice-section"><h3>Tipo de instituição</h3><div id="institution-types" class="pill-list"></div></section>
+          <section class="choice-section"><h3>Instituição</h3><div id="institutions" class="stack-list"></div></section>
+          <section class="choice-section"><h3>Campus</h3><div id="campuses" class="stack-list"></div></section>
+          <p class="inline-alert" id="campus-alert" aria-live="polite"></p><button class="primary-button" data-action="continue-campus">Continuar</button>
+        </section>
+
+        <section id="login" class="screen" data-title="Acesso" aria-labelledby="login-title">
+          <p class="eyebrow" id="login-mode">Login visual</p><h2 id="login-title">Acesse sua conta</h2>
+          <p class="note-card hidden" id="visitor-note">Acesso visitante: eventos e rotas públicas.</p>
+          <form class="form-card" novalidate>
+            <label>Matrícula ou e-mail institucional<input type="text" value="20260000000000" aria-describedby="login-examples"></label>
+            <label>Senha<input type="password" autocomplete="off" placeholder="Senha visual do protótipo"></label>
+            <p id="login-examples">Exemplos fictícios: Matrícula 20260000000000 ou e-mail aluno@ifce.edu.br.</p>
+            <label class="check-row"><input type="checkbox" checked> Manter conectado</label>
+          </form>
+          <section id="admin-list" class="choice-section hidden"><h3>Administradores autorizados para demo</h3><div class="pill-list"><button data-admin="Cauê">Cauê</button><button data-admin="Bruno">Bruno</button><button data-admin="Felipe">Felipe</button><button data-admin="Pedro">Pedro</button></div></section>
+          <button class="text-button" data-action="help-login">Preciso de ajuda para acessar</button><p class="inline-alert" id="login-alert" aria-live="polite"></p>
+          <button class="primary-button" data-action="login">Entrar</button><button class="secondary-button" data-action="visitor">Entrar como visitante</button>
+          <p class="privacy-note">Usamos seus dados apenas para identificar seu vínculo com o campus e personalizar rotas e alertas, em conformidade com a LGPD.</p>
+        </section>
+
+        <section id="authorization" class="screen" data-title="Autorização" aria-labelledby="authorization-title">
+          <p class="eyebrow">Acesso restrito</p><h2 id="authorization-title">Aguardando autorização do sistema.</h2>
+          <article class="status-panel"><span class="pulse-dot"></span><div><strong id="authorization-greeting">Olá!</strong><p id="authorization-message">Acesso administrativo restrito. Somente administradores autorizados podem acessar este ambiente.</p></div></article>
+          <p class="note-card" id="authorization-note">Este é um fluxo visual de protótipo. Nenhuma validação real foi feita.</p>
+          <button class="primary-button" data-go="profile-select">Voltar aos perfis</button>
+        </section>
+
+        <section id="home" class="screen internal" data-title="Início" aria-labelledby="home-title">
+          <div class="screen-heading"><div><p class="eyebrow">IFCE Campus Maracanaú</p><h2 id="home-title">Olá, Bruno!</h2></div><span class="status-pill online"><i></i>ONLINE ✅</span></div>
+          <article class="hero-card"><div class="hero-kicker">Próxima viagem</div><div class="hero-route"><small>Rota</small><h3>IFCE Campus Maracanaú → Estação Virgílio Távora</h3></div><div class="hero-meta"><span>Saída: <time id="home-next-time">--:--</time></span><span class="status-pill scheduled" id="home-service-status">🗓️ Próxima viagem</span></div><strong class="countdown" id="home-countdown">Calculando...</strong></article>
+          <div class="home-grid"><article class="mini-card"><span class="pulse-dot"></span><strong>Jardineira ONLINE ✅</strong><small>Atualizado há 20 segundos</small></article><article class="mini-card"><strong>📍 Localização: Saindo do campus</strong><small data-status-explanation>Localização recebida normalmente.</small></article></div>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Sua próxima viagem aparece aqui. Eu aviso se houver atraso ou mudança.</p></div></article>
+          <div class="action-list"><button data-go="schedules">Ver horários</button><button data-go="location">Ver localização</button><button data-go="events">Ver eventos</button></div>
+        </section>
+
+        <section id="schedules" class="screen internal" data-title="Horários" aria-labelledby="schedules-title">
+          <p class="eyebrow">Jardineira IFCE</p><h2 id="schedules-title">Horários da Jardineira</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha o horário que melhor se encaixa no seu dia.</p></div></article>
+          <section class="schedule-summary"><div><small>Horário atual</small><strong id="current-time">--:--</strong></div><div><small>Próxima saída</small><strong id="next-departure">--:--</strong></div><div><small>Faltam</small><strong id="schedule-countdown">--</strong></div><div><small>Status</small><strong id="service-status">--</strong></div></section>
+          <p class="note-card">Intervalo médio calculado pela tabela: <strong id="average-interval">--</strong>.</p>
+          <section class="schedule-card"><h3>IFCE → Estação Virgílio Távora</h3><div class="time-grid"><time>07:00</time><time>09:00</time><time>11:00</time><time>13:00</time><time>15:00</time><time>17:30</time></div></section>
+          <section class="schedule-card alt"><h3>Estação Virgílio Távora → IFCE</h3><div class="time-grid"><time>07:30</time><time>09:30</time><time>11:30</time><time>13:30</time><time>15:30</time><time>18:00</time></div></section>
+        </section>
+
+        <section id="location" class="screen internal" data-title="Localização" aria-labelledby="location-title">
+          <p class="eyebrow">Rota pública simulada</p><h2 id="location-title">Localização da jardineira</h2><p id="event-route-context" class="route-context hidden">Rota para evento: Semana da Computação.</p>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Digite um ponto de partida para simularmos a melhor rota.</p></div></article>
+          <section class="form-card"><h3>Seu ponto de partida</h3><label>CEP ou endereço aproximado<input id="start-point" type="text" placeholder="Digite seu CEP, bairro ou ponto de partida"></label><label>Bairro ou referência<input id="reference-point" type="text" placeholder="Ex.: bairro próximo ao IFCE Maracanaú"></label><button type="button" class="primary-button" data-action="simulate-route">Simular rota</button><p class="privacy-note" data-route-note>Esta rota é uma simulação para o protótipo. Nenhum endereço é salvo.</p></section>
+          <div class="map-card" role="img" aria-label="Mapa simulado com rota multimodal até o campus"><svg viewBox="0 0 360 260" aria-hidden="true"><defs><linearGradient id="routeGradient" x1="0" x2="1"><stop stop-color="#22C55E"/><stop offset="1" stop-color="#86EFAC"/></linearGradient></defs><path class="map-street" d="M14 64 C74 20 123 83 183 52 S292 38 345 84"/><path class="map-street thin" d="M22 210 C92 157 170 230 240 172 S310 132 346 148"/><path class="map-route" d="M46 210 L96 166 L160 170 L229 119 L315 75"/><path class="map-walk" d="M46 210 L96 166"/><path class="map-transit" d="M96 166 L160 170"/><path class="map-metro" d="M160 170 L229 119"/><circle class="marker student" cx="46" cy="210" r="11"/><circle class="marker stop" cx="96" cy="166" r="10"/><circle class="marker metro" cx="160" cy="170" r="10"/><rect class="marker shuttle" x="216" y="107" width="28" height="20" rx="7"/><circle class="marker campus" cx="315" cy="75" r="12"/><text x="24" y="238">Você</text><text x="70" y="154">Parada</text><text x="135" y="198">Metrô</text><text x="200" y="96">Jardineira</text><text x="281" y="56">Campus</text></svg></div>
+          <article class="status-card-wide"><span class="pulse-dot"></span><div><strong>Status: Rota simulada ✅</strong><small id="route-origin">Localização simulada: próximo ao IFCE Campus Maracanaú.</small></div></article>
+          <div class="route-metrics"><article><small>Tempo estimado total</small><strong id="route-total">--</strong></article><article><small>Próxima jardineira</small><strong id="route-next-shuttle">--</strong></article><article><small>Saída recomendada</small><strong id="route-recommended">--</strong></article></div>
+          <ol class="route-steps" id="route-steps"><li>Caminhada até a parada mais próxima</li><li>Ônibus até a estação</li><li>Metrô até Virgílio Távora</li><li>Jardineira IFCE até o campus</li></ol>
+        </section>
+
+        <section id="events" class="screen internal" data-title="Eventos" aria-labelledby="events-title">
+          <p class="eyebrow">Rotas para atividades</p><h2 id="events-title">Eventos no campus</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Se você veio para um evento, posso sugerir uma rota pública.</p></div></article>
+          <article class="event-card"><span class="product-badge">Hoje — 18:00</span><h3>Semana da Computação</h3><p>Local: Auditório do IFCE Maracanaú</p><div class="route-preview"><span>Estação Virgílio Távora</span><i></i><span>IFCE Maracanaú</span></div><p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p><strong>Aviso: Horário especial da jardineira às 18:00</strong><button class="secondary-button" data-action="event-route">Ver rota para o evento</button></article>
+        </section>
+
+        <section id="user-profile" class="screen internal" data-title="Perfil" aria-labelledby="user-profile-title">
+          <p class="eyebrow">Dados acadêmicos</p><h2 id="user-profile-title">Perfil</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Aqui você acompanha seus dados acadêmicos e contatos da jardineira.</p></div></article>
+          <section class="user-card"><button class="avatar-button" data-action="change-avatar" aria-label="Trocar avatar"><span id="profile-avatar">B</span></button><div><h3>Bruno</h3><p>Aluno · IFCE</p><small>Campus: IFCE Campus Maracanaú</small><small>Endereço: não exibido por privacidade.</small></div></section>
+          <p class="note-card">Dados acadêmicos e endereço são gerenciados pela instituição.</p>
+          <section class="contact-card"><h3>Jardineira 1</h3><p><span class="status-pill online">ONLINE ✅</span></p><small>Responsável: motorista da rota institucional</small><button data-action="message-shuttle">Enviar mensagem</button></section>
+          <section class="contact-card"><h3>Jardineira 2</h3><p><span class="status-pill warning">EM MANUTENÇÃO ⚠️</span></p><small>Responsável: equipe de operação do campus</small><button data-action="message-shuttle">Enviar mensagem</button></section>
+          <p class="inline-alert" id="profile-feedback" aria-live="polite"></p>
+        </section>
+
+        <section id="accessibility" class="screen" data-title="Acessibilidade" aria-labelledby="accessibility-title">
+          <p class="eyebrow">Preferências do protótipo</p><h2 id="accessibility-title">Acessibilidade</h2>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Essas opções deixam o app mais confortável para você.</p></div></article>
+          <p class="panel-intro">Ajuste a visualização sem informar dados sensíveis. As preferências ficam apenas nesta sessão.</p>
+          <div class="toggle-list"><button data-access="largeText">Texto maior <span>desativado</span></button><button data-access="highContrast">Alto contraste <span>desativado</span></button><button data-access="reduceMotion">Reduzir animações <span>desativado</span></button><button data-access="simpleLanguage">Linguagem simples <span>desativado</span></button><button data-access="colorSafe">Não depender apenas de cores <span>ativado</span></button><button data-access="colorBlind">Modo daltônico <span>desativado</span></button></div>
+          <article class="details-card"><h3>Exemplo de status acessível</h3><p id="simple-example">SEM_SINAL</p></article><button class="primary-button" data-action="back">Voltar</button>
+        </section>
+      </div>
+
+      <nav class="bottom-nav" aria-label="Navegação principal"><button data-tab="home">⌂<span>Início</span></button><button data-tab="schedules">◷<span>Horários</span></button><button data-tab="location">◇<span>Localização</span></button><button data-tab="events">✦<span>Eventos</span></button><button data-tab="user-profile">♙<span>Perfil</span></button></nav>
+    </div>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+</html>
