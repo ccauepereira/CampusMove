@@ -9,149 +9,218 @@
 <body>
   <main class="phone-frame" aria-label="Protótipo CampusMove">
     <div class="app-shell">
-      <header class="topbar">
-        <button class="icon-button" data-back aria-label="Voltar">←</button>
-        <div>
-          <strong>CampusMove</strong>
-          <span id="topbar-subtitle">MinhaJardineira</span>
+      <header class="app-header">
+        <button class="icon-button" data-action="back" aria-label="Voltar">←</button>
+        <div class="header-brand">
+          <img src="assets/campusmove-logo.png" alt="CampusMove">
+          <span id="screen-context">MinhaJardineira</span>
         </div>
         <button class="icon-button" data-go="accessibility" aria-label="Abrir acessibilidade">♿</button>
       </header>
 
-      <div class="screen-stack">
-        <section id="welcome" class="screen active" data-title="MinhaJardineira" aria-labelledby="welcome-title">
-          <div class="brand-block">
-            <div class="brand-mark" aria-hidden="true">CM</div>
-            <h1 id="welcome-title">CampusMove</h1>
+      <div class="screen-area">
+        <section id="welcome" class="screen screen-welcome active" data-title="MinhaJardineira" aria-labelledby="welcome-title">
+          <div class="welcome-orbit" aria-hidden="true"></div>
+          <div class="welcome-brand">
+            <img class="brand-logo" src="assets/campusmove-logo.png" alt="CampusMove">
+            <h1 id="welcome-title">MinhaJardineira</h1>
             <p>Mobilidade acadêmica simples, acessível e em tempo real.</p>
-            <span class="badge">MVP piloto: MinhaJardineira — IFCE Maracanaú</span>
+            <span class="badge badge-green">MVP piloto: MinhaJardineira — IFCE Maracanaú</span>
           </div>
-          <article class="movinho-card">
-            <span class="movinho-avatar" aria-hidden="true"><span></span></span>
+
+          <article class="assistant-card featured">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Oi! Eu vou te ajudar a encontrar seu campus, sua rota e a jardineira em tempo real.</p></div>
             <p>Oi! Eu sou o Movinho. Vou te ajudar a encontrar seu campus, sua rota e a jardineira em tempo real.</p>
           </article>
+
           <button class="primary-button" data-go="profile">Começar</button>
+
           <div class="shortcut-row" aria-label="Atalhos de acessibilidade">
-            <button class="chip-button" data-toggle-access="largeText">Texto maior</button>
-            <button class="chip-button" data-toggle-access="highContrast">Alto contraste</button>
-            <button class="chip-button" data-toggle-access="simpleLanguage">Linguagem simples</button>
+            <button class="chip-button" data-access="largeText">Texto maior</button>
+            <button class="chip-button" data-access="highContrast">Alto contraste</button>
+            <button class="chip-button" data-access="simpleLanguage">Linguagem simples</button>
           </div>
           <p class="privacy-note">Usamos sua localização apenas para exibir rotas e horários mais precisos. Você pode ajustar isso a qualquer momento.</p>
         </section>
 
         <section id="profile" class="screen" data-title="Perfil" aria-labelledby="profile-title">
+          <p class="eyebrow">Primeiro acesso</p>
           <h2 id="profile-title">Como você vai usar o CampusMove hoje?</h2>
-          <article class="movinho-card compact">
-            <span class="movinho-avatar" aria-hidden="true"><span></span></span>
+          <article class="assistant-card compact">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas para você.</p></div>
             <p>Escolha seu perfil para eu mostrar as funções certas para você.</p>
           </article>
-          <div class="option-grid" role="listbox" aria-label="Perfis disponíveis">
-            <button class="select-card" data-profile="Aluno">🎓<span>Aluno</span></button>
-            <button class="select-card" data-profile="Motorista">🚌<span>Motorista</span></button>
-            <button class="select-card" data-profile="Administrador">🛡️<span>Administrador</span></button>
-            <button class="select-card" data-profile="Visitante">📍<span>Visitante</span></button>
+          <div class="profile-grid" role="listbox" aria-label="Perfis disponíveis">
+            <button class="profile-card" data-profile="Aluno"><span class="profile-icon">🎓</span><strong>Aluno</strong><small>Rotas, horários e alertas da jardineira.</small></button>
+            <button class="profile-card" data-profile="Motorista"><span class="profile-icon">🚌</span><strong>Motorista</strong><small>Visão futura para operação da rota.</small></button>
+            <button class="profile-card" data-profile="Administrador"><span class="profile-icon">🛡️</span><strong>Administrador</strong><small>Gestão institucional em próxima fase.</small></button>
+            <button class="profile-card" data-profile="Visitante"><span class="profile-icon">📍</span><strong>Visitante</strong><small>Acesso sem login para eventos e rotas.</small></button>
           </div>
-          <button class="primary-button" data-continue-profile>Continuar</button>
+          <p class="inline-alert" id="profile-alert" aria-live="polite"></p>
+          <button class="primary-button" data-action="continue-profile">Continuar</button>
         </section>
 
         <section id="campus" class="screen" data-title="Instituição" aria-labelledby="campus-title">
+          <p class="eyebrow">Minha instituição</p>
           <h2 id="campus-title">Escolha sua instituição</h2>
-          <article class="movinho-card">
-            <span class="movinho-avatar" aria-hidden="true"><span></span></span>
+          <article class="assistant-card">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Escolha sua instituição e seu campus para eu mostrar as rotas, horários e a jardineira disponível.</p></div>
             <p>Escolha sua instituição e seu campus para eu mostrar as rotas, horários e a jardineira disponível.</p>
           </article>
-          <div class="info-card">
-            <small>Tipo de instituição:</small>
-            <strong>Instituto Federal</strong>
-            <small>Instituição:</small>
-            <strong>IFCE — Instituto Federal do Ceará</strong>
-          </div>
-          <div class="campus-list" aria-label="Campi disponíveis">
-            <button class="campus-option" data-campus="IFCE Campus Maracanaú"><strong>IFCE Campus Maracanaú</strong><span>MVP ativo</span></button>
-            <button class="campus-option disabled" data-soon><strong>IFCE Campus Fortaleza</strong><span>em breve</span></button>
-            <button class="campus-option disabled" data-soon><strong>IFCE Campus Caucaia</strong><span>em breve</span></button>
-            <button class="campus-option disabled" data-soon><strong>IFCE Campus Sobral</strong><span>em breve</span></button>
+          <section class="institution-card" aria-label="Instituição selecionada">
+            <div><small>Tipo de instituição</small><strong>Instituto Federal</strong></div>
+            <div><small>Instituição</small><strong>IFCE — Instituto Federal do Ceará</strong></div>
+          </section>
+          <div class="campus-list" aria-label="Lista de campi">
+            <button class="campus-option" data-campus="IFCE Campus Maracanaú"><strong>IFCE Campus Maracanaú</strong><span class="badge mini">MVP ativo</span></button>
+            <button class="campus-option soon" data-soon><strong>IFCE Campus Fortaleza</strong><span>em breve</span></button>
+            <button class="campus-option soon" data-soon><strong>IFCE Campus Caucaia</strong><span>em breve</span></button>
+            <button class="campus-option soon" data-soon><strong>IFCE Campus Sobral</strong><span>em breve</span></button>
           </div>
           <p class="inline-alert" id="campus-alert" aria-live="polite"></p>
-          <button class="primary-button" data-continue-campus>Continuar</button>
+          <button class="primary-button" data-action="continue-campus">Continuar</button>
         </section>
 
         <section id="login" class="screen" data-title="Acesso" aria-labelledby="login-title">
+          <p class="eyebrow">Login visual</p>
           <h2 id="login-title">Acesse sua conta</h2>
-          <form class="login-form" novalidate>
+          <form class="login-card" novalidate>
             <label>Matrícula ou e-mail institucional<input type="text" value="20260000000000" aria-describedby="login-examples"></label>
             <label>Senha<input type="password" value="campusmove" autocomplete="off"></label>
-            <p id="login-examples" class="helper-text">Exemplos fictícios: Matrícula 20260000000000 ou e-mail aluno@ifce.edu.br.</p>
+            <p id="login-examples">Exemplos fictícios: Matrícula 20260000000000 ou e-mail aluno@ifce.edu.br.</p>
             <label class="check-row"><input type="checkbox" checked> Manter conectado</label>
           </form>
-          <button class="link-button" data-help-access>Preciso de ajuda para acessar</button>
-          <p class="inline-alert" id="login-help" aria-live="polite"></p>
-          <button class="primary-button" data-login>Entrar</button>
-          <button class="secondary-button" data-visitor>Entrar como visitante</button>
+          <button class="text-button" data-action="help-login">Preciso de ajuda para acessar</button>
+          <p class="inline-alert" id="login-alert" aria-live="polite"></p>
+          <button class="primary-button" data-action="login">Entrar</button>
+          <button class="secondary-button" data-action="visitor">Entrar como visitante</button>
           <p class="privacy-note">Usamos seus dados apenas para identificar seu vínculo com o campus e personalizar rotas e alertas, em conformidade com a LGPD.</p>
         </section>
 
         <section id="home" class="screen internal" data-title="IFCE Campus Maracanaú" aria-labelledby="home-title">
-          <p class="eyebrow">IFCE Campus Maracanaú</p>
-          <h2 id="home-title">Olá, aluno!</h2>
+          <div class="screen-heading">
+            <div><p class="eyebrow">IFCE Campus Maracanaú</p><h2 id="home-title">Olá, aluno!</h2></div>
+            <span class="status-pill online"><i></i>ONLINE ✅</span>
+          </div>
           <article class="hero-card">
-            <span class="badge">Próxima viagem</span>
+            <div class="hero-kicker">Próxima viagem</div>
+            <div class="hero-route">
+              <small>Rota</small>
+              <h3>IFCE Campus Maracanaú → Estação Virgílio Távora</h3>
+            </div>
+            <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
+            <strong class="countdown">Faltam <span id="countdown-minutes">18</span> min</strong>
+            <span class="badge mini">Próxima viagem</span>
             <h3>Rota: IFCE Campus Maracanaú → Estação Virgílio Távora</h3>
-            <div class="trip-meta"><span>Saída: <time>17:30</time></span><span class="status scheduled">🗓️ AGENDADA</span></div>
+            <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
             <strong class="countdown">Faltam: <span id="countdown-minutes">18</span> min</strong>
           </article>
-          <div class="two-cards">
-            <article class="status-card"><span class="pulse-dot"></span><strong>ONLINE ✅</strong><small>Atualizado há 20 segundos</small></article>
-            <article class="status-card"><strong>📍 Saindo do campus</strong><small data-simple-status>Localização recebida normalmente.</small></article>
+          <div class="home-grid">
+            <article class="mini-card"><span class="pulse-dot"></span><strong>ONLINE ✅</strong><small>Atualizado há 20 segundos</small></article>
+            <article class="mini-card"><strong>📍 Saindo do campus</strong><small data-status-explanation>Localização recebida normalmente.</small></article>
           </div>
-          <article class="movinho-card"><span class="movinho-avatar" aria-hidden="true"><span></span></span><p>Sua próxima viagem está programada. Eu te aviso se houver atraso ou mudança.</p></article>
-          <div class="action-list"><button data-go="schedules">Ver horários</button><button data-go="location">Ver localização</button><button data-go="events">Ver eventos</button></div>
+          <article class="assistant-card">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Sua próxima viagem está programada. Eu te aviso se houver atraso ou mudança.</p></div>
+            <p>Sua próxima viagem está programada. Eu te aviso se houver atraso ou mudança.</p>
+          </article>
+          <div class="action-list">
+            <button data-go="schedules">Ver horários</button>
+            <button data-go="location">Ver localização</button>
+            <button data-go="events">Ver eventos</button>
+          </div>
         </section>
 
         <section id="schedules" class="screen internal" data-title="Horários" aria-labelledby="schedules-title">
+          <p class="eyebrow">Jardineira IFCE</p>
           <h2 id="schedules-title">Horários da Jardineira</h2>
-          <section class="schedule-card"><h3>IFCE → Estação Virgílio Távora</h3><div class="time-grid"><time>07:00</time><time>09:00</time><time>11:00</time><time>13:00</time><time>15:00</time><time>17:30</time></div></section>
-          <section class="schedule-card"><h3>Estação Virgílio Távora → IFCE</h3><div class="time-grid"><time>07:30</time><time>09:30</time><time>11:30</time><time>13:30</time><time>15:30</time><time>18:00</time></div></section>
-          <details class="details-card"><summary>Estados simulados da viagem</summary><p>AGENDADA, EM_ANDAMENTO, FINALIZADA, ATRASADA, CANCELADA</p></details>
+          <section class="schedule-card">
+            <h3>IFCE → Estação Virgílio Távora</h3>
+            <div class="time-grid"><time>07:00</time><time>09:00</time><time>11:00</time><time>13:00</time><time>15:00</time><time>17:30</time></div>
+          </section>
+          <section class="schedule-card alt">
+            <h3>Estação Virgílio Távora → IFCE</h3>
+            <div class="time-grid"><time>07:30</time><time>09:30</time><time>11:30</time><time>13:30</time><time>15:30</time><time>18:00</time></div>
+          </section>
+          <details class="details-card">
+            <summary>Estados simulados da viagem</summary>
+            <p>AGENDADA, EM_ANDAMENTO, FINALIZADA, ATRASADA, CANCELADA</p>
+          </details>
         </section>
 
         <section id="location" class="screen internal" data-title="Localização" aria-labelledby="location-title">
+          <p class="eyebrow">Tempo real simulado</p>
           <h2 id="location-title">Localização da jardineira</h2>
-          <div class="map-card" role="img" aria-label="Mapa simulado da rota entre campus, parada, metrô e estação">
-            <svg viewBox="0 0 360 240" aria-hidden="true">
-              <path class="street" d="M20 60 C90 20 150 90 230 50 S330 70 345 30"/><path class="street" d="M30 200 C120 155 180 220 330 165"/><path class="route" d="M45 190 L105 150 L175 155 L245 105 L320 70"/>
-              <circle class="point student" cx="45" cy="190" r="9"/><circle class="point stop" cx="105" cy="150" r="8"/><circle class="point metro" cx="175" cy="155" r="8"/><rect class="point bus" x="235" y="95" width="22" height="16" rx="5"/><circle class="point campus" cx="320" cy="70" r="10"/>
-              <text x="28" y="216">Você</text><text x="78" y="138">Parada</text><text x="150" y="180">Metrô</text><text x="215" y="90">Jardineira</text><text x="286" y="54">Campus</text>
+          <div class="map-card" role="img" aria-label="Mapa simulado com rota multimodal até o campus">
+            <svg viewBox="0 0 360 260" aria-hidden="true">
+              <defs><linearGradient id="routeGradient" x1="0" x2="1"><stop stop-color="#22C55E"/><stop offset="1" stop-color="#86EFAC"/></linearGradient></defs>
+              <path class="map-street" d="M14 64 C74 20 123 83 183 52 S292 38 345 84"/>
+              <path class="map-street thin" d="M22 210 C92 157 170 230 240 172 S310 132 346 148"/>
+              <path class="map-street thin" d="M64 28 C92 98 92 151 42 232"/>
+              <path class="map-route" d="M46 210 L96 166 L160 170 L229 119 L315 75"/>
+              <path class="map-walk" d="M46 210 L96 166"/>
+              <path class="map-transit" d="M96 166 L160 170"/>
+              <path class="map-metro" d="M160 170 L229 119"/>
+              <circle class="marker student" cx="46" cy="210" r="11"/><circle class="marker stop" cx="96" cy="166" r="10"/><circle class="marker metro" cx="160" cy="170" r="10"/><rect class="marker shuttle" x="216" y="107" width="28" height="20" rx="7"/><circle class="marker campus" cx="315" cy="75" r="12"/>
+              <text x="24" y="238">Você</text><text x="70" y="154">Parada</text><text x="135" y="198">Metrô</text><text x="200" y="96">Jardineira</text><text x="281" y="56">Campus</text>
             </svg>
           </div>
-          <article class="status-line"><span class="pulse-dot"></span><strong>Status: ONLINE ✅</strong><small>Atualizado há 20 segundos</small></article>
+          <article class="status-card-wide"><span class="pulse-dot"></span><div><strong>Status: ONLINE ✅</strong><small>Atualizado há 20 segundos</small></div></article>
           <p class="route-text">Rota atual: IFCE Campus Maracanaú → Estação Virgílio Távora</p>
           <ol class="route-steps"><li>Caminhe 4 min até a parada</li><li>Ônibus até a estação</li><li>Metrô até Virgílio Távora</li><li>Jardineira IFCE até o campus</li></ol>
           <div class="metric-row"><article>Jardineira IFCE — em tempo real</article><article>Chega em 6 min</article><article>Próxima viagem: 08:20</article></div>
-          <article class="movinho-card"><span class="movinho-avatar" aria-hidden="true"><span></span></span><p>Quer a rota mais rápida? Eu combino ônibus, metrô e jardineira para você.</p></article>
+          <article class="assistant-card">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Quer a rota mais rápida? Eu combino ônibus, metrô e jardineira para você.</p></div>
+            <p>Quer a rota mais rápida? Eu combino ônibus, metrô e jardineira para você.</p>
+          </article>
         </section>
 
         <section id="events" class="screen internal" data-title="Eventos" aria-labelledby="events-title">
+          <p class="eyebrow">Rotas para atividades</p>
           <h2 id="events-title">Eventos no campus</h2>
-          <article class="event-card"><span class="badge">Hoje — 18:00</span><h3>Semana da Computação</h3><p>Local: Auditório do IFCE Maracanaú</p><p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p><strong>Aviso: Horário especial da jardineira às 18:00</strong></article>
-          <article class="movinho-card"><span class="movinho-avatar" aria-hidden="true"><span></span></span><p>Se você veio para um evento, eu posso mostrar uma rota sugerida sem precisar de login.</p></article>
+          <article class="event-card">
+            <span class="badge mini">Hoje — 18:00</span>
+            <h3>Semana da Computação</h3>
+            <p>Local: Auditório do IFCE Maracanaú</p>
+            <p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p>
+            <strong>Aviso: Horário especial da jardineira às 18:00</strong>
+          </article>
+          <article class="assistant-card">
+            <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Se você veio para um evento, eu posso mostrar uma rota sugerida sem precisar de login.</p></div>
+            <p>Se você veio para um evento, eu posso mostrar uma rota sugerida sem precisar de login.</p>
+          </article>
         </section>
 
-        <section id="accessibility" class="screen" data-title="Acessibilidade" aria-labelledby="access-title">
-          <h2 id="access-title">Acessibilidade</h2>
+        <section id="accessibility" class="screen" data-title="Acessibilidade" aria-labelledby="accessibility-title">
+          <p class="eyebrow">Preferências do protótipo</p>
+          <h2 id="accessibility-title">Acessibilidade</h2>
+          <p class="panel-intro">Ajuste a visualização do protótipo sem informar dados sensíveis. As preferências ficam apenas nesta navegação.</p>
           <div class="toggle-list">
-            <button data-toggle-access="largeText">Texto maior <span>desativado</span></button>
-            <button data-toggle-access="highContrast">Alto contraste <span>desativado</span></button>
-            <button data-toggle-access="reduceMotion">Reduzir animações <span>desativado</span></button>
-            <button data-toggle-access="simpleLanguage">Linguagem simples <span>desativado</span></button>
+            <button data-access="largeText">Texto maior <span>desativado</span></button>
+            <button data-access="highContrast">Alto contraste <span>desativado</span></button>
+            <button data-access="reduceMotion">Reduzir animações <span>desativado</span></button>
+            <button data-access="simpleLanguage">Linguagem simples <span>desativado</span></button>
+            <button data-access="colorSafe">Não depender apenas de cores <span>ativado</span></button>
           </div>
-          <article class="details-card"><strong>Exemplo de linguagem simples</strong><p id="simple-example">SEM_SINAL</p></article>
-          <button class="primary-button" data-back>Voltar</button>
+          <article class="details-card">
+            <h3>Exemplo de status acessível</h3>
+            <p id="simple-example">SEM_SINAL</p>
+          </article>
+          <button class="primary-button" data-action="back">Voltar</button>
         </section>
       </div>
 
       <nav class="bottom-nav" aria-label="Navegação principal">
-        <button data-tab="home">⌂<span>Início</span></button><button data-tab="schedules">◷<span>Horários</span></button><button data-tab="location">◇<span>Localização</span></button><button data-tab="events">✦<span>Eventos</span></button><button data-tab="accessibility">♿<span>Perfil</span></button>
+        <button data-tab="home">⌂<span>Início</span></button>
+        <button data-tab="schedules">◷<span>Horários</span></button>
+        <button data-tab="location">◇<span>Localização</span></button>
+        <button data-tab="events">✦<span>Eventos</span></button>
+        <button data-tab="accessibility">♿<span>Perfil</span></button>
       </nav>
     </div>
   </main>
