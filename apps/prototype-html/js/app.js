@@ -1,55 +1,42 @@
 // ================================
-// JAVASCRIPT: DADOS SIMULADOS
+// JAVASCRIPT: ESTADO BASE DO PROTÓTIPO
 // ================================
-// MOCK: dados fixos do pitch, não representam backend real.
-const mockData = {
-  institutionType: 'Instituto Federal',
-  institution: 'IFCE — Instituto Federal do Ceará',
-  activeCampus: 'IFCE Campus Maracanaú',
-  route: 'IFCE Campus Maracanaú ↔ Estação Virgílio Távora',
-  ifceToStation: ['07:00', '09:00', '11:00', '13:00', '15:00', '17:30'],
-  stationToIfce: ['07:30', '09:30', '11:30', '13:30', '15:30', '18:00'],
-  tripStates: ['AGENDADA', 'EM_ANDAMENTO', 'FINALIZADA', 'ATRASADA', 'CANCELADA'],
-  locationStates: ['ONLINE', 'SEM_SINAL', 'SINAL_INSTAVEL', 'ULTIMA_POSICAO_CONHECIDA'],
-  vehicleStates: ['DISPONIVEL', 'EM_MOVIMENTO', 'EM_MANUTENCAO', 'INDISPONIVEL']
-};
-
 const appState = {
   currentScreen: 'welcome',
   history: ['welcome'],
   selectedProfile: null,
   selectedCampus: null,
-  visitorMode: false,
-  remainingMinutes: 18,
   accessibility: {
     largeText: false,
     highContrast: false,
     reduceMotion: false,
-    simpleLanguage: false,
-    colorSafe: true
+    simpleLanguage: false
   }
 };
 
 const screens = [...document.querySelectorAll('.screen')];
 const contextLabel = document.querySelector('#screen-context');
+const headerSubtitle = document.querySelector('#header-subtitle');
 const bottomNav = document.querySelector('.bottom-nav');
 const backButton = document.querySelector('[data-action="back"]');
 
 // ================================
 // JAVASCRIPT: NAVEGAÇÃO
 // ================================
-function showScreen(screenId, shouldStoreHistory = true) {
+// BRUNO: controla a troca de telas principais do protótipo.
+function showScreen(screenId, storeHistory = true) {
   const nextScreen = document.getElementById(screenId);
   if (!nextScreen) return;
 
   screens.forEach((screen) => screen.classList.toggle('active', screen.id === screenId));
   appState.currentScreen = screenId;
 
-  if (shouldStoreHistory && appState.history.at(-1) !== screenId) {
+  if (storeHistory && appState.history.at(-1) !== screenId) {
     appState.history.push(screenId);
   }
 
-  contextLabel.textContent = nextScreen.dataset.title || 'MinhaJardineira';
+  contextLabel.textContent = nextScreen.dataset.title || 'CampusMove';
+  headerSubtitle.textContent = nextScreen.dataset.subtitle || 'IFCE Campus Maracanaú';
   bottomNav.classList.toggle('visible', nextScreen.classList.contains('internal'));
   backButton.style.visibility = screenId === 'welcome' ? 'hidden' : 'visible';
   updateActiveTab();
@@ -73,25 +60,35 @@ function updateActiveTab() {
 }
 
 // ================================
-// JAVASCRIPT: SELEÇÕES E LOGIN VISUAL
+// JAVASCRIPT: ESTADOS VISUAIS
 // ================================
-function selectProfile(profile) {
-  appState.selectedProfile = profile;
+// BRUNO: aplica estado visual nos cards selecionáveis sem alterar dados reais.
+function applySelection(groupSelector, selectedButton) {
+  document.querySelectorAll(groupSelector).forEach((button) => {
+    const isSelected = button === selectedButton;
+    button.classList.toggle('selected', isSelected);
+    button.classList.toggle('dimmed', Boolean(selectedButton) && !isSelected);
+  });
+}
+
+function selectProfile(button) {
+  appState.selectedProfile = button.dataset.profile;
   document.querySelector('#profile-alert').textContent = '';
-  document.querySelectorAll('[data-profile]').forEach((button) => {
-    button.classList.toggle('selected', button.dataset.profile === profile);
-  });
+  applySelection('[data-profile]', button);
 }
 
-function selectCampus(campus) {
-  appState.selectedCampus = campus;
+function selectCampus(button) {
+  if (button.dataset.soon !== undefined) {
+    document.querySelector('#campus-alert').textContent = 'Este campus aparece como em breve no protótipo.';
+    return;
+  }
+
+  appState.selectedCampus = button.dataset.campus;
   document.querySelector('#campus-alert').textContent = '';
-  document.querySelectorAll('[data-campus]').forEach((button) => {
-    button.classList.toggle('selected', button.dataset.campus === campus);
-  });
+  applySelection('[data-campus]', button);
 }
 
-function continueFromProfile() {
+function continueProfile() {
   if (!appState.selectedProfile) {
     document.querySelector('#profile-alert').textContent = 'Escolha um perfil para continuar.';
     return;
@@ -99,68 +96,48 @@ function continueFromProfile() {
   showScreen('campus');
 }
 
-function continueFromCampus() {
-  if (appState.selectedCampus !== mockData.activeCampus) {
+function continueCampus() {
+  if (appState.selectedCampus !== 'IFCE Campus Maracanaú') {
     document.querySelector('#campus-alert').textContent = 'Selecione IFCE Campus Maracanaú para continuar.';
     return;
   }
   showScreen('login');
 }
 
-function enterPrototype(asVisitor = false) {
-  // FUTURO BACKEND: aqui entraria validação real de matrícula/e-mail institucional.
-  appState.visitorMode = asVisitor;
-  appState.selectedProfile = appState.selectedProfile || 'Visitante';
-  appState.selectedCampus = appState.selectedCampus || mockData.activeCampus;
-  document.querySelector('#home-title').textContent = asVisitor ? 'Olá, visitante!' : 'Olá, aluno!';
+function enterApp(visitor = false) {
+  document.querySelector('#home-title').textContent = visitor ? 'Olá, visitante!' : 'Olá, aluno!';
   showScreen('home');
 }
 
 // ================================
-// JAVASCRIPT: ACESSIBILIDADE
+// JAVASCRIPT: ACESSIBILIDADE VISUAL
 // ================================
 function updateAccessibilityUi() {
   document.body.classList.toggle('large-text', appState.accessibility.largeText);
   document.body.classList.toggle('high-contrast', appState.accessibility.highContrast);
   document.body.classList.toggle('reduce-motion', appState.accessibility.reduceMotion);
-  document.body.classList.toggle('color-safe', appState.accessibility.colorSafe);
 
   document.querySelectorAll('[data-access]').forEach((button) => {
-    const key = button.dataset.access;
-    const isActive = appState.accessibility[key];
-    button.classList.toggle('selected', isActive);
+    const active = appState.accessibility[button.dataset.access];
+    button.classList.toggle('selected', active);
     const label = button.querySelector('span');
-    if (label) label.textContent = isActive ? 'ativado' : 'desativado';
+    if (label) label.textContent = active ? 'ativado' : 'desativado';
   });
 
-  const simpleMessage = 'Não estamos recebendo a localização da jardineira agora. Mostrando a última posição conhecida.';
-  document.querySelector('#simple-example').textContent = appState.accessibility.simpleLanguage ? simpleMessage : 'SEM_SINAL';
-  document.querySelector('[data-status-explanation]').textContent = appState.accessibility.simpleLanguage
-    ? 'A jardineira está enviando localização agora.'
-    : 'Localização recebida normalmente.';
+  document.querySelector('#simple-example').textContent = appState.accessibility.simpleLanguage
+    ? 'Não estamos recebendo a localização da jardineira agora. Mostrando a última posição conhecida.'
+    : 'SEM_SINAL';
 }
 
 function toggleAccessibility(key) {
-  // ACESSIBILIDADE: classes ativadas pelos botões Texto maior, Alto contraste, Reduzir animações e Linguagem simples.
   appState.accessibility[key] = !appState.accessibility[key];
   updateAccessibilityUi();
 }
 
 // ================================
-// JAVASCRIPT: TEMPO REAL SIMULADO
-// ================================
-function updateCountdown() {
-  document.querySelector('#countdown-minutes').textContent = appState.remainingMinutes;
-}
-
-setInterval(() => {
-  if (appState.remainingMinutes > 1) appState.remainingMinutes -= 1;
-  updateCountdown();
-}, 60000);
-
-// ================================
 // JAVASCRIPT: EVENTOS DA INTERFACE
 // ================================
+// FELIPE: não renomear classes usadas pelo JS sem atualizar estes seletores.
 document.addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button) return;
@@ -168,23 +145,17 @@ document.addEventListener('click', (event) => {
   if (button.dataset.go) showScreen(button.dataset.go);
   if (button.dataset.tab) showScreen(button.dataset.tab);
   if (button.dataset.action === 'back') goBack();
-  if (button.dataset.action === 'continue-profile') continueFromProfile();
-  if (button.dataset.action === 'continue-campus') continueFromCampus();
-  if (button.dataset.action === 'login') enterPrototype(false);
-  if (button.dataset.action === 'visitor') enterPrototype(true);
+  if (button.dataset.profile) selectProfile(button);
+  if (button.dataset.campus || button.dataset.soon !== undefined) selectCampus(button);
+  if (button.dataset.action === 'continue-profile') continueProfile();
+  if (button.dataset.action === 'continue-campus') continueCampus();
+  if (button.dataset.action === 'login') enterApp(false);
+  if (button.dataset.action === 'visitor') enterApp(true);
   if (button.dataset.action === 'help-login') {
-    document.querySelector('#login-alert').textContent = 'No protótipo, o acesso é apenas visual. Toque em Entrar ou Entrar como visitante.';
-  }
-  if (button.dataset.profile) selectProfile(button.dataset.profile);
-  if (button.dataset.campus) selectCampus(button.dataset.campus);
-  if (button.dataset.soon !== undefined) {
-    document.querySelector('#campus-alert').textContent = 'Este campus está marcado como em breve no piloto.';
+    document.querySelector('#login-alert').textContent = 'Este é um acesso visual do protótipo. Não há autenticação real.';
   }
   if (button.dataset.access) toggleAccessibility(button.dataset.access);
 });
 
-// BRUNO: centralizar a inicialização facilita substituir os mocks por chamadas de API no futuro.
-// FELIPE: a tela de localização concentra o impacto visual do pitch e pode guiar ajustes finos de UI.
 updateAccessibilityUi();
-updateCountdown();
 showScreen('welcome', false);
