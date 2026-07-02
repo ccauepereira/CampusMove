@@ -20,7 +20,6 @@
 
 /* ================================
    BASE AND MOBILE FRAME
-================================ */
 * { box-sizing: border-box; }
 html { font-size: var(--font-size); }
 body {
@@ -61,10 +60,6 @@ img { display: block; max-width: 100%; }
 
 /* ================================
    HEADER AND NAVIGATION
-================================ */
-.app-header {
-  position: relative;
-  z-index: 4;
   height: 68px;
   display: flex;
   align-items: center;
@@ -135,38 +130,6 @@ img { display: block; max-width: 100%; }
 
 /* ================================
    REUSABLE COMPONENTS
-================================ */
-h1, h2, h3, p { margin-top: 0; }
-h1 { font-size: 1.85rem; line-height: 1.08; font-weight: 700; }
-h2 { margin-bottom: 14px; font-size: 1.48rem; line-height: 1.15; font-weight: 700; }
-h3 { margin-bottom: 10px; font-size: 1.05rem; font-weight: 650; }
-p, small, li { color: var(--muted); line-height: 1.48; font-weight: 400; }
-.eyebrow { margin-bottom: 6px; color: #86EFAC; font-size: .76rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
-.primary-button, .secondary-button, .text-button, .shortcut-row button, .action-list button, .toggle-list button, .option-card {
-  min-height: 48px;
-  border-radius: 15px;
-  transition: transform .16s ease, filter .16s ease, border-color .16s ease, opacity .16s ease;
-}
-.primary-button { width: 100%; border: 0; padding: 13px 16px; background: linear-gradient(135deg, var(--green), #247a49); color: #fff; font-weight: 700; box-shadow: 0 12px 24px rgba(27,107,58,.25); }
-.secondary-button { width: 100%; margin-top: 10px; border: 1px solid var(--border); padding: 13px 16px; background: rgba(31,41,55,.86); color: var(--text); font-weight: 650; }
-.text-button { width: 100%; border: 0; background: transparent; color: #BAE6FD; font-weight: 650; }
-.primary-button:active, .secondary-button:active, .option-card:active, .action-list button:active { transform: scale(.98); }
-.product-badge, .status-pill { display: inline-flex; align-items: center; gap: 7px; width: fit-content; max-width: 100%; border: 1px solid rgba(34,197,94,.28); border-radius: 999px; padding: 7px 10px; background: rgba(27,107,58,.20); color: #D9FBE5; font-size: .76rem; font-weight: 650; }
-.status-pill.online { background: rgba(34,197,94,.13); color: #BBF7D0; }
-.status-pill.scheduled { border-color: rgba(245,158,11,.24); background: rgba(245,158,11,.14); color: #FDE68A; }
-.info-card, .status-card, .schedule-card, .event-card, .hero-card, .form-card, .note-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(31,41,55,.90), rgba(17,24,39,.94));
-  box-shadow: 0 10px 26px rgba(0,0,0,.18);
-}
-.note-card { padding: 14px; color: #DCE8F8; font-size: .9rem; }
-.inline-alert { min-height: 24px; margin: 8px 0 12px; color: #FCD34D; font-size: .9rem; }
-.privacy-note { margin-top: 12px; color: #B6C4D8; font-size: .8rem; }
-
-/* ================================
-   MOVINHO ASSISTANT
-================================ */
 .assistant-card {
   display: flex;
   align-items: center;
@@ -186,66 +149,6 @@ p, small, li { color: var(--muted); line-height: 1.48; font-weight: 400; }
 
 /* ================================
    FORMS AND SELECTABLE OPTIONS
-================================ */
-.option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.option-card { border: 1px solid var(--border); background: rgba(17,24,39,.88); color: var(--text); text-align: left; }
-.option-grid .option-card { min-height: 132px; padding: 14px; }
-.option-card span:first-child { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 9px; border-radius: 13px; background: rgba(34,197,94,.10); }
-.option-card strong, .option-card small { display: block; }
-/* BRUNO: .selected e .dimmed são aplicadas no JS para feedback visual de escolha. */
-.option-card.selected, .selected { border-color: var(--online) !important; box-shadow: 0 0 0 3px rgba(34,197,94,.12) !important; background: rgba(27,107,58,.18) !important; }
-.option-card.dimmed { opacity: .62; }
-.option-card.disabled { opacity: .62; }
-.option-card.disabled span { color: var(--warning); font-weight: 650; }
-.stack-list { display: grid; gap: 9px; }
-.option-card.horizontal { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 14px; }
-.info-card, .form-card { display: grid; gap: 12px; margin: 14px 0; padding: 16px; }
-.info-card small, .info-card strong { display: block; }
-.form-card label { display: grid; gap: 7px; color: #DCE8F8; font-weight: 600; }
-.form-card input, .form-card select, .form-card textarea { width: 100%; border: 1px solid var(--border); border-radius: 14px; padding: 13px; background: #0B1221; color: var(--text); }
-.check-row { display: flex !important; align-items: center; gap: 10px !important; }
-.check-row input { width: auto; }
-.shortcut-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
-.shortcut-row button { border: 1px solid var(--border); padding: 9px 11px; background: rgba(17,24,39,.86); color: var(--text); font-weight: 600; }
-
-/* ================================
-   SCREENS
-================================ */
-.screen-welcome { background: radial-gradient(circle at 84% 10%, rgba(34,197,94,.16), transparent 28%); }
-.screen-welcome::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 42px; height: 150px; pointer-events: none; background: linear-gradient(115deg, transparent 0 28%, rgba(34,197,94,.14) 29% 30%, transparent 31%); opacity: .8; }
-.welcome-orbit { position: absolute; top: 82px; right: -52px; width: 190px; height: 190px; border: 1px solid rgba(34,197,94,.18); border-radius: 50%; background: radial-gradient(circle, rgba(34,197,94,.14), transparent 62%); }
-.brand-logo { position: relative; z-index: 1; width: 210px; height: 44px; object-fit: contain; object-position: left center; margin: 28px 0 22px; }
-.screen-welcome h1 { position: relative; z-index: 1; max-width: 320px; }
-
-/* ================================
-   HOME
-================================ */
-.screen-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.hero-card { position: relative; overflow: hidden; padding: 20px; border-color: rgba(34,197,94,.24); background: linear-gradient(145deg, rgba(27,107,58,.74), rgba(15,23,42,.96) 66%); }
-.hero-kicker { color: #BBF7D0; font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.hero-route { margin: 14px 0 12px; padding: 13px; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: rgba(8,15,29,.34); }
-.hero-route small { display: block; color: #C7D2FE; }
-.hero-route h3 { margin: 0; color: #fff; line-height: 1.35; }
-.hero-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.hero-meta time { color: #fff; font-weight: 700; }
-.countdown { display: block; margin-top: 16px; color: #fff; font-size: 2rem; line-height: 1.05; font-weight: 700; }
-.countdown span { color: #BBF7D0; }
-.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
-.status-card { min-height: 108px; padding: 14px; }
-.status-card.wide { display: flex; align-items: center; gap: 12px; min-height: auto; margin: 14px 0; }
-.status-card strong, .status-card small { display: block; margin-top: 7px; }
-.pulse-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--online); box-shadow: 0 0 0 0 rgba(34,197,94,.58); animation: pulse 1.6s infinite; }
-.action-list { display: grid; gap: 10px; }
-.action-list button { width: 100%; border: 1px solid var(--border); padding: 13px 15px; background: rgba(31,41,55,.86); color: var(--text); text-align: left; font-weight: 650; }
-
-/* ================================
-   SCHEDULES, LOCATION, EVENTS AND PROFILE
-================================ */
-.schedule-card, .event-card { margin: 14px 0; padding: 16px; }
-.schedule-card.alt { background: linear-gradient(180deg, rgba(17,24,39,.94), rgba(31,41,55,.86)); }
-.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
-.time-grid time { display: block; border: 1px solid var(--border); border-radius: 14px; padding: 11px 6px; background: #0B1221; color: #fff; text-align: center; font-weight: 650; }
-.map-card { height: 270px; margin: 14px 0; padding: 10px; border: 1px solid rgba(34,197,94,.16); border-radius: 26px; background: radial-gradient(circle at 70% 20%, rgba(34,197,94,.12), transparent 36%), #07111f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.03), var(--shadow); }
 .map-card svg { width: 100%; height: 100%; }
 .map-street { fill: none; stroke: #263954; stroke-width: 4; stroke-linecap: round; }
 .map-street.thin { stroke-width: 2.5; opacity: .78; }
@@ -261,22 +164,3 @@ p, small, li { color: var(--muted); line-height: 1.48; font-weight: 400; }
 
 /* ================================
    ACCESSIBILITY
-================================ */
-.toggle-list { display: grid; gap: 10px; }
-.toggle-list button { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 1px solid var(--border); padding: 13px; background: rgba(17,24,39,.90); color: var(--text); font-weight: 600; text-align: left; }
-.toggle-list span { color: var(--muted); font-size: .8rem; }
-body.large-text { --font-size: 18px; }
-body.high-contrast { --bg: #020617; --muted: #E2E8F0; --border: rgba(255,255,255,.28); }
-body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation: none !important; transition: none !important; }
-@keyframes pulse { 70% { box-shadow: 0 0 0 13px rgba(34,197,94,0); } }
-@keyframes route-flow { to { stroke-dashoffset: -44; } }
-
-/* ================================
-   RESPONSIVE ADJUSTMENTS
-================================ */
-@media (max-width: 420px) {
-  .phone-frame { padding: 0; }
-  .app-shell { height: 100vh; border-radius: 0; }
-  .option-grid, .home-grid { grid-template-columns: 1fr; }
-  .bottom-nav { left: 8px; right: 8px; }
-}
