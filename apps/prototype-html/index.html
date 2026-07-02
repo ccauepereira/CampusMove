@@ -30,6 +30,7 @@
 
           <article class="assistant-card featured">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Oi! Eu vou te ajudar a encontrar seu campus, sua rota e a jardineira em tempo real.</p></div>
             <p>Oi! Eu sou o Movinho. Vou te ajudar a encontrar seu campus, sua rota e a jardineira em tempo real.</p>
           </article>
 
@@ -48,6 +49,7 @@
           <h2 id="profile-title">Como você vai usar o CampusMove hoje?</h2>
           <article class="assistant-card compact">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas para você.</p></div>
             <p>Escolha seu perfil para eu mostrar as funções certas para você.</p>
           </article>
           <div class="profile-grid" role="listbox" aria-label="Perfis disponíveis">
@@ -65,6 +67,7 @@
           <h2 id="campus-title">Escolha sua instituição</h2>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Escolha sua instituição e seu campus para eu mostrar as rotas, horários e a jardineira disponível.</p></div>
             <p>Escolha sua instituição e seu campus para eu mostrar as rotas, horários e a jardineira disponível.</p>
           </article>
           <section class="institution-card" aria-label="Instituição selecionada">
@@ -103,6 +106,13 @@
             <span class="status-pill online"><i></i>ONLINE ✅</span>
           </div>
           <article class="hero-card">
+            <div class="hero-kicker">Próxima viagem</div>
+            <div class="hero-route">
+              <small>Rota</small>
+              <h3>IFCE Campus Maracanaú → Estação Virgílio Távora</h3>
+            </div>
+            <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
+            <strong class="countdown">Faltam <span id="countdown-minutes">18</span> min</strong>
             <span class="badge mini">Próxima viagem</span>
             <h3>Rota: IFCE Campus Maracanaú → Estação Virgílio Távora</h3>
             <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
@@ -114,6 +124,7 @@
           </div>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Sua próxima viagem está programada. Eu te aviso se houver atraso ou mudança.</p></div>
             <p>Sua próxima viagem está programada. Eu te aviso se houver atraso ou mudança.</p>
           </article>
           <div class="action-list">
@@ -150,6 +161,9 @@
               <path class="map-street thin" d="M22 210 C92 157 170 230 240 172 S310 132 346 148"/>
               <path class="map-street thin" d="M64 28 C92 98 92 151 42 232"/>
               <path class="map-route" d="M46 210 L96 166 L160 170 L229 119 L315 75"/>
+              <path class="map-walk" d="M46 210 L96 166"/>
+              <path class="map-transit" d="M96 166 L160 170"/>
+              <path class="map-metro" d="M160 170 L229 119"/>
               <circle class="marker student" cx="46" cy="210" r="11"/><circle class="marker stop" cx="96" cy="166" r="10"/><circle class="marker metro" cx="160" cy="170" r="10"/><rect class="marker shuttle" x="216" y="107" width="28" height="20" rx="7"/><circle class="marker campus" cx="315" cy="75" r="12"/>
               <text x="24" y="238">Você</text><text x="70" y="154">Parada</text><text x="135" y="198">Metrô</text><text x="200" y="96">Jardineira</text><text x="281" y="56">Campus</text>
             </svg>
@@ -160,6 +174,7 @@
           <div class="metric-row"><article>Jardineira IFCE — em tempo real</article><article>Chega em 6 min</article><article>Próxima viagem: 08:20</article></div>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Quer a rota mais rápida? Eu combino ônibus, metrô e jardineira para você.</p></div>
             <p>Quer a rota mais rápida? Eu combino ônibus, metrô e jardineira para você.</p>
           </article>
         </section>
@@ -176,6 +191,7 @@
           </article>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
+            <div><strong>Movinho</strong><p>Se você veio para um evento, eu posso mostrar uma rota sugerida sem precisar de login.</p></div>
             <p>Se você veio para um evento, eu posso mostrar uma rota sugerida sem precisar de login.</p>
           </article>
         </section>
@@ -183,6 +199,7 @@
         <section id="accessibility" class="screen" data-title="Acessibilidade" aria-labelledby="accessibility-title">
           <p class="eyebrow">Preferências do protótipo</p>
           <h2 id="accessibility-title">Acessibilidade</h2>
+          <p class="panel-intro">Ajuste a visualização do protótipo sem informar dados sensíveis. As preferências ficam apenas nesta navegação.</p>
           <div class="toggle-list">
             <button data-access="largeText">Texto maior <span>desativado</span></button>
             <button data-access="highContrast">Alto contraste <span>desativado</span></button>
