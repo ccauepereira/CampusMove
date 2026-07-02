@@ -37,59 +37,90 @@
           <p class="privacy-note">Usamos sua localização apenas para exibir rotas e horários mais precisos. Você pode ajustar isso a qualquer momento.</p>
         </section>
 
-        <section id="profile-select" class="screen" data-title="Perfil" data-subtitle="Escolha de acesso" aria-labelledby="profile-title">
+        <section id="profile-select" class="screen" data-title="Perfil" data-subtitle="Escolha seu tipo de acesso" aria-labelledby="profile-title">
           <p class="eyebrow">Primeiro acesso</p>
           <h2 id="profile-title">Como você vai usar o CampusMove hoje?</h2>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas.</p></div>
+            <div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas do CampusMove.</p></div>
           </article>
-          <!-- BRUNO: botões com data-profile alimentam o estado visual de seleção no JS. -->
-          <div class="option-grid" role="listbox" aria-label="Perfis disponíveis">
-            <button class="option-card" data-profile="Aluno"><span>🎓</span><strong>Aluno</strong><small>Rotas, horários e alertas da jardineira.</small></button>
-            <button class="option-card" data-profile="Motorista"><span>🚌</span><strong>Motorista</strong><small>Visualização de acesso do protótipo.</small></button>
-            <button class="option-card" data-profile="Administrador"><span>🛡️</span><strong>Administrador</strong><small>Visualização institucional do protótipo.</small></button>
-            <button class="option-card" data-profile="Visitante"><span>📍</span><strong>Visitante</strong><small>Rotas e eventos públicos.</small></button>
-          </div>
+          <!-- FELIPE: cards visuais dos perfis de acesso. -->
+          <!-- BRUNO: data-role define o perfil selecionado no JS. -->
+          <div class="option-grid role-grid" id="role-options" role="listbox" aria-label="Perfis disponíveis"></div>
           <p class="inline-alert" id="profile-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="continue-profile">Continuar</button>
         </section>
 
-        <section id="campus" class="screen" data-title="Instituição" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="campus-title">
+        <section id="campus" class="screen" data-title="Instituição" data-subtitle="CampusMove multi-instituição" aria-labelledby="campus-title">
           <p class="eyebrow">Instituição e campus</p>
-          <h2 id="campus-title">Escolha sua instituição</h2>
+          <h2 id="campus-title">Escolha sua instituição e campus</h2>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p>Neste MVP, o IFCE Campus Maracanaú está ativo.</p></div>
+            <div><strong>Movinho</strong><p>Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.</p></div>
           </article>
-          <section class="info-card">
-            <div><small>Tipo de instituição</small><strong>Instituto Federal</strong></div>
-            <div><small>Instituição</small><strong>IFCE — Instituto Federal do Ceará</strong></div>
+          <p class="note-card">CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.</p>
+          <section class="flow-section" aria-labelledby="institution-type-title">
+            <h3 id="institution-type-title">Tipo de instituição</h3>
+            <div class="chip-grid" id="institution-type-options" aria-label="Tipos de instituição"></div>
           </section>
-          <div class="stack-list" aria-label="Campi disponíveis">
-            <button class="option-card horizontal" data-campus="IFCE Campus Maracanaú"><strong>IFCE Campus Maracanaú</strong><span class="product-badge">MVP ativo</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Fortaleza</strong><span>em breve</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Caucaia</strong><span>em breve</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Sobral</strong><span>em breve</span></button>
-          </div>
+          <section class="flow-section" aria-labelledby="institution-list-title">
+            <h3 id="institution-list-title">Instituição</h3>
+            <!-- FELIPE: cards visuais das instituições. -->
+            <!-- BRUNO: data-institution é usado para atualizar a lista de campus. -->
+            <div class="institution-list" id="institution-options" aria-label="Instituições disponíveis"></div>
+          </section>
+          <section class="flow-section" aria-labelledby="campus-list-title">
+            <h3 id="campus-list-title">Campus</h3>
+            <div class="stack-list" id="campus-options" aria-label="Campi disponíveis"></div>
+          </section>
           <p class="inline-alert" id="campus-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="continue-campus">Continuar</button>
         </section>
 
-        <section id="login" class="screen" data-title="Acesso" data-subtitle="Login visual" aria-labelledby="login-title">
+        <section id="login" class="screen" data-title="Login" data-subtitle="Validação institucional" aria-labelledby="login-title">
           <p class="eyebrow">Login visual</p>
           <h2 id="login-title">Acesse sua conta</h2>
           <form class="form-card" novalidate>
-            <label>Matrícula ou e-mail institucional<input type="text" value="20260000000000" aria-describedby="login-examples"></label>
-            <label>Senha<input type="password" autocomplete="off" placeholder="Senha visual do protótipo"></label>
-            <p id="login-examples">Exemplos fictícios: Matrícula 20260000000000 ou e-mail aluno@ifce.edu.br.</p>
-            <label class="check-row"><input type="checkbox" checked> Manter conectado</label>
+            <label>Matrícula ou e-mail<input type="text" autocomplete="username" placeholder="Digite dados demonstrativos"></label>
+            <label>Senha<input type="password" autocomplete="off" placeholder="Senha demonstrativa: 12345"></label>
+            <p>Protótipo: use dados demonstrativos. No sistema real, a validação viria da instituição.</p>
+            <label class="check-row"><input type="checkbox" checked> Manter conectado neste protótipo</label>
           </form>
           <button class="text-button" data-action="help-login">Preciso de ajuda para acessar</button>
           <p class="inline-alert" id="login-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="login">Entrar</button>
-          <button class="secondary-button" data-action="visitor">Entrar como visitante</button>
-          <p class="privacy-note">Usamos seus dados apenas para identificar seu vínculo com o campus e personalizar rotas e alertas, em conformidade com a LGPD.</p>
+          <p class="privacy-note">Não há autenticação real neste protótipo. Dados acadêmicos seriam validados pela instituição no sistema final.</p>
+        </section>
+
+        <section id="restricted-login" class="screen" data-title="Acesso administrativo" data-subtitle="Ambiente restrito" aria-labelledby="restricted-login-title">
+          <p class="eyebrow" id="restricted-eyebrow">Ambiente restrito</p>
+          <h2 id="restricted-login-title">Acesso administrativo</h2>
+          <p class="status-warning" id="restricted-warning">Acesso administrativo restrito.</p>
+          <p class="note-card" id="restricted-description">Somente administradores autorizados podem acessar este ambiente.</p>
+          <div class="admin-selector" id="admin-selector" aria-label="Administradores demonstrativos autorizados"></div>
+          <form class="form-card" novalidate>
+            <label>Matrícula ou e-mail<input id="restricted-user" type="text" autocomplete="username" placeholder="DEMO-BRUNO"></label>
+            <label>Senha<input type="password" autocomplete="off" placeholder="Senha demonstrativa: 12345"></label>
+            <p id="restricted-hint">Use apenas IDs demonstrativos. Não há validação real de senha.</p>
+          </form>
+          <p class="inline-alert" id="restricted-alert" aria-live="polite"></p>
+          <button class="primary-button" data-action="restricted-login">Entrar</button>
+        </section>
+
+        <section id="authorization" class="screen" data-title="Autorização" data-subtitle="Status demonstrativo" aria-labelledby="authorization-title">
+          <p class="eyebrow" id="authorization-role">Perfil selecionado</p>
+          <h2 id="authorization-title">Aguardando autorização do sistema.</h2>
+          <article class="status-card wide authorization-card"><span class="pulse-dot"></span><div><strong id="authorization-greeting">Validando acesso demonstrativo</strong><small id="authorization-note">Esta tela simula a liberação institucional do CampusMove.</small></div></article>
+          <button class="primary-button" id="authorization-continue" data-action="authorization-continue">Continuar</button>
+          <button class="secondary-button" data-go="profile-select">Trocar perfil</button>
+        </section>
+
+        <section id="visitor-access" class="screen" data-title="Visitante" data-subtitle="Acesso público limitado" aria-labelledby="visitor-title">
+          <p class="eyebrow">Acesso público</p>
+          <h2 id="visitor-title">Acesso visitante: eventos e rotas públicas.</h2>
+          <p class="note-card">Visitantes podem consultar eventos, localização, rotas e horários públicos. Recursos administrativos, operação do motorista e dados acadêmicos protegidos ficam bloqueados.</p>
+          <div class="action-list public-actions"><button data-go="events">Ver eventos públicos</button><button data-go="location">Ver localização e rotas públicas</button><button data-go="schedules">Ver horários públicos</button></div>
+          <button class="primary-button" data-action="visitor-home">Entrar como visitante</button>
         </section>
 
         <section id="home" class="screen internal" data-title="Início" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="home-title">
