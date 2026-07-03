@@ -26,7 +26,7 @@ const roles = [
 
 // BRUNO: controla o fluxo progressivo de organização, instituição e campus.
 const organizations = [
-  { name: 'Instituto Federal', keywords: ['IF', 'IFCE', 'Instituto', 'Instituto Federal'] },
+  { name: 'Instituto Federal', keywords: ['IF', 'IFCE', 'Instituto', 'Instituto Federal', 'if','iF','If'] },
   { name: 'Universidade Federal', keywords: ['UF', 'UFC', 'Universidade Federal', 'Federal'] },
   { name: 'Universidade Estadual', keywords: ['UE', 'UECE', 'Universidade Estadual', 'Estadual'] },
   { name: 'Universidade Internacional', keywords: ['UI', 'UNILAB', 'Internacional', 'Integração'] },
