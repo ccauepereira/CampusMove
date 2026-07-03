@@ -19,14 +19,22 @@
       </header>
 
       <div class="screen-area">
-        <section id="welcome" class="screen screen-welcome active" data-title="MinhaJardineira" data-subtitle="CampusMove" aria-labelledby="welcome-title">
+        <section id="splash" class="screen splash-screen active" data-title="CampusMove" data-subtitle="MinhaJardineira" aria-labelledby="splash-title">
+          <div class="splash-logo-box"><img src="assets/campusmove-logo.png" alt="CampusMove"></div>
+          <h1 id="splash-title">CampusMove</h1>
+          <p class="splash-subtitle">MinhaJardineira</p>
+          <small>Mobilidade acadêmica em tempo real</small>
+          <span class="loading-dot" aria-label="Carregando"></span>
+        </section>
+
+        <section id="welcome" class="screen screen-welcome" data-title="MinhaJardineira" data-subtitle="CampusMove" aria-labelledby="welcome-title">
           <div class="welcome-orbit" aria-hidden="true"></div>
           <img class="brand-logo" src="assets/campusmove-logo.png" alt="CampusMove">
-          <h1 id="welcome-title">Mobilidade acadêmica simples, acessível e em tempo real.</h1>
+          <h1 id="welcome-title" data-simple-key="welcomeTitle">Mobilidade acadêmica simples, acessível e em tempo real.</h1>
           <span class="product-badge">MVP piloto: MinhaJardineira — IFCE Maracanaú</span>
           <article class="assistant-card featured">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p>Vou te ajudar a encontrar campus, rota e horários.</p></div>
+            <div><strong>Movinho</strong><p data-simple-key="welcomeHelper">Vou te ajudar a encontrar campus, rota e horários.</p></div>
           </article>
           <button class="primary-button" data-go="profile-select">Começar</button>
           <div class="shortcut-row" aria-label="Atalhos de acessibilidade">
@@ -37,72 +45,113 @@
           <p class="privacy-note">Usamos sua localização apenas para exibir rotas e horários mais precisos. Você pode ajustar isso a qualquer momento.</p>
         </section>
 
-        <section id="profile-select" class="screen" data-title="Perfil" data-subtitle="Escolha de acesso" aria-labelledby="profile-title">
+        <section id="profile-select" class="screen" data-title="Perfil" data-subtitle="Escolha seu tipo de acesso" aria-labelledby="profile-title">
           <p class="eyebrow">Primeiro acesso</p>
           <h2 id="profile-title">Como você vai usar o CampusMove hoje?</h2>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p>Escolha seu perfil para eu mostrar as funções certas.</p></div>
+            <div><strong>Movinho</strong><p data-simple-key="roleHelper">Escolha seu perfil para eu mostrar as funções certas do CampusMove.</p></div>
           </article>
-          <!-- BRUNO: botões com data-profile alimentam o estado visual de seleção no JS. -->
-          <div class="option-grid" role="listbox" aria-label="Perfis disponíveis">
-            <button class="option-card" data-profile="Aluno"><span>🎓</span><strong>Aluno</strong><small>Rotas, horários e alertas da jardineira.</small></button>
-            <button class="option-card" data-profile="Motorista"><span>🚌</span><strong>Motorista</strong><small>Visualização de acesso do protótipo.</small></button>
-            <button class="option-card" data-profile="Administrador"><span>🛡️</span><strong>Administrador</strong><small>Visualização institucional do protótipo.</small></button>
-            <button class="option-card" data-profile="Visitante"><span>📍</span><strong>Visitante</strong><small>Rotas e eventos públicos.</small></button>
-          </div>
+          <!-- FELIPE: cards visuais dos perfis de acesso. -->
+          <!-- BRUNO: data-role define o perfil selecionado no JS. -->
+          <div class="option-grid role-grid" id="role-options" role="listbox" aria-label="Perfis disponíveis"></div>
           <p class="inline-alert" id="profile-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="continue-profile">Continuar</button>
         </section>
 
-        <section id="campus" class="screen" data-title="Instituição" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="campus-title">
+        <section id="campus" class="screen" data-title="Instituição" data-subtitle="CampusMove multi-instituição" aria-labelledby="campus-title">
           <p class="eyebrow">Instituição e campus</p>
-          <h2 id="campus-title">Escolha sua instituição</h2>
+          <h2 id="campus-title">Escolha organização, instituição e campus</h2>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p>Neste MVP, o IFCE Campus Maracanaú está ativo.</p></div>
+            <div><strong>Movinho</strong><p data-simple-key="institutionHelper">Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.</p></div>
           </article>
-          <section class="info-card">
-            <div><small>Tipo de instituição</small><strong>Instituto Federal</strong></div>
-            <div><small>Instituição</small><strong>IFCE — Instituto Federal do Ceará</strong></div>
+          <p class="note-card" data-simple-key="institutionNote">CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.</p>
+          <!-- FELIPE: campos progressivos de organização, instituição e campus. -->
+          <section class="flow-section progressive-field" aria-labelledby="organization-title">
+            <label id="organization-title" for="organization-search">Organização acadêmica</label>
+            <input id="organization-search" class="search-field" type="text" placeholder="Escolha ou digite o tipo de instituição" autocomplete="off" data-search="organization">
+            <div class="chip-grid" id="organization-options" aria-label="Organizações acadêmicas"></div>
           </section>
-          <div class="stack-list" aria-label="Campi disponíveis">
-            <button class="option-card horizontal" data-campus="IFCE Campus Maracanaú"><strong>IFCE Campus Maracanaú</strong><span class="product-badge">MVP ativo</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Fortaleza</strong><span>em breve</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Caucaia</strong><span>em breve</span></button>
-            <button class="option-card horizontal disabled" data-soon><strong>IFCE Campus Sobral</strong><span>em breve</span></button>
-          </div>
+          <section class="flow-section progressive-field" aria-labelledby="institution-list-title">
+            <label id="institution-list-title" for="institution-search">Instituição</label>
+            <input id="institution-search" class="search-field" type="text" placeholder="Escolha primeiro a organização acadêmica" autocomplete="off" data-search="institution" disabled>
+            <!-- BRUNO: data-institution é usado para atualizar a lista de campus. -->
+            <div class="institution-list" id="institution-options" aria-label="Instituições disponíveis"></div>
+          </section>
+          <section class="flow-section progressive-field" aria-labelledby="campus-list-title">
+            <label id="campus-list-title" for="campus-search">Campus</label>
+            <input id="campus-search" class="search-field" type="text" placeholder="Escolha primeiro a instituição" autocomplete="off" data-search="campus" disabled>
+            <div class="stack-list" id="campus-options" aria-label="Campi disponíveis"></div>
+          </section>
+          <article class="institution-summary" id="institution-summary" hidden></article>
           <p class="inline-alert" id="campus-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="continue-campus">Continuar</button>
         </section>
 
-        <section id="login" class="screen" data-title="Acesso" data-subtitle="Login visual" aria-labelledby="login-title">
+        <section id="login" class="screen" data-title="Login" data-subtitle="Validação institucional" aria-labelledby="login-title">
           <p class="eyebrow">Login visual</p>
           <h2 id="login-title">Acesse sua conta</h2>
           <form class="form-card" novalidate>
-            <label>Matrícula ou e-mail institucional<input type="text" value="20260000000000" aria-describedby="login-examples"></label>
-            <label>Senha<input type="password" autocomplete="off" placeholder="Senha visual do protótipo"></label>
-            <p id="login-examples">Exemplos fictícios: Matrícula 20260000000000 ou e-mail aluno@ifce.edu.br.</p>
-            <label class="check-row"><input type="checkbox" checked> Manter conectado</label>
+            <label>Matrícula ou e-mail<input id="login-user" type="text" autocomplete="username" placeholder="Digite dados demonstrativos"></label>
+            <label>Senha<input id="login-password" type="password" autocomplete="off" placeholder="Senha demonstrativa"></label>
+            <p data-simple-key="loginHelper">Protótipo: use dados demonstrativos. No sistema real, a validação viria da instituição.</p><p class="demo-hint">Exemplo de teste: DEMO-BRUNO / 12345</p>
+            <label class="check-row"><input type="checkbox" checked> Manter conectado neste protótipo</label>
           </form>
           <button class="text-button" data-action="help-login">Preciso de ajuda para acessar</button>
           <p class="inline-alert" id="login-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="login">Entrar</button>
-          <button class="secondary-button" data-action="visitor">Entrar como visitante</button>
-          <p class="privacy-note">Usamos seus dados apenas para identificar seu vínculo com o campus e personalizar rotas e alertas, em conformidade com a LGPD.</p>
+          <p class="privacy-note">Não há autenticação real neste protótipo. Dados acadêmicos seriam validados pela instituição no sistema final.</p>
         </section>
 
-        <section id="home" class="screen internal" data-title="Início" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="home-title">
-          <div class="screen-heading"><div><p class="eyebrow">IFCE Campus Maracanaú</p><h2 id="home-title">Olá, aluno!</h2></div><span class="status-pill online">ONLINE ✅</span></div>
+        <section id="restricted-login" class="screen" data-title="Acesso administrativo" data-subtitle="Ambiente restrito" aria-labelledby="restricted-login-title">
+          <p class="eyebrow" id="restricted-eyebrow">Ambiente restrito</p>
+          <h2 id="restricted-login-title">Acesso administrativo</h2>
+          <p class="status-warning" id="restricted-warning">Acesso administrativo restrito.</p>
+          <p class="note-card" id="restricted-description">Somente administradores autorizados podem acessar este ambiente.</p>
+          <form class="form-card" novalidate>
+            <label>Matrícula ou e-mail<input id="restricted-user" type="text" autocomplete="username" placeholder="Credencial demonstrativa"></label>
+            <label>Senha<input id="restricted-password" type="password" autocomplete="off" placeholder="Senha demonstrativa"></label>
+            <p id="restricted-hint">Use uma credencial administrativa demonstrativa autorizada.</p>
+          </form>
+          <p class="inline-alert" id="restricted-alert" aria-live="polite"></p>
+          <button class="primary-button" data-action="restricted-login">Entrar</button>
+        </section>
+
+        <section id="blocked-access" class="screen" data-title="Acesso em preparação" data-subtitle="Ambiente bloqueado" aria-labelledby="blocked-title">
+          <p class="eyebrow" id="blocked-eyebrow">Acesso restrito</p>
+          <h2 id="blocked-title">Acesso em preparação</h2>
+          <p class="note-card" id="blocked-message">Este acesso ainda está bloqueado neste protótipo.</p>
+          <button class="primary-button" data-go="profile-select">Voltar aos perfis</button>
+        </section>
+
+        <section id="admin-preparation" class="screen" data-title="Administração" data-subtitle="Em preparação" aria-labelledby="admin-preparation-title">
+          <p class="eyebrow">Ambiente administrativo</p>
+          <h2 id="admin-preparation-title">Olá, administrador!</h2>
+          <p class="note-card">Ambiente administrativo em preparação para próximas fases do CampusMove.</p>
+          <div class="locked-grid"><article>Gerenciar horários<span>Em breve</span></article><article>Gerenciar avisos<span>Em breve</span></article><article>Gerenciar eventos<span>Em breve</span></article><article>Gerenciar usuários<span>Em breve</span></article></div>
+          <button class="secondary-button" data-go="profile-select">Sair do ambiente restrito</button>
+        </section>
+
+        <section id="visitor-access" class="screen" data-title="Visitante" data-subtitle="Acesso público limitado" aria-labelledby="visitor-title">
+          <p class="eyebrow">Acesso público</p>
+          <h2 id="visitor-title">Acesso visitante</h2>
+          <p class="note-card">Você está vendo informações públicas do CampusMove. Você pode visualizar eventos, horários e rotas públicas.</p>
+          <div class="action-list public-actions"><button data-go="events">Ver eventos públicos</button><button data-go="location">Ver localização e rotas públicas</button><button data-go="schedules">Ver horários públicos</button></div>
+          <button class="primary-button" data-action="visitor-home">Entrar como visitante</button>
+        </section>
+
+        <section id="home" class="screen internal" data-title="Início" data-subtitle="IFCE — Campus Maracanaú" aria-labelledby="home-title">
+          <div class="screen-heading"><div><p class="eyebrow" id="home-campus-label">IFCE — Campus Maracanaú</p><h2 id="home-title">Olá, aluno!</h2><small>Atualizado no navegador</small></div><span class="status-pill online">Sistema online</span></div>
           <!-- FELIPE: bloco visual do card principal da Home. -->
           <article class="hero-card">
             <div class="hero-kicker">Próxima viagem</div>
-            <div class="hero-route"><small>Rota</small><h3>IFCE Campus Maracanaú → Estação Virgílio Távora</h3></div>
+            <div class="hero-route"><small>Rota</small><h3 data-simple-key="homeRoute">IFCE — Campus Maracanaú → Estação Virgílio Távora</h3></div>
             <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
             <strong class="countdown">Faltam <span>18</span> min</strong>
           </article>
           <div class="home-grid">
-            <article class="status-card"><span class="pulse-dot"></span><strong>Jardineira ONLINE ✅</strong><small>Atualizado há 20 segundos</small></article>
+            <article class="status-card"><span class="pulse-dot"></span><strong>Operação online</strong><small>Atualizado no navegador</small></article>
             <article class="status-card"><strong>📍 Localização</strong><small>Saindo do campus</small></article>
           </div>
           <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Sua próxima viagem aparece aqui. Eu aviso se houver atraso ou mudança.</p></div></article>
@@ -133,9 +182,9 @@
 
         <section id="user-profile" class="screen internal" data-title="Perfil" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="user-profile-title">
           <p class="eyebrow">Perfil do protótipo</p><h2 id="user-profile-title">Perfil</h2>
-          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Aqui ficam as informações visuais do seu vínculo com o campus.</p></div></article>
-          <section class="info-card profile-card"><div class="avatar">A</div><div><h3>Aluno</h3><p>IFCE — Instituto Federal do Ceará</p><small>Campus: IFCE Campus Maracanaú</small></div></section>
-          <p class="note-card">Dados acadêmicos são gerenciados pela instituição.</p>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p data-simple-key="profileHelper">Aqui ficam as informações visuais do seu vínculo com o campus.</p></div></article>
+          <section class="info-card profile-card"><div class="avatar">B</div><div><span class="product-badge">Aluno do protótipo</span><h3>Bruno</h3><p>Instituição: Instituto Federal do Ceará</p><small>Campus: Maracanaú · Matrícula: DEMO-****</small></div></section>
+          <p class="note-card" data-simple-key="profilePrivacy">Dados acadêmicos são gerenciados pela instituição.</p>
         </section>
 
         <section id="accessibility" class="screen" data-title="Acessibilidade" data-subtitle="Preferências visuais" aria-labelledby="accessibility-title">
