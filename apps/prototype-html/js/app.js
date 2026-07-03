@@ -1,14 +1,13 @@
 // BRUNO: estado central do protótipo para perfil, instituição e campus.
 const appState = {
-  currentScreen: 'welcome',
-  history: ['welcome'],
+  currentScreen: 'splash',
+  history: ['splash'],
   role: null,
-  institutionType: 'Instituto Federal',
-  institution: 'ifce',
+  organization: null,
+  institution: null,
   campus: null,
   userName: null,
   accessMode: null,
-  selectedAdmin: 'Bruno',
   accessibility: {
     largeText: false,
     highContrast: false,
@@ -25,33 +24,53 @@ const roles = [
   { id: 'Visitante', icon: '📍', title: 'Visitante', description: 'Rotas públicas e eventos sem login acadêmico.' }
 ];
 
-// BRUNO: dados simulados das instituições e campus.
-const institutionTypes = ['Instituto Federal', 'Universidade Federal', 'Universidade Estadual', 'Universidade da Integração', 'Faculdade / Centro Universitário'];
+// BRUNO: controla o fluxo progressivo de organização, instituição e campus.
+const organizations = ['Instituto Federal', 'Universidade Federal', 'Universidade Estadual', 'Universidade Internacional', 'Centro Universitário', 'Faculdade'];
 const institutions = [
-  { id: 'ifce', fallback: 'IFCE', name: 'IFCE — Instituto Federal do Ceará', type: 'Instituto Federal', status: 'MVP ativo', logo: 'assets/institutions/ifce.png', alt: 'Logo do IFCE' },
-  { id: 'ufc', fallback: 'UFC', name: 'UFC — Universidade Federal do Ceará', type: 'Universidade Federal', status: 'Em breve', logo: 'assets/institutions/ufc.png', alt: 'Logo da UFC' },
-  { id: 'uece', fallback: 'UECE', name: 'UECE — Universidade Estadual do Ceará', type: 'Universidade Estadual', status: 'Em breve', logo: 'assets/institutions/uece.png', alt: 'Logo da UECE' },
-  { id: 'unilab', fallback: 'UNILAB', name: 'UNILAB — Universidade da Integração Internacional da Lusofonia Afro-Brasileira', type: 'Universidade da Integração', status: 'Em breve', logo: 'assets/institutions/unilab.png', alt: 'Logo da UNILAB' },
-  { id: 'fb', fallback: 'FB', name: 'FB Uni — Centro Universitário Farias Brito', type: 'Faculdade / Centro Universitário', status: 'Em breve', logo: 'assets/institutions/fb.png', alt: 'Logo da FB Uni' }
+  { id: 'ifce', fallback: 'IFCE', name: 'IFCE — Instituto Federal do Ceará', cleanName: 'Instituto Federal do Ceará', organization: 'Instituto Federal', status: 'MVP ativo', logo: 'assets/institutions/ifce.png', alt: 'Logo do IFCE' },
+  { id: 'ufc', fallback: 'UFC', name: 'UFC — Universidade Federal do Ceará', cleanName: 'Universidade Federal do Ceará', organization: 'Universidade Federal', status: 'Em breve', logo: 'assets/institutions/ufc.png', alt: 'Logo da UFC' },
+  { id: 'uece', fallback: 'UECE', name: 'UECE — Universidade Estadual do Ceará', cleanName: 'Universidade Estadual do Ceará', organization: 'Universidade Estadual', status: 'Em breve', logo: 'assets/institutions/uece.png', alt: 'Logo da UECE' },
+  { id: 'unilab', fallback: 'UNILAB', name: 'UNILAB — Universidade da Integração Internacional da Lusofonia Afro-Brasileira', cleanName: 'UNILAB', organization: 'Universidade Internacional', status: 'Em breve', logo: 'assets/institutions/unilab.png', alt: 'Logo da UNILAB' },
+  { id: 'fb', fallback: 'FB', name: 'FB Uni — Centro Universitário Farias Brito', cleanName: 'Centro Universitário Farias Brito', organization: 'Centro Universitário', status: 'Em breve', logo: 'assets/institutions/fb.png', alt: 'Logo da FB Uni' }
 ];
 const campuses = {
   ifce: [
-    { id: 'ifce-maracanau', name: 'IFCE Campus Maracanaú', status: 'MVP ativo', active: true },
-    { id: 'ifce-fortaleza', name: 'IFCE Campus Fortaleza', status: 'Em breve' },
-    { id: 'ifce-caucaia', name: 'IFCE Campus Caucaia', status: 'Em breve' },
-    { id: 'ifce-sobral', name: 'IFCE Campus Sobral', status: 'Em breve' }
+    { id: 'maracanau', name: 'Maracanaú', status: 'MVP ativo', active: true },
+    { id: 'fortaleza', name: 'Fortaleza', status: 'Em breve' },
+    { id: 'caucaia', name: 'Caucaia', status: 'Em breve' },
+    { id: 'sobral', name: 'Sobral', status: 'Em breve' }
   ],
-  ufc: [{ id: 'ufc-pici', name: 'UFC Campus do Pici', status: 'Em breve' }, { id: 'ufc-benfica', name: 'UFC Benfica', status: 'Em breve' }],
-  uece: [{ id: 'uece-itaperi', name: 'UECE Itaperi', status: 'Em breve' }],
-  unilab: [{ id: 'unilab-redencao', name: 'UNILAB Redenção/Acarape', status: 'Em breve' }],
-  fb: [{ id: 'fb-fortaleza', name: 'FB Uni Fortaleza', status: 'Em breve' }]
+  ufc: [{ id: 'pici', name: 'Campus do Pici', status: 'Em breve' }, { id: 'benfica', name: 'Benfica', status: 'Em breve' }],
+  uece: [{ id: 'itaperi', name: 'Itaperi', status: 'Em breve' }],
+  unilab: [{ id: 'redencao', name: 'Redenção/Acarape', status: 'Em breve' }],
+  fb: [{ id: 'fortaleza', name: 'Fortaleza', status: 'Em breve' }]
 };
-const demoAdmins = [
-  { name: 'Cauê', id: 'DEMO-CAUE' },
-  { name: 'Bruno', id: 'DEMO-BRUNO' },
-  { name: 'Felipe', id: 'DEMO-FELIPE' },
-  { name: 'Pedro', id: 'DEMO-PEDRO' }
-];
+
+// BRUNO: credenciais demonstrativas; não representam autenticação real.
+const demoCredentials = {
+  student: [{ login: '20261045050612', password: '12345' }, { login: 'bruno.silva@aluno.ifce.edu.br', password: '12345' }],
+  admin: [
+    { login: '20261045050601', password: '12345' },
+    { login: '20261045050602', password: '12345' },
+    { login: '20261045050603', password: '12345' },
+    { login: '20261045050604', password: '12345' },
+    { login: 'admin.campus@ifce.edu.br', password: '12345' }
+  ]
+};
+
+const simpleTexts = {
+  welcomeTitle: ['Mobilidade acadêmica simples, acessível e em tempo real.', 'Veja rotas, horários e avisos do seu campus.'],
+  welcomeHelper: ['Vou te ajudar a encontrar campus, rota e horários.', 'Eu ajudo você a escolher o campus e ver informações importantes.'],
+  profileTitle: ['Como você vai usar o CampusMove hoje?', 'Escolha seu tipo de acesso.'],
+  roleHelper: ['Escolha seu perfil para eu mostrar as funções certas do CampusMove.', 'Escolha seu tipo de acesso.'],
+  institutionHelper: ['Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.', 'Escolha a instituição e o campus. Agora, só Maracanaú está disponível.'],
+  institutionNote: ['CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.', 'Escolha sua instituição e seu campus.'],
+  loginHelper: ['Protótipo: use uma matrícula fictícia ou e-mail acadêmico demonstrativo.', 'Use os dados de teste para entrar.'],
+  homeRoute: ['IFCE — Campus Maracanaú → Estação Virgílio Távora', 'Rota entre o campus Maracanaú e a estação Virgílio Távora'],
+  profileHelper: ['Aqui ficam as informações visuais do seu vínculo com o campus.', 'Aqui aparecem informações simples sobre seu perfil.'],
+  profilePrivacy: ['Dados acadêmicos são gerenciados pela instituição.', 'Seus dados da escola não podem ser alterados aqui.'],
+  adminRestriction: ['Ambiente restrito para administradores autorizados.', 'Área só para administradores.']
+};
 
 const screens = [...document.querySelectorAll('.screen')];
 const contextLabel = document.querySelector('#screen-context');
@@ -68,7 +87,7 @@ function showScreen(screenId, storeHistory = true) {
   contextLabel.textContent = nextScreen.dataset.title || 'CampusMove';
   headerSubtitle.textContent = nextScreen.dataset.subtitle || 'IFCE Campus Maracanaú';
   bottomNav.classList.toggle('visible', nextScreen.classList.contains('internal'));
-  backButton.style.visibility = screenId === 'welcome' ? 'hidden' : 'visible';
+  backButton.style.visibility = ['welcome', 'splash'].includes(screenId) ? 'hidden' : 'visible';
   updateActiveTab();
   nextScreen.scrollTop = 0;
 }
@@ -83,7 +102,6 @@ function updateActiveTab() {
   document.querySelectorAll('[data-tab]').forEach((button) => button.classList.toggle('active', button.dataset.tab === appState.currentScreen));
 }
 
-// BRUNO: classes .selected e .dimmed são aplicadas pelo JavaScript.
 function applySelection(groupSelector, selectedButton) {
   document.querySelectorAll(groupSelector).forEach((button) => {
     const isSelected = button === selectedButton;
@@ -96,31 +114,56 @@ function renderRoles() {
   document.querySelector('#role-options').innerHTML = roles.map((role) => `<button class="option-card role-card" data-role="${role.id}" role="option"><span>${role.icon}</span><strong>${role.title}</strong><small>${role.description}</small></button>`).join('');
 }
 
-function renderInstitutionTypes() {
-  document.querySelector('#institution-type-options').innerHTML = institutionTypes.map((type) => `<button class="type-chip ${type === appState.institutionType ? 'selected' : ''}" data-institution-type="${type}">${type}</button>`).join('');
+function renderOrganizations() {
+  const search = normalize(document.querySelector('#organization-search').value);
+  const filtered = organizations.filter((item) => normalize(item).includes(search));
+  document.querySelector('#organization-options').innerHTML = filtered.map((item) => `<button class="type-chip ${item === appState.organization ? 'selected' : ''}" data-organization="${item}">${item}</button>`).join('');
+}
+
+function filteredInstitutions() {
+  if (!appState.organization) return [];
+  const search = normalize(document.querySelector('#institution-search').value);
+  return institutions.filter((item) => item.organization === appState.organization && normalize(item.name).includes(search));
+}
+
+function selectedInstitution() {
+  return institutions.find((item) => item.id === appState.institution);
+}
+
+function selectedCampus() {
+  return (campuses[appState.institution] || []).find((item) => item.id === appState.campus);
 }
 
 function renderInstitutions() {
-  document.querySelector('#institution-options').innerHTML = institutions.map((item) => {
-    const selected = item.id === appState.institution ? 'selected' : '';
-    const dimmed = item.id !== appState.institution ? 'dimmed' : '';
-    const emphasized = item.type === appState.institutionType ? '' : 'type-muted';
-    return `<button class="institution-card ${selected} ${dimmed} ${emphasized}" data-institution="${item.id}"><span class="logo-tile" data-fallback="${item.fallback}"><img src="${item.logo}" alt="${item.alt}"></span><span class="institution-copy"><strong>${item.name}</strong><small>${item.type}</small></span><span class="status-badge">${item.status}</span></button>`;
-  }).join('');
+  const field = document.querySelector('#institution-search');
+  field.disabled = !appState.organization;
+  field.placeholder = appState.organization ? 'Escolha ou digite a instituição' : 'Escolha primeiro a organização acadêmica';
+  const list = filteredInstitutions();
+  document.querySelector('#institution-options').innerHTML = list.map((item) => `<button class="institution-card ${item.id === appState.institution ? 'selected' : ''}" data-institution="${item.id}"><span class="logo-tile" data-fallback="${item.fallback}"><img src="${item.logo}" alt="${item.alt}"></span><span class="institution-copy"><strong>${item.name}</strong><small>${item.organization}</small></span><span class="status-badge">${item.status}</span></button>`).join('');
 }
 
 // BRUNO: atualiza campus conforme instituição selecionada.
 function renderCampuses() {
-  const list = campuses[appState.institution] || [];
-  document.querySelector('#campus-options').innerHTML = list.map((campus) => {
-    const selected = campus.id === appState.campus ? 'selected' : '';
-    const disabled = campus.active ? '' : 'disabled future';
-    return `<button class="option-card horizontal campus-card ${selected} ${disabled}" data-campus="${campus.id}"><strong>${campus.name}</strong><span class="product-badge">${campus.status}</span></button>`;
-  }).join('');
+  const field = document.querySelector('#campus-search');
+  field.disabled = !appState.institution;
+  field.placeholder = appState.institution ? 'Escolha ou digite o campus' : 'Escolha primeiro a instituição';
+  const search = normalize(field.value);
+  const list = appState.institution ? (campuses[appState.institution] || []).filter((item) => normalize(item.name).includes(search)) : [];
+  document.querySelector('#campus-options').innerHTML = list.map((campus) => `<button class="option-card horizontal campus-card ${campus.id === appState.campus ? 'selected' : ''} ${campus.active ? '' : 'disabled future'}" data-campus="${campus.id}"><strong>${campus.name}</strong><span class="product-badge">${campus.status}</span></button>`).join('');
+  renderInstitutionSummary();
 }
 
-function renderAdmins() {
-  document.querySelector('#admin-selector').innerHTML = demoAdmins.map((admin) => `<button class="admin-chip ${admin.name === appState.selectedAdmin ? 'selected' : ''}" data-admin-name="${admin.name}" data-demo-id="${admin.id}"><strong>${admin.name}</strong><small>${admin.id}</small></button>`).join('');
+function renderInstitutionSummary() {
+  const institution = selectedInstitution();
+  const campus = selectedCampus();
+  const summary = document.querySelector('#institution-summary');
+  if (!institution || !campus) {
+    summary.hidden = true;
+    summary.innerHTML = '';
+    return;
+  }
+  summary.hidden = false;
+  summary.innerHTML = `<span class="logo-tile compact-logo" data-fallback="${institution.fallback}"><img src="${institution.logo}" alt="${institution.alt}"></span><div><strong>${institution.name}</strong><small>Campus ${campus.name}</small><span class="product-badge">${campus.status}</span></div>`;
 }
 
 function selectRole(button) {
@@ -129,15 +172,24 @@ function selectRole(button) {
   applySelection('[data-role]', button);
 }
 
-function selectInstitutionType(button) {
-  appState.institutionType = button.dataset.institutionType;
-  renderInstitutionTypes();
+function selectOrganization(value) {
+  appState.organization = value;
+  appState.institution = null;
+  appState.campus = null;
+  document.querySelector('#organization-search').value = value;
+  document.querySelector('#institution-search').value = '';
+  document.querySelector('#campus-search').value = '';
+  document.querySelector('#campus-alert').textContent = '';
+  renderOrganizations();
   renderInstitutions();
+  renderCampuses();
 }
 
 function selectInstitution(button) {
   appState.institution = button.dataset.institution;
   appState.campus = null;
+  document.querySelector('#institution-search').value = selectedInstitution()?.name || '';
+  document.querySelector('#campus-search').value = '';
   document.querySelector('#campus-alert').textContent = '';
   renderInstitutions();
   renderCampuses();
@@ -152,6 +204,7 @@ function selectCampus(button) {
     return;
   }
   appState.campus = campus.id;
+  document.querySelector('#campus-search').value = campus.name;
   document.querySelector('#campus-alert').textContent = '';
   renderCampuses();
 }
@@ -161,84 +214,119 @@ function continueProfile() {
     document.querySelector('#profile-alert').textContent = 'Escolha um perfil para continuar.';
     return;
   }
-  if (['Aluno', 'Servidor'].includes(appState.role)) return showScreen('campus');
-  if (appState.role === 'Administrador') return prepareRestrictedLogin('Administrador');
-  if (appState.role === 'Motorista') return prepareRestrictedLogin('Motorista');
+  if (appState.role === 'Aluno') return showScreen('campus');
+  if (appState.role === 'Servidor') return showBlockedAccess('Acesso de servidor em preparação', 'No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Neste protótipo, o acesso de servidor ainda não está liberado.');
+  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista', 'Acesso operacional em preparação.', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.');
+  if (appState.role === 'Administrador') return prepareAdminLogin();
   return showScreen('visitor-access');
 }
 
 function continueCampus() {
-  if (appState.campus !== 'ifce-maracanau') {
-    document.querySelector('#campus-alert').textContent = 'Selecione o IFCE Campus Maracanaú para acessar o MVP MinhaJardineira.';
+  if (appState.organization !== 'Instituto Federal' || appState.institution !== 'ifce' || appState.campus !== 'maracanau') {
+    document.querySelector('#campus-alert').textContent = 'Selecione IFCE e Campus Maracanaú para acessar o MVP MinhaJardineira.';
     return;
   }
   showScreen('login');
 }
 
-function prepareRestrictedLogin(role) {
-  appState.role = role;
-  const isAdmin = role === 'Administrador';
-  document.querySelector('#restricted-login').dataset.title = isAdmin ? 'Acesso administrativo' : 'Acesso do motorista';
-  document.querySelector('#restricted-login').dataset.subtitle = isAdmin ? 'Ambiente restrito' : 'Operação do campus';
-  document.querySelector('#restricted-login-title').textContent = isAdmin ? 'Acesso administrativo' : 'Acesso do motorista';
-  document.querySelector('#restricted-warning').textContent = isAdmin ? 'Acesso administrativo restrito.' : 'Acesso operacional restrito.';
-  document.querySelector('#restricted-description').textContent = isAdmin ? 'Somente administradores autorizados podem acessar este ambiente.' : 'O acesso do motorista depende da liberação da operação do campus.';
-  document.querySelector('#admin-selector').hidden = !isAdmin;
-  document.querySelector('#restricted-user').placeholder = isAdmin ? 'DEMO-BRUNO' : 'Matrícula ou e-mail demonstrativo';
+function showBlockedAccess(title, message, detail = '') {
+  const messageNode = document.querySelector('#blocked-message');
+  const detailNode = document.querySelector('#blocked-detail');
+  messageNode.textContent = message;
+  detailNode.textContent = detail;
+  delete messageNode.dataset.simpleKey;
+  delete detailNode.dataset.simpleKey;
+  if (title.includes('servidor')) messageNode.dataset.simpleKey = 'serverRestriction';
+  if (title.includes('motorista')) detailNode.dataset.simpleKey = 'motoristRestriction';
+  simpleTexts.serverRestriction = ['No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Este acesso ainda será liberado pela instituição.'];
+  simpleTexts.motoristRestriction = ['Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.', 'Somente motoristas autorizados poderão entrar.'];
+  document.querySelector('#blocked-title').textContent = title;
+  updateAccessibilityUi();
+  showScreen('blocked-access');
+}
+
+function prepareAdminLogin() {
+  document.querySelector('#restricted-login').dataset.title = 'Acesso administrativo';
+  document.querySelector('#restricted-login').dataset.subtitle = 'Ambiente restrito';
+  document.querySelector('#restricted-login-title').textContent = 'Acesso administrativo';
+  document.querySelector('#restricted-warning').textContent = 'Acesso administrativo restrito.';
+  document.querySelector('#restricted-description').textContent = appState.accessibility.simpleLanguage ? 'Área só para administradores.' : 'Ambiente restrito para administradores autorizados.';
+  document.querySelector('#restricted-user').value = '';
+  document.querySelector('#restricted-password').value = '';
   document.querySelector('#restricted-alert').textContent = '';
-  renderAdmins();
   showScreen('restricted-login');
 }
 
-// BRUNO: controla fluxo de login visual por perfil.
 function enterApp(visitor = false) {
-  appState.userName = visitor ? 'Visitante' : (appState.role === 'Servidor' ? 'Servidor' : 'Bruno');
+  appState.accessMode = visitor ? 'visitor' : 'student';
+  appState.userName = visitor ? 'Visitante' : 'Bruno';
   document.querySelector('#home-title').textContent = `Olá, ${appState.userName}!`;
-  document.querySelector('.profile-card h3').textContent = visitor ? 'Visitante' : appState.userName;
-  document.querySelector('.profile-card p').textContent = visitor ? 'Acesso público sem dados acadêmicos protegidos' : 'IFCE — Instituto Federal do Ceará';
-  document.querySelector('.profile-card small').textContent = visitor ? 'Eventos, horários e rotas públicas' : 'Campus: IFCE Campus Maracanaú';
-  document.querySelector('.avatar').textContent = appState.userName[0];
+  document.querySelector('#home-campus-label').textContent = visitor ? 'Acesso visitante' : 'IFCE — Campus Maracanaú';
+  updateProfile();
   showScreen('home');
 }
 
+function updateProfile() {
+  const isVisitor = appState.accessMode === 'visitor';
+  document.querySelector('.profile-card h3').textContent = isVisitor ? 'Perfil acadêmico indisponível para visitantes.' : 'Bruno';
+  const profileRows = document.querySelectorAll('.profile-details p span');
+  if (isVisitor) {
+    profileRows[0].textContent = 'Visitante';
+    profileRows[1].textContent = 'Acesso público';
+    profileRows[2].textContent = 'Eventos, horários e rotas públicas';
+    document.querySelector('.profile-card small').textContent = 'Sem dados acadêmicos protegidos';
+  } else {
+    profileRows[0].textContent = 'Aluno';
+    profileRows[1].textContent = 'Instituto Federal do Ceará';
+    profileRows[2].textContent = 'Maracanaú';
+    document.querySelector('.profile-card small').textContent = 'Matrícula: DEMO-****';
+  }
+  document.querySelector('.profile-card .product-badge').textContent = isVisitor ? 'Visitante' : 'Aluno do protótipo';
+  document.querySelector('.avatar').textContent = isVisitor ? 'V' : 'B';
+}
+
 function login() {
-  const message = appState.role === 'Servidor' ? 'Acesso de servidor autorizado para demonstração.' : 'Acesso autorizado para demonstração.';
-  document.querySelector('#login-alert').textContent = message;
+  if (appState.role !== 'Aluno') {
+    document.querySelector('#login-alert').textContent = 'Este acesso pertence ao perfil de aluno. Troque o perfil para continuar.';
+    return;
+  }
+  const loginValue = document.querySelector('#login-user').value.trim();
+  const passwordValue = document.querySelector('#login-password').value;
+  const authorized = demoCredentials.student.some((credential) => credential.login === loginValue && credential.password === passwordValue);
+  if (!authorized) {
+    document.querySelector('#login-alert').textContent = 'Use 20261045050612 / 12345 ou bruno.silva@aluno.ifce.edu.br / 12345 para testar o acesso de aluno.';
+    return;
+  }
+  document.querySelector('#login-alert').textContent = 'Acesso autorizado para demonstração.';
   enterApp(false);
 }
 
 function restrictedLogin() {
-  if (appState.role === 'Administrador') {
-    showAuthorization('Administrador', 'Aguardando autorização do sistema.', `Olá, ${appState.selectedAdmin}!`, 'Ambiente administrativo em preparação para próximas fases do CampusMove.');
+  const loginValue = document.querySelector('#restricted-user').value.trim();
+  const passwordValue = document.querySelector('#restricted-password').value;
+  const authorized = demoCredentials.admin.some((credential) => credential.login === loginValue && credential.password === passwordValue);
+  if (!authorized) {
+    document.querySelector('#restricted-alert').textContent = 'Credencial administrativa não autorizada neste protótipo.';
     return;
   }
-  showAuthorization('Motorista', 'Aguardando autorização da operação do campus.', 'Acesso operacional em preparação.', 'No sistema real, este ambiente controlará status da Jardineira, saída e localização autorizada.');
-}
-
-function showAuthorization(role, title, greeting, note) {
-  document.querySelector('#authorization-role').textContent = role;
-  document.querySelector('#authorization-title').textContent = title;
-  document.querySelector('#authorization-greeting').textContent = greeting;
-  document.querySelector('#authorization-note').textContent = note;
-  document.querySelector('#authorization-continue').hidden = role !== 'Aluno' && role !== 'Servidor';
-  showScreen('authorization');
-}
-
-function selectAdmin(button) {
-  appState.selectedAdmin = button.dataset.adminName;
-  document.querySelector('#restricted-user').value = button.dataset.demoId;
-  renderAdmins();
+  showScreen('admin-preparation');
 }
 
 function updateAccessibilityUi() {
   document.body.classList.toggle('large-text', appState.accessibility.largeText);
+  document.body.classList.toggle('a11y-large-text', appState.accessibility.largeText);
   document.body.classList.toggle('high-contrast', appState.accessibility.highContrast);
   document.body.classList.toggle('reduce-motion', appState.accessibility.reduceMotion);
+  document.body.classList.toggle('simple-language', appState.accessibility.simpleLanguage);
   document.querySelectorAll('[data-access]').forEach((button) => {
     const active = appState.accessibility[button.dataset.access];
     button.classList.toggle('selected', active);
     const label = button.querySelector('span');
     if (label) label.textContent = active ? 'ativado' : 'desativado';
+  });
+  document.querySelectorAll('[data-simple-key]').forEach((element) => {
+    const values = simpleTexts[element.dataset.simpleKey];
+    if (values) element.textContent = appState.accessibility.simpleLanguage ? values[1] : values[0];
   });
   document.querySelector('#simple-example').textContent = appState.accessibility.simpleLanguage ? 'Não estamos recebendo a localização da jardineira agora. Mostrando a última posição conhecida.' : 'SEM_SINAL';
 }
@@ -248,7 +336,16 @@ function toggleAccessibility(key) {
   updateAccessibilityUi();
 }
 
-// FELIPE: não renomear classes usadas nos seletores sem atualizar o JS.
+function normalize(value) {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function startSplash() {
+  const delay = appState.accessibility.reduceMotion ? 100 : 2300;
+  window.setTimeout(() => showScreen('welcome'), delay);
+}
+
+// FELIPE: não renomear classes usadas pelo JS sem atualizar os seletores.
 document.addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button) return;
@@ -256,31 +353,36 @@ document.addEventListener('click', (event) => {
   if (button.dataset.tab) showScreen(button.dataset.tab);
   if (button.dataset.action === 'back') goBack();
   if (button.dataset.role) selectRole(button);
-  if (button.dataset.institutionType) selectInstitutionType(button);
+  if (button.dataset.organization) selectOrganization(button.dataset.organization);
   if (button.dataset.institution) selectInstitution(button);
   if (button.dataset.campus) selectCampus(button);
-  if (button.dataset.adminName) selectAdmin(button);
   if (button.dataset.action === 'continue-profile') continueProfile();
   if (button.dataset.action === 'continue-campus') continueCampus();
   if (button.dataset.action === 'login') login();
   if (button.dataset.action === 'restricted-login') restrictedLogin();
   if (button.dataset.action === 'visitor-home') enterApp(true);
-  if (button.dataset.action === 'authorization-continue') enterApp(false);
-  if (button.dataset.action === 'help-login') document.querySelector('#login-alert').textContent = 'Protótipo visual: use dados demonstrativos. A senha sugerida é 12345.';
+  if (button.dataset.action === 'help-login') document.querySelector('#login-alert').textContent = 'Use 20261045050612 / 12345 apenas para testar o protótipo.';
   if (button.dataset.access) toggleAccessibility(button.dataset.access);
+});
+
+document.addEventListener('input', (event) => {
+  const input = event.target;
+  if (input.dataset.search === 'organization') renderOrganizations();
+  if (input.dataset.search === 'institution') renderInstitutions();
+  if (input.dataset.search === 'campus') renderCampuses();
 });
 
 document.addEventListener('error', (event) => {
   const image = event.target;
-  if (!image.matches('.logo-tile img')) return;
+  if (!image.matches('.logo-tile img, .splash-logo-box img')) return;
   image.hidden = true;
   image.parentElement.classList.add('logo-fallback');
 }, true);
 
 renderRoles();
-renderInstitutionTypes();
+renderOrganizations();
 renderInstitutions();
 renderCampuses();
-renderAdmins();
 updateAccessibilityUi();
-showScreen('welcome', false);
+showScreen('splash', false);
+startSplash();
