@@ -13,7 +13,14 @@ const appState = {
     highContrast: false,
     reduceMotion: false,
     simpleLanguage: false
-  }
+  },
+  locationMode: 'directions',
+  routeDirection: 'inbound',
+  routeOrigin: 'Maraponga',
+  routeDestination: 'IFCE Campus Maracanaú',
+  selectedScenario: 'maraponga-ifce',
+  selectedEventDestination: null,
+  departureEstimateResult: null
 };
 
 const roles = [
@@ -64,6 +71,39 @@ const institutions = [
   ] }
 ];
 
+
+// BRUNO: rotas demonstrativas sem API externa.
+const transitLines = {
+  'metrofor-linha-sul': { id: 'metrofor-linha-sul', name: 'Linha Sul', mode: 'metro', operatorLabel: 'Metro/VLT', colorToken: 'line-sul', operation: { start: '05:30', end: '23:00' }, headwayMinutes: 20, confidence: 'media', note: 'Estimativa por intervalo médio, sem integração oficial', stops: ['Carlito Benevides', 'Virgílio Távora', 'Maracanaú', 'Parangaba', 'Benfica', 'Chico da Silva'] },
+  'metrofor-linha-oeste': { id: 'metrofor-linha-oeste', name: 'Linha Oeste', mode: 'metro', operatorLabel: 'Metro/VLT', colorToken: 'line-oeste', operation: { start: '05:30', end: '23:00' }, headwayMinutes: 30, confidence: 'media', note: 'Estimativa por intervalo médio, sem integração oficial', stops: ['Caucaia', 'Antônio Bezerra', 'Álvaro Weyne', 'Moura Brasil', 'Chico da Silva'] },
+  'vlt-parangaba-mucuripe': { id: 'vlt-parangaba-mucuripe', name: 'VLT Parangaba-Mucuripe', mode: 'vlt', operatorLabel: 'Metro/VLT', colorToken: 'line-nordeste', operation: { start: '05:30', end: '23:00' }, headwayMinutes: 30, confidence: 'media', note: 'Estimativa por intervalo médio, sem integração oficial', stops: ['Parangaba', 'Montese', 'Vila União', 'Borges de Melo', 'São João do Tauape', 'Pontes Vieira', 'Antônio Sales', 'Papicu', 'Mucuripe', 'Iate'] },
+  'vlt-aeroporto': { id: 'vlt-aeroporto', name: 'VLT Aeroporto', mode: 'vlt', operatorLabel: 'Metro/VLT', colorToken: 'line-aeroporto', operation: { start: '07:00', end: '17:00' }, headwayMinutes: 30, confidence: 'media', note: 'Estimativa por intervalo médio, sem integração oficial', stops: ['Aeroporto', 'Expedicionários', 'Parangaba'] }
+};
+
+const campusShuttle = { id: 'ifce-jardineira', name: 'Jardineira IFCE', mode: 'shuttle', operation: { start: '07:00', end: '18:00' }, headwayMinutes: 15, confidence: 'alta', route: ['Estação Virgílio Távora', 'IFCE Campus Maracanaú'], vehicles: ['Jardineira 1', 'Jardineira 2'], note: 'Regra institucional demonstrativa do protótipo' };
+
+const routeScenarios = {
+  inbound: [
+    { id: 'bruno-ifce', label: 'Rota demonstrativa do aluno Bruno', direction: 'inbound', origin: 'Cenário Bruno — aluno mora longe do campus', destination: 'IFCE Campus Maracanaú', routeType: 'Indo para o IFCE', mainRoute: 'Cenário Bruno → Terminal de integração → Metrô Linha Sul → Estação Virgílio Távora → Jardineira IFCE', analysis: 'Aluno mora longe do campus.', estimatedTime: '1h10 a 1h35', needsBus: true, needsMetro: true, needsVlt: false, needsJardineira: true, needsIntegration: true, risk: 'medio', riskLabel: 'Risco médio — conexão exige atenção', steps: [{ mode: 'walk', label: 'Caminhada', from: 'Cenário Bruno', to: 'Ponto de ônibus próximo', durationText: '6 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Ônibus urbano demonstrativo', from: 'Ponto de ônibus próximo', to: 'Terminal de integração', durationText: '25 min', confidence: 'baixa' }, { mode: 'transfer', label: 'Integração', from: 'Terminal de integração', to: 'Estação de metrô', durationText: '10 min', confidence: 'media' }, { mode: 'metro', label: 'Metrô', line: 'Linha Sul', lineId: 'metrofor-linha-sul', from: 'Estação de metrô', to: 'Estação Virgílio Távora', durationText: '20 min', confidence: 'media' }, { mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'Estação Virgílio Távora', to: 'IFCE Campus Maracanaú', durationText: '8 min', confidence: 'alta' }] },
+    { id: 'maraponga-ifce', label: 'Rota direta recomendada', direction: 'inbound', origin: 'Maraponga', destination: 'IFCE Campus Maracanaú', routeType: 'Indo para o IFCE', mainRoute: 'Linha 32201 - Conjunto Novo Maracanaú', analysis: 'A rota segue pela região da Av. Godofredo Maciel, passa pela Av. Dr. Mendel Steinbruch e entra em Maracanaú pela Av. Parque Central.', estimatedTime: '30 a 40 min', needsBus: true, needsMetro: false, needsVlt: false, needsJardineira: false, needsIntegration: false, risk: 'none', riskLabel: '', steps: [{ mode: 'walk', label: 'Caminhada', from: 'Maraponga', to: 'Ponto na região da Av. Godofredo Maciel', durationText: '5 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Linha 32201 - Conjunto Novo Maracanaú', from: 'Av. Godofredo Maciel', to: 'Próximo ao IFCE Campus Maracanaú', durationText: '30 a 40 min', confidence: 'baixa' }, { mode: 'walk', label: 'Caminhada', from: 'Ponto próximo ao campus', to: 'IFCE Campus Maracanaú', durationText: '3 min', confidence: 'media' }] },
+    { id: 'timbo-ifce', label: 'Rota curta recomendada', direction: 'inbound', origin: 'Timbó', destination: 'IFCE Campus Maracanaú', routeType: 'Indo para o IFCE', mainRoute: 'Linha 002 - Linha Verde ou 32201 - Conjunto Novo Maracanaú', analysis: 'O Timbó fica próximo ao Jereissati/Distrito Industrial. A rota é curta e pode usar linhas que passam pela Av. Contorno Norte ou pela Av. Parque Central.', estimatedTime: '10 a 15 min', needsBus: true, needsMetro: false, needsVlt: false, needsJardineira: false, needsIntegration: false, risk: 'none', riskLabel: '', steps: [{ mode: 'walk', label: 'Caminhada', from: 'Timbó', to: 'Ponto próximo no Timbó', durationText: '4 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Linha 002 - Linha Verde ou 32201', from: 'Timbó', to: 'Próximo ao IFCE Campus Maracanaú', durationText: '10 a 15 min', confidence: 'baixa' }, { mode: 'walk', label: 'Caminhada', from: 'Ponto próximo ao campus', to: 'IFCE Campus Maracanaú', durationText: '3 min', confidence: 'media' }] },
+    { id: 'caucaia-ifce', label: 'Rota integrada recomendada', direction: 'inbound', origin: 'Centro de Caucaia / Praça da Matriz', destination: 'IFCE Campus Maracanaú', routeType: 'Indo para o IFCE', mainRoute: 'Caucaia → Antônio Bezerra → Parangaba → Metrô Linha Sul → Estação Virgílio Távora → Jardineira IFCE', analysis: 'Cenário simulado com integração entre ônibus, Metrô e Jardineira IFCE.', estimatedTime: '1h20 a 1h45', needsBus: true, needsMetro: true, needsVlt: false, needsJardineira: true, needsIntegration: true, risk: 'medio', riskLabel: 'Risco médio — conexão exige atenção', steps: [{ mode: 'bus', label: 'Ônibus', line: 'Ônibus metropolitano', from: 'Centro de Caucaia / Praça da Matriz', to: 'Terminal Antônio Bezerra', durationText: '25 a 35 min', confidence: 'baixa' }, { mode: 'bus', label: 'Ônibus', line: 'Linha 072 - Antônio Bezerra / Parangaba', from: 'Terminal Antônio Bezerra', to: 'Terminal Parangaba', durationText: '25 a 35 min', confidence: 'baixa' }, { mode: 'transfer', label: 'Integração', from: 'Terminal Parangaba', to: 'Estação Parangaba', durationText: '8 a 12 min', confidence: 'media' }, { mode: 'metro', label: 'Metrô', line: 'Linha Sul', lineId: 'metrofor-linha-sul', from: 'Estação Parangaba', to: 'Estação Virgílio Távora', durationText: '18 a 25 min', confidence: 'media' }, { mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'Estação Virgílio Távora', to: 'IFCE Campus Maracanaú', durationText: '6 a 10 min', confidence: 'alta' }] },
+    { id: 'outro-ifce', label: 'Rota simulada', direction: 'inbound', origin: 'Outro endereço', destination: 'IFCE Campus Maracanaú', routeType: 'Indo para o IFCE', mainRoute: 'Origem informada → Integração → Estação Virgílio Távora → Jardineira IFCE', analysis: 'Cenário simulado para endereço genérico informado pelo usuário.', estimatedTime: '45 a 55 min', needsBus: true, needsMetro: 'maybe', needsVlt: 'maybe', needsJardineira: 'maybe', needsIntegration: true, risk: 'alto', riskLabel: 'Risco alto — conexão pode ser perdida dependendo do horário', steps: [{ mode: 'walk', label: 'Caminhada', from: 'Origem informada', to: 'Parada mais próxima', durationText: '6 min', confidence: 'baixa' }, { mode: 'bus', label: 'Ônibus', line: 'Ônibus urbano demonstrativo', from: 'Parada mais próxima', to: 'Ponto de integração', durationText: '18 min', confidence: 'baixa' }, { mode: 'transfer', label: 'Integração', from: 'Ponto de integração', to: 'Estação Virgílio Távora', durationText: '15 min', confidence: 'media' }, { mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'Estação Virgílio Távora', to: 'IFCE Campus Maracanaú', durationText: '8 min', confidence: 'alta' }] }
+  ],
+  outbound: [
+    { id: 'ifce-ufc-pici', label: 'Rota acadêmica para UFC — Campus do Pici', direction: 'outbound', origin: 'IFCE Campus Maracanaú', destination: 'UFC Campus do Pici', routeType: 'Saindo do IFCE', mainRoute: 'IFCE → Jardineira IFCE → Estação Virgílio Távora → Linha Sul → Benfica → Ônibus para o Pici', analysis: 'Rota acadêmica demonstrativa até outro campus.', estimatedTime: '1h a 1h15', needsBus: true, needsMetro: true, needsVlt: false, needsJardineira: true, needsIntegration: true, risk: 'medio', riskLabel: 'Risco médio — conexão exige atenção', steps: [{ mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'IFCE Campus Maracanaú', to: 'Estação Virgílio Távora', durationText: '6 a 10 min', confidence: 'alta' }, { mode: 'metro', label: 'Metrô', line: 'Linha Sul', lineId: 'metrofor-linha-sul', from: 'Estação Virgílio Távora', to: 'Estação Benfica', durationText: '20 a 25 min', confidence: 'media' }, { mode: 'transfer', label: 'Integração', from: 'Estação Benfica', to: 'Av. da Universidade / Av. 13 de Maio', durationText: '8 a 10 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Ônibus para o Pici, como 075, 011 ou 088', from: 'Av. da Universidade / Av. 13 de Maio', to: 'UFC Campus do Pici', durationText: '20 a 30 min', confidence: 'baixa' }] },
+    { id: 'ifce-uece-itaperi', label: 'Rota acadêmica para UECE — Campus Itaperi', direction: 'outbound', origin: 'IFCE Campus Maracanaú', destination: 'UECE Campus Itaperi', routeType: 'Saindo do IFCE', mainRoute: 'IFCE → Jardineira IFCE → Linha Sul → Parangaba → Ônibus para Itaperi', analysis: 'Rota demonstrativa com integração na Parangaba.', estimatedTime: '40 a 55 min', needsBus: true, needsMetro: true, needsVlt: false, needsJardineira: true, needsIntegration: true, risk: 'medio', riskLabel: 'Risco médio — conexão exige atenção', steps: [{ mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'IFCE Campus Maracanaú', to: 'Estação Virgílio Távora', durationText: '6 a 10 min', confidence: 'alta' }, { mode: 'metro', label: 'Metrô', line: 'Linha Sul', lineId: 'metrofor-linha-sul', from: 'Estação Virgílio Távora', to: 'Estação Parangaba', durationText: '12 a 18 min', confidence: 'media' }, { mode: 'transfer', label: 'Integração', from: 'Estação Parangaba', to: 'Terminal Parangaba', durationText: '6 a 10 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Ônibus em direção à Av. Dr. Silas Munguba, como 024, 041, 315 ou 400', from: 'Terminal Parangaba', to: 'UECE Campus Itaperi', durationText: '15 a 25 min', confidence: 'baixa' }] },
+    { id: 'ifce-unilab-redencao', label: 'Rota acadêmica para UNILAB — Redenção/Acarape', direction: 'outbound', origin: 'IFCE Campus Maracanaú', destination: 'UNILAB Redenção/Acarape', routeType: 'Saindo do IFCE', mainRoute: 'IFCE → Jardineira IFCE → Linha Sul sentido Carlito Benevides → Ônibus intermunicipal', analysis: 'Rota demonstrativa usando Linha Sul no sentido Carlito Benevides.', estimatedTime: '1h a 1h30', needsBus: true, needsMetro: true, needsVlt: false, needsJardineira: true, needsIntegration: true, intercityBus: true, risk: 'alto', riskLabel: 'Risco alto — conexão pode ser perdida dependendo do horário', steps: [{ mode: 'shuttle', label: 'Jardineira', line: 'Jardineira IFCE', lineId: 'ifce-jardineira', from: 'IFCE Campus Maracanaú', to: 'Estação Virgílio Távora', durationText: '6 a 10 min', confidence: 'alta' }, { mode: 'metro', label: 'Metrô', line: 'Linha Sul', lineId: 'metrofor-linha-sul', from: 'Estação Virgílio Távora', to: 'Estação Carlito Benevides', durationText: '10 a 15 min', confidence: 'media' }, { mode: 'transfer', label: 'Integração', from: 'Estação Carlito Benevides', to: 'Parada na região da CE-060', durationText: '8 a 12 min', confidence: 'media' }, { mode: 'bus', label: 'Ônibus', line: 'Ônibus intermunicipal sentido Redenção ou Baturité', from: 'Região da CE-060', to: 'UNILAB Redenção/Acarape', durationText: '40 a 60 min', confidence: 'baixa' }] }
+  ]
+};
+
+// BRUNO: eventos podem preencher destino na tela Localização.
+const events = [
+  { id: 'semana-computacao', title: 'Semana da Computação', location: 'Auditório do IFCE Maracanaú', status: 'Evento acadêmico' },
+  { id: 'apresentacao-projetos', title: 'Apresentação de projetos', location: 'Bloco didático', status: 'Atividade do campus' },
+  { id: 'recepcao-novos-alunos', title: 'Recepção de novos alunos', location: 'Entrada principal do campus', status: 'Evento público' }
+];
+
 // BRUNO: credenciais fictícias usadas apenas para demonstração visual.
 const demoCredentials = {
   student: [{ login: '20261045050612', password: '12345' }, { login: 'bruno.silva@aluno.ifce.edu.br', password: '12345' }],
@@ -106,6 +146,11 @@ function showScreen(screenId, storeHistory = true) {
   bottomNav.classList.toggle('visible', nextScreen.classList.contains('internal'));
   backButton.style.visibility = ['welcome', 'splash'].includes(screenId) ? 'hidden' : 'visible';
   updateActiveTab();
+  if (screenId === 'location') {
+    if (!appState.locationMode) appState.locationMode = 'directions';
+    renderLocation();
+  }
+  if (screenId === 'events') renderEvents();
   nextScreen.scrollTop = 0;
 }
 
@@ -429,10 +474,157 @@ function startSplash() {
   window.setTimeout(() => showScreen('welcome'), delay);
 }
 
+
+const locationModes = [{ id: 'directions', label: 'Como chegar' }, { id: 'shuttle', label: 'Rota da Jardineira' }, { id: 'live', label: 'Ao vivo' }];
+const modeLabels = { walk: 'Caminhada', bus: 'Ônibus', metro: 'Metrô', vlt: 'VLT', shuttle: 'Jardineira', transfer: 'Integração' };
+const confidenceLabels = { alta: 'Alta — baseada em regra fixa institucional', media: 'Média — baseada em intervalo médio estimado', baixa: 'Baixa — depende de trânsito e não há dado no protótipo' };
+
+function renderLocationTabs() {
+  const target = document.querySelector('#location-tabs');
+  if (!target) return;
+  target.innerHTML = locationModes.map((mode) => `<button class="location-tab ${appState.locationMode === mode.id ? 'active' : ''}" data-location-mode="${mode.id}">${mode.label}</button>`).join('');
+}
+
+function setLocationMode(mode) {
+  appState.locationMode = mode;
+  renderLocation();
+}
+
+function setRouteDirection(direction) {
+  appState.routeDirection = direction;
+  const first = routeScenarios[direction][0];
+  appState.selectedScenario = first.id;
+  appState.routeOrigin = direction === 'outbound' ? 'IFCE Campus Maracanaú' : first.origin;
+  appState.routeDestination = direction === 'outbound' ? first.destination : (appState.selectedEventDestination || 'IFCE Campus Maracanaú');
+  renderLocation();
+}
+
+function selectRouteScenario(id) {
+  const route = [...routeScenarios.inbound, ...routeScenarios.outbound].find((item) => item.id === id);
+  if (!route) return;
+  appState.selectedScenario = id;
+  appState.routeDirection = route.direction;
+  appState.routeOrigin = id === 'outro-ifce' ? '' : route.origin;
+  appState.routeDestination = appState.selectedEventDestination || route.destination;
+  renderLocation();
+  if (id === 'outro-ifce') setTimeout(() => document.querySelector('#route-origin')?.focus(), 0);
+}
+
+function simulateRoute() {
+  const originField = document.querySelector('#route-origin');
+  const destinationField = document.querySelector('#route-destination');
+  if (originField) appState.routeOrigin = originField.value.trim() || appState.routeOrigin;
+  if (destinationField) appState.routeDestination = destinationField.value;
+  renderLocation();
+}
+
+// FELIPE: computeOverallConfidence aplica a regra “menor confiança entre as etapas”.
+function computeOverallConfidence(route) {
+  const order = { baixa: 0, media: 1, alta: 2 };
+  return route.steps.reduce((lowest, step) => order[step.confidence] < order[lowest] ? step.confidence : lowest, 'alta');
+}
+
+function routeModes(route) {
+  return [...new Set(route.steps.map((step) => modeLabels[step.mode] || step.label))];
+}
+
+function renderTripDiagnosis(route) {
+  const confidence = computeOverallConfidence(route);
+  const integrations = route.steps.filter((step) => step.mode === 'transfer').length;
+  const recommendation = route.risk === 'alto' ? 'sair com margem de 20 min' : route.risk === 'medio' ? 'sair com margem de 10 min' : 'sem necessidade de margem extra';
+  return `<article class="trip-diagnosis"><h4>Diagnóstico da viagem</h4><p><strong>Tempo estimado:</strong> ${route.estimatedTime}</p><p><strong>Modais:</strong> ${routeModes(route).join(' + ')}</p><p><strong>Integrações:</strong> ${integrations || 'nenhuma'}</p><p><strong>Risco:</strong> ${route.risk === 'none' ? '—' : route.risk}</p><p><strong>Confiança:</strong> ${confidence}</p><p><strong>Recomendação:</strong> ${recommendation}</p></article>`;
+}
+
+function minutesFromText(text) { const [h, m] = text.split(':').map(Number); return h * 60 + m; }
+function timeFromMinutes(total) { const h = Math.floor((total % 1440) / 60); const m = total % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; }
+function nextDeparture(line, current) {
+  const start = minutesFromText(line.operation.start), end = minutesFromText(line.operation.end);
+  if (current < start || current > end) return null;
+  return start + Math.ceil((current - start) / line.headwayMinutes) * line.headwayMinutes;
+}
+
+// BRUNO: Prompt 4 substituirá estimativas por dados reais quando houver fonte.
+function estimateDepartureNow(route) {
+  const timedSteps = route.steps.filter((step) => ['metro', 'vlt', 'shuttle'].includes(step.mode));
+  if (!timedSteps.length) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende de Metrô/VLT ou Jardineira. A estimativa depende principalmente do trânsito e da frequência do ônibus urbano, ainda não integrada neste protótipo.</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>';
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+  const rows = [];
+  let cursor = current;
+  let gap = 99;
+  for (const step of timedSteps) {
+    const line = step.mode === 'shuttle' ? campusShuttle : transitLines[step.lineId];
+    const dep = line ? nextDeparture(line, cursor) : null;
+    if (dep === null) rows.push(`<p>Fora do horário de operação estimado da linha: ${step.line || step.label}.</p>`);
+    else { if (step.mode === 'shuttle') gap = dep - cursor; rows.push(`<p><strong>${step.mode === 'shuttle' ? 'Próxima Jardineira estimada' : `Próxima partida estimada (${step.line})`}:</strong> ${timeFromMinutes(dep)}</p>`); cursor = dep + 10; }
+  }
+  const risk = gap < 5 ? 'Risco alto — conexão muito apertada' : gap < 12 ? 'Risco médio — conexão exige atenção' : 'Risco baixo — margem confortável';
+  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>Saindo agora:</strong> ${timeFromMinutes(current)}</p>${rows.join('')}<p><strong>Chegada prevista:</strong> ${timeFromMinutes(cursor + 10)}</p><p><strong>Risco:</strong> ${risk}</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>`;
+}
+
+function renderRouteResult(route) {
+  const confidence = computeOverallConfidence(route);
+  const needs = (value) => value === 'maybe' ? 'talvez' : value ? 'sim' : 'não';
+  return `<article class="route-card"><span class="product-badge">${appState.accessMode === 'visitor' ? 'Rota pública demonstrativa' : 'Rota demonstrativa'}</span><h3>${route.label}</h3><div class="route-summary"><p><strong>Tipo de rota:</strong> ${route.routeType}</p><p><strong>Origem:</strong> ${appState.routeOrigin || route.origin}</p><p><strong>Destino:</strong> ${appState.routeDestination || route.destination}</p><p><strong>Melhor rota recomendada:</strong> ${route.mainRoute}</p><p><strong>Tempo estimado:</strong> ${route.estimatedTime}</p><p><strong>Modais usados:</strong> ${routeModes(route).join(' + ')}</p><p><strong>Precisa de ônibus?</strong> ${needs(route.needsBus)}</p><p><strong>Precisa de metrô?</strong> ${needs(route.needsMetro)}</p><p><strong>Precisa de VLT?</strong> ${needs(route.needsVlt)}</p><p><strong>Precisa da Jardineira?</strong> ${needs(route.needsJardineira)}</p><p><strong>Integração necessária?</strong> ${needs(route.needsIntegration)}</p></div><div class="route-badges">${routeModes(route).map((mode) => `<span class="route-badge">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge">Integração</span>' : ''}</div><p class="route-warning">Dados demonstrativos, sem integração oficial.</p><div class="route-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${step.from}</strong><small>↓ <b>${modeLabels[step.mode] || step.label}</b> — ${step.durationText}${step.line ? ` · ${step.line}` : ''}</small><em>${step.to}</em><span class="route-confidence">Confiança do trecho: ${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimateDepartureNow(route)}<p class="privacy-note">Rota demonstrativa baseada em cenários locais informados pela equipe. No sistema real, o CampusMove usaria dados oficiais de transporte e localização autorizada.</p></article>`;
+}
+
+function selectedRoute() { return routeScenarios[appState.routeDirection].find((route) => route.id === appState.selectedScenario) || routeScenarios.inbound[1]; }
+
+function renderDirectionsPanel() {
+  const route = selectedRoute();
+  const inbound = appState.routeDirection === 'inbound';
+  const scenarioChips = (inbound ? routeScenarios.inbound : routeScenarios.outbound).map((item) => `<button class="type-chip ${item.id === appState.selectedScenario ? 'selected active' : ''}" data-route-scenario="${item.id}">${item.id === 'bruno-ifce' ? 'Bruno' : item.id === 'outro-ifce' ? 'Outro endereço' : item.destination.replace('IFCE Campus Maracanaú', item.origin)}</button>`).join('');
+  const chips = inbound ? scenarioChips : `${scenarioChips}<button class="type-chip" data-event-destination="Local do evento selecionado">Evento no campus</button>`;
+  const eventMessage = appState.selectedEventDestination ? '<p class="inline-alert">Rota até o evento selecionado.</p>' : '';
+  return `<section class="location-panel active"><h3>Como chegar</h3><p class="section-subtitle">Escolha uma origem e destino para ver uma rota demonstrativa.</p><div class="direction-selector"><button class="location-tab ${inbound ? 'active' : ''}" data-route-direction="inbound">Estou indo para o IFCE</button><button class="location-tab ${!inbound ? 'active' : ''}" data-route-direction="outbound">Estou saindo do IFCE</button></div><div class="chip-grid">${chips}</div><div class="form-card route-form"><label>Origem<input id="route-origin" type="text" ${inbound ? '' : 'readonly'} placeholder="Digite bairro, ponto de referência ou cenário" value="${inbound ? appState.routeOrigin : 'IFCE Campus Maracanaú'}"></label><label>Destino${inbound ? `<select id="route-destination"><option ${appState.routeDestination === 'IFCE Campus Maracanaú' ? 'selected' : ''}>IFCE Campus Maracanaú</option><option ${appState.routeDestination === 'Estação Virgílio Távora' ? 'selected' : ''}>Estação Virgílio Távora</option><option ${appState.routeDestination === 'Auditório do IFCE Maracanaú' ? 'selected' : ''}>Auditório do IFCE Maracanaú</option><option ${appState.selectedEventDestination ? 'selected' : ''}>${appState.selectedEventDestination || 'Auditório do IFCE Maracanaú'}</option></select>` : `<input id="route-destination" type="text" placeholder="Escolha uma instituição ou evento acadêmico" value="${appState.routeDestination}">`}</label><button type="button" class="primary-button" data-action="simulate-route">Simular rota</button></div>${eventMessage}${renderRouteResult(route)}</section>`;
+}
+
+function renderShuttlePanel() {
+  return `<section class="location-panel active"><h3>Rota da Jardineira</h3><p class="section-subtitle">Trajeto institucional entre a Estação Virgílio Távora e o IFCE Campus Maracanaú.</p><div class="live-map shuttle-map"><span class="station-marker">Estação Virgílio Távora</span><span class="route-line"></span><span class="live-marker shuttle-one">🚌</span><span class="campus-marker">IFCE Campus Maracanaú</span></div><article class="route-card"><div class="route-timeline"><div class="route-step"><strong>Estação Virgílio Távora</strong><small>↓ Ponto de embarque — Trajeto da Jardineira</small><em>Entrada do IFCE</em><span>IFCE Campus Maracanaú</span></div></div><p><strong>Sentido principal:</strong> Estação Virgílio Távora → IFCE Campus Maracanaú</p><p><strong>Retorno:</strong> IFCE Campus Maracanaú → Estação Virgílio Távora</p><p><strong>Frequência operacional:</strong> a cada 15 minutos</p><p><strong>Tempo médio:</strong> 6 a 10 minutos</p><p><strong>Veículos:</strong> Jardineira 1 e Jardineira 2</p><p><strong>Status:</strong> Operação simulada</p><p><strong>Confiança:</strong> Alta — regra institucional fixa</p><p class="route-warning">Dados demonstrativos, sem integração oficial em tempo real.</p></article></section>`;
+}
+
+function renderLivePanel() {
+  return `<section class="location-panel active"><h3>Ao vivo</h3><p class="section-subtitle">Localização simulada das jardineiras em operação.</p><div class="live-map"><span class="route-line"></span><span class="live-marker shuttle-one">🚌</span><span class="live-marker shuttle-two">🚌</span><small>Operação simulada no protótipo, atualizado no navegador.</small></div><article class="live-card"><h4>Jardineira 1</h4><p><strong>Status:</strong> Em movimento</p><p><strong>Posição simulada:</strong> Saindo da Estação Virgílio Távora</p><p><strong>Estimativa:</strong> Chega ao campus em 7 min</p><p><strong>Atualização:</strong> Atualizado no navegador</p></article><article class="live-card"><h4>Jardineira 2</h4><p><strong>Status:</strong> Aguardando próxima saída</p><p><strong>Posição simulada:</strong> IFCE Campus Maracanaú</p><p><strong>Estimativa:</strong> Próxima saída operacional</p><p><strong>Atualização:</strong> Atualizado no navegador</p></article><p class="route-warning">Sem dados oficiais em tempo real neste protótipo.</p></section>`;
+}
+
+// FELIPE: abas internas usam .active para controlar o modo visível.
+function renderLocation() {
+  const target = document.querySelector('#location-panels');
+  if (!target) return;
+  renderLocationTabs();
+  target.innerHTML = appState.locationMode === 'shuttle' ? renderShuttlePanel() : appState.locationMode === 'live' ? renderLivePanel() : renderDirectionsPanel();
+}
+
+function renderEvents() {
+  const target = document.querySelector('#events-list');
+  if (!target) return;
+  target.innerHTML = events.map((item) => `<article class="event-card"><span class="product-badge">${item.status}</span><h3>${item.title}</h3><p><strong>Local:</strong> ${item.location}</p><p>Dados demonstrativos, sem integração oficial.</p><button class="secondary-button event-route-button" data-event-route="${item.id}">Ver rota até o evento</button></article>`).join('');
+}
+
+function goToEventRoute(eventId) {
+  const item = events.find((eventItem) => eventItem.id === eventId);
+  if (!item) return;
+  appState.selectedEventDestination = item.location;
+  appState.locationMode = 'directions';
+  appState.routeDirection = 'inbound';
+  appState.selectedScenario = item.location.includes('Auditório') ? 'maraponga-ifce' : 'outro-ifce';
+  appState.routeOrigin = appState.accessMode === 'visitor' ? 'Origem do visitante' : 'Maraponga';
+  appState.routeDestination = item.location;
+  showScreen('location');
+  renderLocation();
+}
+
+function selectEventDestination(value) {
+  appState.selectedEventDestination = value;
+  appState.routeDestination = value;
+  renderLocation();
+}
+
 // FELIPE: estados selected/active controlam o LED verde dos cards.
 document.addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button) return;
+  if (button.dataset.go === 'location' || button.dataset.tab === 'location') appState.locationMode = 'directions';
   if (button.dataset.go) showScreen(button.dataset.go);
   if (button.dataset.tab) showScreen(button.dataset.tab);
   if (button.dataset.action === 'back') goBack();
@@ -447,6 +639,12 @@ document.addEventListener('click', (event) => {
   if (button.dataset.action === 'visitor-home') enterApp(true);
   if (button.dataset.action === 'help-login') document.querySelector('#login-alert').textContent = 'Use 20261045050612 / 12345 apenas para testar o protótipo.';
   if (button.dataset.access) toggleAccessibility(button.dataset.access);
+  if (button.dataset.locationMode) setLocationMode(button.dataset.locationMode);
+  if (button.dataset.routeDirection) setRouteDirection(button.dataset.routeDirection);
+  if (button.dataset.routeScenario) selectRouteScenario(button.dataset.routeScenario);
+  if (button.dataset.action === 'simulate-route') simulateRoute();
+  if (button.dataset.eventRoute) goToEventRoute(button.dataset.eventRoute);
+  if (button.dataset.eventDestination) selectEventDestination(button.dataset.eventDestination);
 });
 
 document.addEventListener('input', (event) => {
@@ -467,6 +665,8 @@ renderTypeOptions();
 renderInstitutions();
 renderCampuses();
 renderStepper();
+renderLocation();
+renderEvents();
 updateContinueButton();
 updateAccessibilityUi();
 showScreen('splash', false);
