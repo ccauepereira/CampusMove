@@ -48,26 +48,28 @@ const campuses = {
 
 // BRUNO: credenciais demonstrativas; não representam autenticação real.
 const demoCredentials = {
-  student: [{ login: 'DEMO-BRUNO', password: '12345' }, { login: 'bruno@aluno.demo', password: '12345' }],
+  student: [{ login: '20261045050612', password: '12345' }, { login: 'bruno.silva@aluno.ifce.edu.br', password: '12345' }],
   admin: [
-    { login: 'DEMO-ADMIN-01', password: '12345' },
-    { login: 'DEMO-ADMIN-02', password: '12345' },
-    { login: 'DEMO-ADMIN-03', password: '12345' },
-    { login: 'DEMO-ADMIN-04', password: '12345' },
-    { login: 'admin@campusmove.demo', password: '12345' }
+    { login: '20261045050601', password: '12345' },
+    { login: '20261045050602', password: '12345' },
+    { login: '20261045050603', password: '12345' },
+    { login: '20261045050604', password: '12345' },
+    { login: 'admin.campus@ifce.edu.br', password: '12345' }
   ]
 };
 
 const simpleTexts = {
-  welcomeTitle: ['Mobilidade acadêmica simples, acessível e em tempo real.', 'Veja horários, rotas e informações do campus com facilidade.'],
+  welcomeTitle: ['Mobilidade acadêmica simples, acessível e em tempo real.', 'Veja rotas, horários e avisos do seu campus.'],
   welcomeHelper: ['Vou te ajudar a encontrar campus, rota e horários.', 'Eu ajudo você a escolher o campus e ver informações importantes.'],
-  roleHelper: ['Escolha seu perfil para eu mostrar as funções certas do CampusMove.', 'Escolha como você quer entrar no CampusMove.'],
+  profileTitle: ['Como você vai usar o CampusMove hoje?', 'Escolha seu tipo de acesso.'],
+  roleHelper: ['Escolha seu perfil para eu mostrar as funções certas do CampusMove.', 'Escolha seu tipo de acesso.'],
   institutionHelper: ['Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.', 'Escolha a instituição e o campus. Agora, só Maracanaú está disponível.'],
-  institutionNote: ['CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.', 'O CampusMove pode funcionar em várias instituições. Neste teste, use IFCE e Campus Maracanaú.'],
-  loginHelper: ['Protótipo: use dados demonstrativos. No sistema real, a validação viria da instituição.', 'Use o login de teste. No app real, a instituição confirma seus dados.'],
+  institutionNote: ['CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.', 'Escolha sua instituição e seu campus.'],
+  loginHelper: ['Protótipo: use uma matrícula fictícia ou e-mail acadêmico demonstrativo.', 'Use os dados de teste para entrar.'],
   homeRoute: ['IFCE — Campus Maracanaú → Estação Virgílio Távora', 'Rota entre o campus Maracanaú e a estação Virgílio Távora'],
   profileHelper: ['Aqui ficam as informações visuais do seu vínculo com o campus.', 'Aqui aparecem informações simples sobre seu perfil.'],
-  profilePrivacy: ['Dados acadêmicos são gerenciados pela instituição.', 'Seus dados principais vêm da instituição.']
+  profilePrivacy: ['Dados acadêmicos são gerenciados pela instituição.', 'Seus dados da escola não podem ser alterados aqui.'],
+  adminRestriction: ['Ambiente restrito para administradores autorizados.', 'Área só para administradores.']
 };
 
 const screens = [...document.querySelectorAll('.screen')];
@@ -213,8 +215,8 @@ function continueProfile() {
     return;
   }
   if (appState.role === 'Aluno') return showScreen('campus');
-  if (appState.role === 'Servidor') return showBlockedAccess('Acesso de servidor em preparação', 'No sistema real, servidores terão permissões institucionais específicas. Neste protótipo, o acesso de servidor ainda está bloqueado.');
-  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista em preparação', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente. O painel operacional será desenvolvido em etapa futura.');
+  if (appState.role === 'Servidor') return showBlockedAccess('Acesso de servidor em preparação', 'No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Neste protótipo, o acesso de servidor ainda não está liberado.');
+  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista', 'Acesso operacional em preparação.', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.');
   if (appState.role === 'Administrador') return prepareAdminLogin();
   return showScreen('visitor-access');
 }
@@ -227,9 +229,19 @@ function continueCampus() {
   showScreen('login');
 }
 
-function showBlockedAccess(title, message) {
+function showBlockedAccess(title, message, detail = '') {
+  const messageNode = document.querySelector('#blocked-message');
+  const detailNode = document.querySelector('#blocked-detail');
+  messageNode.textContent = message;
+  detailNode.textContent = detail;
+  delete messageNode.dataset.simpleKey;
+  delete detailNode.dataset.simpleKey;
+  if (title.includes('servidor')) messageNode.dataset.simpleKey = 'serverRestriction';
+  if (title.includes('motorista')) detailNode.dataset.simpleKey = 'motoristRestriction';
+  simpleTexts.serverRestriction = ['No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Este acesso ainda será liberado pela instituição.'];
+  simpleTexts.motoristRestriction = ['Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.', 'Somente motoristas autorizados poderão entrar.'];
   document.querySelector('#blocked-title').textContent = title;
-  document.querySelector('#blocked-message').textContent = message;
+  updateAccessibilityUi();
   showScreen('blocked-access');
 }
 
@@ -238,7 +250,7 @@ function prepareAdminLogin() {
   document.querySelector('#restricted-login').dataset.subtitle = 'Ambiente restrito';
   document.querySelector('#restricted-login-title').textContent = 'Acesso administrativo';
   document.querySelector('#restricted-warning').textContent = 'Acesso administrativo restrito.';
-  document.querySelector('#restricted-description').textContent = 'Somente administradores autorizados podem acessar este ambiente.';
+  document.querySelector('#restricted-description').textContent = appState.accessibility.simpleLanguage ? 'Área só para administradores.' : 'Ambiente restrito para administradores autorizados.';
   document.querySelector('#restricted-user').value = '';
   document.querySelector('#restricted-password').value = '';
   document.querySelector('#restricted-alert').textContent = '';
@@ -257,18 +269,32 @@ function enterApp(visitor = false) {
 function updateProfile() {
   const isVisitor = appState.accessMode === 'visitor';
   document.querySelector('.profile-card h3').textContent = isVisitor ? 'Perfil acadêmico indisponível para visitantes.' : 'Bruno';
-  document.querySelector('.profile-card p').textContent = isVisitor ? 'Acesso público sem dados acadêmicos protegidos' : 'Instituição: Instituto Federal do Ceará';
-  document.querySelector('.profile-card small').textContent = isVisitor ? 'Eventos, horários e rotas públicas' : 'Campus: Maracanaú · Matrícula: DEMO-****';
+  const profileRows = document.querySelectorAll('.profile-details p span');
+  if (isVisitor) {
+    profileRows[0].textContent = 'Visitante';
+    profileRows[1].textContent = 'Acesso público';
+    profileRows[2].textContent = 'Eventos, horários e rotas públicas';
+    document.querySelector('.profile-card small').textContent = 'Sem dados acadêmicos protegidos';
+  } else {
+    profileRows[0].textContent = 'Aluno';
+    profileRows[1].textContent = 'Instituto Federal do Ceará';
+    profileRows[2].textContent = 'Maracanaú';
+    document.querySelector('.profile-card small').textContent = 'Matrícula: DEMO-****';
+  }
   document.querySelector('.profile-card .product-badge').textContent = isVisitor ? 'Visitante' : 'Aluno do protótipo';
   document.querySelector('.avatar').textContent = isVisitor ? 'V' : 'B';
 }
 
 function login() {
+  if (appState.role !== 'Aluno') {
+    document.querySelector('#login-alert').textContent = 'Este acesso pertence ao perfil de aluno. Troque o perfil para continuar.';
+    return;
+  }
   const loginValue = document.querySelector('#login-user').value.trim();
   const passwordValue = document.querySelector('#login-password').value;
   const authorized = demoCredentials.student.some((credential) => credential.login === loginValue && credential.password === passwordValue);
   if (!authorized) {
-    document.querySelector('#login-alert').textContent = 'Use DEMO-BRUNO / 12345 para testar o acesso de aluno.';
+    document.querySelector('#login-alert').textContent = 'Use 20261045050612 / 12345 ou bruno.silva@aluno.ifce.edu.br / 12345 para testar o acesso de aluno.';
     return;
   }
   document.querySelector('#login-alert').textContent = 'Acesso autorizado para demonstração.';
@@ -288,6 +314,7 @@ function restrictedLogin() {
 
 function updateAccessibilityUi() {
   document.body.classList.toggle('large-text', appState.accessibility.largeText);
+  document.body.classList.toggle('a11y-large-text', appState.accessibility.largeText);
   document.body.classList.toggle('high-contrast', appState.accessibility.highContrast);
   document.body.classList.toggle('reduce-motion', appState.accessibility.reduceMotion);
   document.body.classList.toggle('simple-language', appState.accessibility.simpleLanguage);
@@ -334,7 +361,7 @@ document.addEventListener('click', (event) => {
   if (button.dataset.action === 'login') login();
   if (button.dataset.action === 'restricted-login') restrictedLogin();
   if (button.dataset.action === 'visitor-home') enterApp(true);
-  if (button.dataset.action === 'help-login') document.querySelector('#login-alert').textContent = 'Use DEMO-BRUNO / 12345 apenas para testar o protótipo.';
+  if (button.dataset.action === 'help-login') document.querySelector('#login-alert').textContent = 'Use 20261045050612 / 12345 apenas para testar o protótipo.';
   if (button.dataset.access) toggleAccessibility(button.dataset.access);
 });
 

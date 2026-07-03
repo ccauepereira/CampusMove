@@ -261,3 +261,22 @@ body.high-contrast .selected, [data-access].selected { border-color: #86EFAC !im
 body.simple-language .assistant-card { border-color: rgba(134,239,172,.22); }
 body.reduce-motion .loading-dot { animation: none; }
 @keyframes loading-pulse { 0%, 100% { opacity: .45; transform: scaleX(.72); } 50% { opacity: 1; transform: scaleX(1); } }
+
+/* Accessibility fixes */
+body.a11y-large-text { font-size: 112%; line-height: 1.25; }
+body.a11y-large-text h1, body.a11y-large-text h2, body.a11y-large-text h3 { line-height: 1.15; }
+body.a11y-large-text button, body.a11y-large-text .role-card, body.a11y-large-text .info-card, body.a11y-large-text .note-card { line-height: 1.25; }
+body.a11y-large-text .screen { overflow-x: hidden; }
+
+/* Profile cleanup */
+.profile-card { gap: 14px; align-items: flex-start; }
+.profile-details { display: grid; gap: 9px; }
+.profile-details h3 { margin: 2px 0 0; }
+.profile-details p { display: grid; gap: 2px; margin: 0; color: #E5EEF9; }
+.profile-details p strong { color: #BBF7D0; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; }
+.profile-details p span { color: #F8FAFC; line-height: 1.3; }
+.profile-details small { color: var(--muted); }
+
+/* Role access rules */
+#blocked-detail { margin-top: -2px; color: #CBD5E1; }
+#restricted-description { line-height: 1.45; }
