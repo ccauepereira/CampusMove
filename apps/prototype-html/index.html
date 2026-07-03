@@ -70,18 +70,19 @@
           <!-- FELIPE: campos progressivos de organização, instituição e campus. -->
           <section class="flow-section progressive-field" aria-labelledby="organization-title">
             <label id="organization-title" for="organization-search">Organização acadêmica</label>
-            <input id="organization-search" class="search-field" type="text" placeholder="Escolha ou digite o tipo de instituição" autocomplete="off" data-search="organization">
+            <p class="field-help">Escolha o tipo de instituição para filtrar as opções.</p>
+            <input id="organization-search" class="search-field" type="text" placeholder="Digite IF, UF, UE, UI, centro universitário ou faculdade" autocomplete="off" data-search="organization">
             <div class="chip-grid" id="organization-options" aria-label="Organizações acadêmicas"></div>
           </section>
           <section class="flow-section progressive-field" aria-labelledby="institution-list-title">
             <label id="institution-list-title" for="institution-search">Instituição</label>
-            <input id="institution-search" class="search-field" type="text" placeholder="Escolha primeiro a organização acadêmica" autocomplete="off" data-search="institution" disabled>
+            <input id="institution-search" class="search-field" type="text" placeholder="Digite IFCE, UFC, UECE, UNILAB, FB ou o nome da instituição" autocomplete="off" data-search="institution" disabled>
             <!-- BRUNO: data-institution é usado para atualizar a lista de campus. -->
             <div class="institution-list" id="institution-options" aria-label="Instituições disponíveis"></div>
           </section>
           <section class="flow-section progressive-field" aria-labelledby="campus-list-title">
             <label id="campus-list-title" for="campus-search">Campus</label>
-            <input id="campus-search" class="search-field" type="text" placeholder="Escolha primeiro a instituição" autocomplete="off" data-search="campus" disabled>
+            <input id="campus-search" class="search-field" type="text" placeholder="Digite Maracanaú, Fortaleza, Pici, Itaperi, Redenção..." autocomplete="off" data-search="campus" disabled>
             <div class="stack-list" id="campus-options" aria-label="Campi disponíveis"></div>
           </section>
           <article class="institution-summary" id="institution-summary" hidden></article>
@@ -96,6 +97,7 @@
             <label>Matrícula ou e-mail<input id="login-user" type="text" autocomplete="username" value="20261045050612" placeholder="Matrícula fictícia ou e-mail acadêmico"></label>
             <label>Senha<input id="login-password" type="password" autocomplete="off" placeholder="Senha"></label>
             <p data-simple-key="loginHelper">Protótipo: use uma matrícula fictícia ou e-mail acadêmico demonstrativo.</p><p class="demo-hint">Exemplo de teste: 20261045050612 / 12345</p>
+            <details class="demo-credentials"><summary>Credenciais de teste</summary><p>Use estes dados apenas para testar o protótipo.</p><dl><dt>Aluno</dt><dd>Matrícula: 20261045050612<br>E-mail: bruno.silva@aluno.ifce.edu.br<br>Senha: 12345</dd><dt>Administrador</dt><dd>Matrícula: 20261045050601<br>E-mail: admin.campus@ifce.edu.br<br>Senha: 12345</dd><dt>Servidor</dt><dd>Acesso em preparação neste protótipo.</dd><dt>Motorista</dt><dd>Acesso em preparação neste protótipo.</dd><dt>Visitante</dt><dd>Não precisa de login.</dd></dl></details>
             <label class="check-row"><input type="checkbox" checked> Manter conectado neste protótipo</label>
           </form>
           <button class="text-button" data-action="help-login">Preciso de ajuda para acessar</button>
@@ -112,7 +114,7 @@
           <form class="form-card" novalidate>
             <label>Matrícula ou e-mail<input id="restricted-user" type="text" autocomplete="username" placeholder="Matrícula institucional ou e-mail"></label>
             <label>Senha<input id="restricted-password" type="password" autocomplete="off" placeholder="Senha"></label>
-            <p id="restricted-hint">Protótipo: credenciais administrativas são fictícias e não representam dados reais.</p>
+            <p id="restricted-hint">Use uma credencial fictícia de teste.</p>
           </form>
           <p class="inline-alert" id="restricted-alert" aria-live="polite"></p>
           <button class="primary-button" data-action="restricted-login">Entrar</button>
@@ -147,7 +149,7 @@
           <!-- FELIPE: bloco visual do card principal da Home. -->
           <article class="hero-card">
             <div class="hero-kicker">Próxima viagem</div>
-            <div class="hero-route"><small>Rota</small><h3 data-simple-key="homeRoute">IFCE — Campus Maracanaú → Estação Virgílio Távora</h3></div>
+            <div class="hero-route"><small>Rota</small><h3 data-simple-key="homeRoute">IFCE Campus Maracanaú → Estação Virgílio Távora</h3></div>
             <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
             <strong class="countdown">Faltam <span>18</span> min</strong>
           </article>
@@ -167,7 +169,7 @@
         </section>
 
         <section id="location" class="screen internal" data-title="Localização" data-subtitle="MinhaJardineira" aria-labelledby="location-title">
-          <p class="eyebrow">Rota simulada</p><h2 id="location-title">Localização da jardineira</h2>
+          <p class="eyebrow">Rota demonstrativa atual</p><h2 id="location-title">IFCE Campus Maracanaú → Estação Virgílio Távora</h2>
           <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Veja uma simulação visual da rota da jardineira.</p></div></article>
           <div class="map-card" role="img" aria-label="Mapa simulado com rota até o campus"><svg viewBox="0 0 360 260" aria-hidden="true"><defs><linearGradient id="routeGradient" x1="0" x2="1"><stop stop-color="#22C55E"/><stop offset="1" stop-color="#86EFAC"/></linearGradient></defs><path class="map-street" d="M14 64 C74 20 123 83 183 52 S292 38 345 84"/><path class="map-street thin" d="M22 210 C92 157 170 230 240 172 S310 132 346 148"/><path class="map-route" d="M46 210 L96 166 L160 170 L229 119 L315 75"/><circle class="marker student" cx="46" cy="210" r="11"/><circle class="marker stop" cx="96" cy="166" r="10"/><circle class="marker metro" cx="160" cy="170" r="10"/><rect class="marker shuttle" x="216" y="107" width="28" height="20" rx="7"/><circle class="marker campus" cx="315" cy="75" r="12"/><text x="24" y="238">Você</text><text x="70" y="154">Parada</text><text x="135" y="198">Metrô</text><text x="200" y="96">Jardineira</text><text x="281" y="56">Campus</text></svg></div>
           <article class="status-card wide"><span class="pulse-dot"></span><div><strong>Status: Sistema online</strong><small>Atualizado no navegador</small></div></article>
@@ -178,14 +180,14 @@
         <section id="events" class="screen internal" data-title="Eventos" data-subtitle="Rotas públicas" aria-labelledby="events-title">
           <p class="eyebrow">Eventos no campus</p><h2 id="events-title">Eventos no campus</h2>
           <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Se você veio para um evento, posso sugerir uma rota pública.</p></div></article>
-          <article class="event-card"><span class="product-badge">Hoje — 18:00</span><h3>Semana da Computação</h3><p>Local: Auditório do IFCE Maracanaú</p><p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p><strong>Aviso: Horário especial da jardineira às 18:00</strong></article>
+          <article class="event-card"><span class="product-badge">Hoje — 18:00</span><h3>Semana da Computação</h3><p>Local: Auditório do IFCE Maracanaú</p><p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p><strong>Aviso: Horário especial da jardineira às 18:00</strong><p class="privacy-note">Em fases futuras, o CampusMove poderá mostrar a melhor rota até o local do evento.</p></article>
         </section>
 
         <section id="user-profile" class="screen internal" data-title="Perfil" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="user-profile-title">
           <p class="eyebrow">Perfil do protótipo</p><h2 id="user-profile-title">Perfil</h2>
           <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p data-simple-key="profileHelper">Aqui ficam as informações visuais do seu vínculo com o campus.</p></div></article>
-          <section class="info-card profile-card"><div class="avatar">B</div><div class="profile-details"><span class="product-badge">Aluno do protótipo</span><h3>Bruno</h3><p><strong>Vínculo</strong><span>Aluno</span></p><p><strong>Instituição</strong><span>Instituto Federal do Ceará</span></p><p><strong>Campus</strong><span>Maracanaú</span></p><small>Matrícula: DEMO-****</small></div></section>
-          <p class="note-card" data-simple-key="profilePrivacy">Dados acadêmicos são gerenciados pela instituição.</p>
+          <section class="info-card profile-card"><div class="avatar">B</div><div class="profile-details"><span class="product-badge">Aluno do protótipo</span><h3>Bruno</h3><p><strong>Vínculo</strong><span>Aluno</span></p><p><strong>Instituição</strong><span>Instituto Federal do Ceará</span></p><p><strong>Campus</strong><span>Maracanaú</span></p><small>Matrícula: 20261045******</small></div></section>
+          <p class="note-card" data-simple-key="profilePrivacy">Dados acadêmicos protegidos pela instituição.</p>
           <p class="privacy-note">A foto do perfil é apenas visual neste protótipo. No sistema real, imagens passariam por validação institucional.</p>
         </section>
 
