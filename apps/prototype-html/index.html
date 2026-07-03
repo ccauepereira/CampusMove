@@ -59,35 +59,42 @@
           <button class="primary-button" data-action="continue-profile">Continuar</button>
         </section>
 
-        <section id="campus" class="screen" data-title="Instituição" data-subtitle="CampusMove multi-instituição" aria-labelledby="campus-title">
-          <p class="eyebrow">Instituição e campus</p>
-          <h2 id="campus-title">Escolha organização, instituição e campus</h2>
+        <section id="campus" class="screen" data-title="Ambiente" data-subtitle="Seletor SaaS institucional" aria-labelledby="campus-title">
+          <p class="eyebrow">Ambiente institucional</p>
+          <h2 id="campus-title">Conecte-se ao ambiente da sua instituição</h2>
+          <p class="section-subtitle">O CampusMove organiza serviços por instituição, campus e perfil de acesso.</p>
           <article class="assistant-card">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p data-simple-key="institutionHelper">Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.</p></div>
+            <div><strong>Movinho</strong><p data-simple-key="institutionHelper">Escolha o ambiente institucional para acessar o serviço ativo no seu campus.</p></div>
           </article>
-          <p class="note-card" data-simple-key="institutionNote">CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.</p>
-          <!-- FELIPE: campos progressivos de organização, instituição e campus. -->
-          <section class="flow-section progressive-field" aria-labelledby="organization-title">
-            <label id="organization-title" for="organization-search">Organização acadêmica</label>
-            <p class="field-help">Escolha o tipo de instituição para filtrar as opções.</p>
-            <input id="organization-search" class="search-field" type="text" placeholder="Digite IF, UF, UE, UI, centro universitário ou faculdade" autocomplete="off" data-search="organization">
-            <div class="chip-grid" id="organization-options" aria-label="Organizações acadêmicas"></div>
+          <article class="saas-platform-card">
+            <div><strong>CampusMove Platform</strong><p>Neste MVP, o serviço MinhaJardineira está ativo para o IFCE Campus Maracanaú.</p></div>
+            <div class="badge-row"><span>Multi-instituição</span><span>Multi-campus</span><span>Acesso por perfil</span><span>Serviços por campus</span></div>
+          </article>
+          <div class="saas-stepper" id="saas-stepper" aria-label="Etapas de seleção do ambiente"></div>
+          <!-- BRUNO: tipo de instituição é clicável, não digitável. -->
+          <section class="flow-section progressive-field" aria-labelledby="type-title">
+            <h3 id="type-title">Tipo de instituição</h3>
+            <p class="field-help">Escolha uma categoria para ver os ambientes disponíveis.</p>
+            <div class="type-card-grid" id="type-options" aria-label="Tipos de instituição"></div>
           </section>
           <section class="flow-section progressive-field" aria-labelledby="institution-list-title">
-            <label id="institution-list-title" for="institution-search">Instituição</label>
-            <input id="institution-search" class="search-field" type="text" placeholder="Digite IFCE, UFC, UECE, UNILAB, FB ou o nome da instituição" autocomplete="off" data-search="institution" disabled>
-            <!-- BRUNO: data-institution é usado para atualizar a lista de campus. -->
+            <label id="institution-list-title" for="institution-search">Ambiente institucional</label>
+            <p class="field-help">Escolha a instituição para ver os campi disponíveis.</p>
+            <input id="institution-search" class="search-field" type="text" placeholder="Buscar instituição por nome ou sigla" autocomplete="off" data-search="institution" disabled>
+            <p class="field-example">Ex.: IFCE, IFSP, IFPB, UFC, UECE, UNILAB, FB</p>
             <div class="institution-list" id="institution-options" aria-label="Instituições disponíveis"></div>
           </section>
           <section class="flow-section progressive-field" aria-labelledby="campus-list-title">
-            <label id="campus-list-title" for="campus-search">Campus</label>
-            <input id="campus-search" class="search-field" type="text" placeholder="Digite Maracanaú, Fortaleza, Pici, Itaperi, Redenção..." autocomplete="off" data-search="campus" disabled>
+            <label id="campus-list-title" for="campus-search">Campus ou unidade</label>
+            <p class="field-help">Escolha o campus onde deseja acessar o serviço.</p>
+            <input id="campus-search" class="search-field" type="text" placeholder="Buscar campus ou unidade" autocomplete="off" data-search="campus" disabled>
+            <p class="field-example">Ex.: Maracanaú, Fortaleza, Pici, Itaperi, João Pessoa</p>
             <div class="stack-list" id="campus-options" aria-label="Campi disponíveis"></div>
           </section>
           <article class="institution-summary" id="institution-summary" hidden></article>
           <p class="inline-alert" id="campus-alert" aria-live="polite"></p>
-          <button class="primary-button" data-action="continue-campus">Continuar</button>
+          <button class="primary-button" id="continue-campus-button" data-action="continue-campus">Escolha o tipo de instituição</button>
         </section>
 
         <section id="login" class="screen" data-title="Login" data-subtitle="Validação institucional" aria-labelledby="login-title">

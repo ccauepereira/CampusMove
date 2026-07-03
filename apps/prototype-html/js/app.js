@@ -3,9 +3,9 @@ const appState = {
   currentScreen: 'splash',
   history: ['splash'],
   role: null,
-  organization: null,
-  institution: null,
-  campus: null,
+  selectedType: null,
+  selectedInstitution: null,
+  selectedCampus: null,
   userName: null,
   accessMode: null,
   accessibility: {
@@ -24,36 +24,47 @@ const roles = [
   { id: 'Visitante', icon: '📍', title: 'Visitante', description: 'Rotas públicas e eventos sem login acadêmico.' }
 ];
 
-// BRUNO: controla o fluxo progressivo de organização, instituição e campus.
-const organizations = [
-  { name: 'Instituto Federal', keywords: ['IF', 'IFCE', 'Instituto', 'Instituto Federal', 'if','iF','If'] },
-  { name: 'Universidade Federal', keywords: ['UF', 'UFC', 'Universidade Federal', 'Federal'] },
-  { name: 'Universidade Estadual', keywords: ['UE', 'UECE', 'Universidade Estadual', 'Estadual'] },
-  { name: 'Universidade Internacional', keywords: ['UI', 'UNILAB', 'Internacional', 'Integração'] },
-  { name: 'Centro Universitário', keywords: ['Centro', 'Centro Universitário', 'Uni', 'FB', 'Farias Brito'] },
-  { name: 'Faculdade', keywords: ['Faculdade', 'Privada', 'Particular'] }
+const environmentTypes = [
+  { id: 'if', label: 'Instituto Federal' },
+  { id: 'publica', label: 'Universidade Pública' },
+  { id: 'privada', label: 'Instituição Privada' },
+  { id: 'outra', label: 'Outra instituição' }
 ];
-const institutions = [
-  { id: 'ifce', fallback: 'IFCE', name: 'IFCE — Instituto Federal do Ceará', cleanName: 'Instituto Federal do Ceará', organization: 'Instituto Federal', status: 'MVP ativo', logo: 'assets/assets-logo/ifce.png', alt: 'Logo do IFCE', keywords: ['IFCE', 'IF', 'Instituto Federal', 'Ceará', 'Maracanaú'] },
-  { id: 'ufc', fallback: 'UFC', name: 'UFC — Universidade Federal do Ceará', cleanName: 'Universidade Federal do Ceará', organization: 'Universidade Federal', status: 'Em breve', logo: 'assets/assets-logo/ufc.png', alt: 'Logo da UFC', keywords: ['UFC', 'UF', 'Universidade Federal', 'Ceará', 'Pici', 'Benfica'] },
-  { id: 'uece', fallback: 'UECE', name: 'UECE — Universidade Estadual do Ceará', cleanName: 'Universidade Estadual do Ceará', organization: 'Universidade Estadual', status: 'Em breve', logo: 'assets/assets-logo/uece.png', alt: 'Logo da UECE', keywords: ['UECE', 'UE', 'Universidade Estadual', 'Itaperi'] },
-  { id: 'unilab', fallback: 'UNILAB', name: 'UNILAB — Universidade da Integração Internacional da Lusofonia Afro-Brasileira', cleanName: 'UNILAB', organization: 'Universidade Internacional', status: 'Em breve', logo: 'assets/assets-logo/unilab.png', alt: 'Logo da UNILAB', keywords: ['UNILAB', 'UI', 'Internacional', 'Integração', 'Redenção', 'Acarape'] },
-  { id: 'fb', fallback: 'FB', name: 'FB Uni — Centro Universitário Farias Brito', cleanName: 'Centro Universitário Farias Brito', organization: 'Centro Universitário', status: 'Em breve', logo: 'assets/assets-logo/fb.png', alt: 'Logo da FB Uni', keywords: ['FB', 'Farias Brito', 'Centro Universitário', 'Particular', 'Privada'] }
-];
-const campuses = {
-  ifce: [
-    { id: 'maracanau', name: 'Maracanaú', status: 'MVP ativo', active: true, keywords: ['Maracanaú', 'IFCE Maracanaú', 'Campus Maracanaú'] },
-    { id: 'fortaleza', name: 'Fortaleza', status: 'Em breve', keywords: ['Fortaleza', 'IFCE Fortaleza'] },
-    { id: 'caucaia', name: 'Caucaia', status: 'Em breve', keywords: ['Caucaia', 'IFCE Caucaia'] },
-    { id: 'sobral', name: 'Sobral', status: 'Em breve', keywords: ['Sobral', 'IFCE Sobral'] }
-  ],
-  ufc: [{ id: 'pici', name: 'Pici', status: 'Em breve', keywords: ['Pici', 'Campus do Pici', 'UFC Pici'] }, { id: 'benfica', name: 'Benfica', status: 'Em breve', keywords: ['Benfica', 'UFC Benfica'] }],
-  uece: [{ id: 'itaperi', name: 'Itaperi', status: 'Em breve', keywords: ['Itaperi', 'UECE Itaperi'] }],
-  unilab: [{ id: 'redencao', name: 'Redenção/Acarape', status: 'Em breve', keywords: ['Redenção', 'Acarape', 'UNILAB', 'CE-060'] }],
-  fb: [{ id: 'fortaleza', name: 'Fortaleza', status: 'Em breve', keywords: ['Fortaleza', 'Farias Brito', 'FB Uni'] }]
-};
 
-// BRUNO: credenciais demonstrativas; não representam autenticação real.
+// BRUNO: dataset SaaS demonstrativo; apenas IFCE Maracanaú libera o MVP.
+const institutions = [
+  { id: 'ifce', acronym: 'IFCE', name: 'Instituto Federal do Ceará', type: 'Instituto Federal', status: 'Ambiente ativo', service: 'MinhaJardineira', logo: 'assets/assets-logo/ifce.png', fallback: 'IFCE', alt: 'Logo do IFCE', keywords: ['IFCE', 'IF', 'Instituto Federal', 'Ceará', 'Maracanaú'], campuses: [
+    { id: 'maracanau', name: 'Maracanaú', status: 'MVP ativo', service: 'MinhaJardineira ativo', active: true, keywords: ['Maracanaú', 'IFCE Maracanaú', 'Campus Maracanaú'] },
+    { id: 'fortaleza', name: 'Fortaleza', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Fortaleza', 'IFCE Fortaleza'] },
+    { id: 'caucaia', name: 'Caucaia', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Caucaia', 'IFCE Caucaia'] },
+    { id: 'sobral', name: 'Sobral', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Sobral', 'IFCE Sobral'] }
+  ] },
+  { id: 'ifsp', acronym: 'IFSP', name: 'Instituto Federal de São Paulo', type: 'Instituto Federal', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: '', fallback: 'IFSP', alt: 'Logo do IFSP', keywords: ['IFSP', 'IF', 'Instituto Federal', 'São Paulo'], campuses: [
+    { id: 'campinas', name: 'Campinas', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Campinas', 'IFSP Campinas'] },
+    { id: 'araraquara', name: 'Araraquara', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Araraquara', 'IFSP Araraquara'] },
+    { id: 'braganca', name: 'Bragança Paulista', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Bragança Paulista', 'IFSP Bragança'] }
+  ] },
+  { id: 'ifpb', acronym: 'IFPB', name: 'Instituto Federal da Paraíba', type: 'Instituto Federal', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: '', fallback: 'IFPB', alt: 'Logo do IFPB', keywords: ['IFPB', 'IF', 'Instituto Federal', 'Paraíba'], campuses: [
+    { id: 'joao-pessoa', name: 'João Pessoa', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['João Pessoa', 'IFPB João Pessoa'] },
+    { id: 'campina-grande', name: 'Campina Grande', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Campina Grande', 'IFPB Campina'] },
+    { id: 'cabedelo', name: 'Cabedelo', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Cabedelo', 'IFPB Cabedelo'] }
+  ] },
+  { id: 'ufc', acronym: 'UFC', name: 'Universidade Federal do Ceará', type: 'Universidade Pública', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: 'assets/assets-logo/ufc.png', fallback: 'UFC', alt: 'Logo da UFC', keywords: ['UFC', 'Universidade Federal', 'Universidade Pública', 'Ceará', 'Pici', 'Benfica'], campuses: [
+    { id: 'pici', name: 'Pici', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Pici', 'UFC Pici', 'Campus do Pici'] },
+    { id: 'benfica', name: 'Benfica', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Benfica', 'UFC Benfica'] }
+  ] },
+  { id: 'uece', acronym: 'UECE', name: 'Universidade Estadual do Ceará', type: 'Universidade Pública', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: 'assets/assets-logo/uece.png', fallback: 'UECE', alt: 'Logo da UECE', keywords: ['UECE', 'Universidade Estadual', 'Universidade Pública', 'Itaperi'], campuses: [
+    { id: 'itaperi', name: 'Itaperi', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Itaperi', 'UECE Itaperi'] }
+  ] },
+  { id: 'unilab', acronym: 'UNILAB', name: 'Universidade da Integração Internacional da Lusofonia Afro-Brasileira', type: 'Universidade Pública', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: 'assets/assets-logo/unilab.png', fallback: 'UNILAB', alt: 'Logo da UNILAB', keywords: ['UNILAB', 'Universidade Pública', 'Internacional', 'Integração', 'Redenção', 'Acarape'], campuses: [
+    { id: 'redencao', name: 'Redenção/Acarape', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Redenção', 'Acarape', 'UNILAB Redenção', 'UNILAB Acarape'] }
+  ] },
+  { id: 'fb', acronym: 'FB Uni', name: 'Centro Universitário Farias Brito', type: 'Instituição Privada', status: 'Ambiente em preparação', service: 'Serviços em preparação', logo: 'assets/assets-logo/fb.png', fallback: 'FB', alt: 'Logo da FB Uni', keywords: ['FB', 'FB Uni', 'Farias Brito', 'Centro Universitário', 'Instituição Privada', 'Particular'], campuses: [
+    { id: 'fortaleza', name: 'Fortaleza', status: 'Ambiente em preparação', service: 'Serviços em preparação', keywords: ['Fortaleza', 'FB Uni Fortaleza', 'Farias Brito Fortaleza'] }
+  ] }
+];
+
+// BRUNO: credenciais fictícias usadas apenas para demonstração visual.
 const demoCredentials = {
   student: [{ login: '20261045050612', password: '12345' }, { login: 'bruno.silva@aluno.ifce.edu.br', password: '12345' }],
   admin: [
@@ -70,8 +81,7 @@ const simpleTexts = {
   welcomeHelper: ['Vou te ajudar a encontrar campus, rota e horários.', 'Eu ajudo você a escolher o campus e ver informações importantes.'],
   profileTitle: ['Como você vai usar o CampusMove hoje?', 'Escolha seu tipo de acesso.'],
   roleHelper: ['Escolha seu perfil para eu mostrar as funções certas do CampusMove.', 'Escolha seu tipo de acesso.'],
-  institutionHelper: ['Escolha sua instituição e campus. Neste MVP, Maracanaú já está ativo.', 'Escolha a instituição e o campus. Agora, só Maracanaú está disponível.'],
-  institutionNote: ['CampusMove é uma plataforma multi-instituição. Neste MVP, o campus ativo é o IFCE Campus Maracanaú.', 'Escolha sua instituição e seu campus.'],
+  institutionHelper: ['Escolha o ambiente institucional para acessar o serviço ativo no seu campus.', 'Escolha instituição e campus para entrar.'],
   loginHelper: ['Protótipo: use uma matrícula fictícia ou e-mail acadêmico demonstrativo.', 'Use os dados de teste para entrar.'],
   homeRoute: ['IFCE Campus Maracanaú → Estação Virgílio Távora', 'IFCE Campus Maracanaú → Estação Virgílio Távora'],
   profileHelper: ['Aqui ficam as informações visuais do seu vínculo com o campus.', 'Aqui aparecem informações simples sobre seu perfil.'],
@@ -109,103 +119,95 @@ function updateActiveTab() {
   document.querySelectorAll('[data-tab]').forEach((button) => button.classList.toggle('active', button.dataset.tab === appState.currentScreen));
 }
 
-function applySelection(groupSelector, selectedButton) {
-  document.querySelectorAll(groupSelector).forEach((button) => {
-    const isSelected = button === selectedButton;
-    button.classList.toggle('selected', isSelected);
-    button.classList.toggle('dimmed', Boolean(selectedButton) && !isSelected);
-  });
+function clearSelection(groupSelector) {
+  document.querySelectorAll(groupSelector).forEach((button) => button.classList.remove('selected', 'active', 'dimmed'));
 }
 
 function renderRoles() {
   document.querySelector('#role-options').innerHTML = roles.map((role) => `<button class="option-card role-card" data-role="${role.id}" role="option"><span>${role.icon}</span><strong>${role.title}</strong><small>${role.description}</small></button>`).join('');
 }
 
+function normalize(value) {
+  return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 function keywordMatches(item, search) {
   if (!search) return true;
-  const values = [item.name, item.organization, ...(item.keywords || [])];
+  const values = [item.acronym, item.name, item.type, ...(item.keywords || [])];
   return values.some((value) => normalize(value).includes(search));
 }
 
-function findOrganizationByKeyword(search) {
-  if (!search) return null;
-  return organizations.find((item) => keywordMatches(item, search));
-}
-
-function renderOrganizations() {
-  const search = normalize(document.querySelector('#organization-search').value);
-  const keywordMatch = findOrganizationByKeyword(search);
-  if (keywordMatch && appState.organization !== keywordMatch.name) {
-    appState.organization = keywordMatch.name;
-    appState.institution = null;
-    appState.campus = null;
-    document.querySelector('#institution-search').value = '';
-    document.querySelector('#campus-search').value = '';
-  }
-  if (search && !keywordMatch) {
-    appState.organization = null;
-    appState.institution = null;
-    appState.campus = null;
-  }
-  const filtered = organizations.filter((item) => keywordMatches(item, search));
-  document.querySelector('#organization-options').innerHTML = filtered.length
-    ? filtered.map((item) => `<button class="type-chip compact-chip ${item.name === appState.organization ? 'selected' : ''}" data-organization="${item.name}">${item.name}</button>`).join('')
-    : '<p class="helper-card">Nenhuma organização encontrada para esse termo.</p>';
-  renderInstitutions();
-  renderCampuses();
-}
-
-function filteredInstitutions() {
-  const search = normalize(document.querySelector('#institution-search').value);
-  if (!appState.organization && !search) return [];
-  return institutions.filter((item) => {
-    const organizationMatches = appState.organization ? item.organization === appState.organization : true;
-    return organizationMatches && keywordMatches(item, search);
-  });
+function selectedTypeLabel() {
+  return environmentTypes.find((type) => type.id === appState.selectedType)?.label || null;
 }
 
 function selectedInstitution() {
-  return institutions.find((item) => item.id === appState.institution);
+  return institutions.find((item) => item.id === appState.selectedInstitution);
 }
 
 function selectedCampus() {
-  return (campuses[appState.institution] || []).find((item) => item.id === appState.campus);
+  return selectedInstitution()?.campuses.find((campus) => campus.id === appState.selectedCampus);
+}
+
+function institutionsForType() {
+  const label = selectedTypeLabel();
+  if (!label) return [];
+  if (label === 'Outra instituição') return [];
+  return institutions.filter((item) => item.type === label);
+}
+
+function renderStepper() {
+  const steps = [
+    { id: 'type', label: 'Tipo', complete: Boolean(appState.selectedType), active: !appState.selectedType },
+    { id: 'institution', label: 'Instituição', complete: Boolean(appState.selectedInstitution), active: Boolean(appState.selectedType && !appState.selectedInstitution) },
+    { id: 'campus', label: 'Campus', complete: Boolean(appState.selectedCampus), active: Boolean(appState.selectedInstitution && !appState.selectedCampus) },
+    { id: 'access', label: 'Acesso', complete: canContinueCampus(), active: Boolean(appState.selectedCampus) }
+  ];
+  document.querySelector('#saas-stepper').innerHTML = steps.map((step, index) => `<span class="saas-step ${step.complete ? 'complete' : ''} ${step.active ? 'active' : ''}"><b>${index + 1}</b>${step.label}</span>`).join('');
+}
+
+function renderTypeOptions() {
+  document.querySelector('#type-options').innerHTML = environmentTypes.map((type) => `<button class="type-card ${type.id === appState.selectedType ? 'selected active' : ''}" data-type="${type.id}"><strong>${type.label}</strong><small>${type.id === 'outra' ? 'Expansão futura' : 'Ver ambientes disponíveis'}</small></button>`).join('');
 }
 
 function renderInstitutions() {
-  const field = document.querySelector('#institution-search');
-  field.disabled = !appState.organization;
-  field.placeholder = appState.organization ? 'Digite IFCE, UFC, UECE, UNILAB, FB ou o nome da instituição' : 'Escolha primeiro a organização acadêmica';
-  const list = filteredInstitutions();
+  const searchField = document.querySelector('#institution-search');
   const target = document.querySelector('#institution-options');
-  if (!appState.organization) {
-    target.innerHTML = '<p class="helper-card">Escolha uma organização acadêmica para ver instituições disponíveis.</p>';
+  searchField.disabled = !appState.selectedType || appState.selectedType === 'outra';
+  if (!appState.selectedType) {
+    target.innerHTML = '<p class="helper-card">Escolha o tipo de instituição para ver ambientes disponíveis.</p>';
     return;
   }
-  if (appState.organization === 'Faculdade') {
-    target.innerHTML = '<p class="helper-card">Nenhuma faculdade ativa neste MVP. Tente Centro Universitário para ver a FB Uni.</p>';
+  if (appState.selectedType === 'outra') {
+    target.innerHTML = '<p class="helper-card"><strong>Nenhum ambiente ativo nesta categoria ainda.</strong><span>O CampusMove foi preparado para expansão multi-instituição em fases futuras.</span></p>';
     return;
   }
+  const search = normalize(searchField.value);
+  const list = institutionsForType().filter((item) => keywordMatches(item, search));
   target.innerHTML = list.length
-    ? list.map((item) => `<button class="institution-card ${item.id === appState.institution ? 'selected' : ''}" data-institution="${item.id}"><span class="logo-tile" data-fallback="${item.fallback}"><img src="${item.logo}" alt="${item.alt}"></span><span class="institution-copy"><strong>${item.name}</strong><small>${item.organization}</small></span><span class="status-badge">${item.status}</span></button>`).join('')
-    : '<p class="helper-card">Nenhuma instituição encontrada para esse termo.</p>';
+    ? list.map((item) => renderInstitutionCard(item)).join('')
+    : '<p class="helper-card">Nenhuma instituição encontrada nesta categoria.</p>';
 }
 
-// BRUNO: atualiza campus conforme instituição selecionada.
+function renderInstitutionCard(item) {
+  const logo = item.logo ? `<img src="${item.logo}" alt="${item.alt}">` : '';
+  return `<button class="institution-card ${item.id === appState.selectedInstitution ? 'selected active' : ''}" data-institution="${item.id}"><span class="logo-tile ${item.logo ? '' : 'logo-fallback'}" data-fallback="${item.fallback}">${logo}</span><span class="institution-copy"><strong>${item.acronym}</strong><b>${item.name}</b><small>${item.type}</small><em>Serviço: ${item.service}</em></span><span class="status-badge">${item.status}</span></button>`;
+}
+
+// BRUNO: selecionar tipo limpa instituição e campus.
 function renderCampuses() {
   const field = document.querySelector('#campus-search');
-  field.disabled = !appState.institution;
-  field.placeholder = appState.institution ? 'Digite Maracanaú, Fortaleza, Pici, Itaperi, Redenção...' : 'Escolha primeiro a instituição';
-  const search = normalize(field.value);
   const target = document.querySelector('#campus-options');
-  if (!appState.institution) {
+  field.disabled = !appState.selectedInstitution;
+  if (!appState.selectedInstitution) {
     target.innerHTML = '<p class="helper-card">Escolha uma instituição antes de selecionar o campus.</p>';
     renderInstitutionSummary();
     return;
   }
-  const list = (campuses[appState.institution] || []).filter((item) => keywordMatches(item, search));
+  const search = normalize(field.value);
+  const list = selectedInstitution().campuses.filter((campus) => keywordMatches(campus, search));
   target.innerHTML = list.length
-    ? list.map((campus) => `<button class="option-card horizontal campus-card ${campus.id === appState.campus ? 'selected' : ''} ${campus.active ? '' : 'disabled future'}" data-campus="${campus.id}"><strong>Campus ${campus.name}</strong><span class="product-badge">${campus.status}</span></button>`).join('')
+    ? list.map((campus) => `<button class="option-card horizontal campus-card ${campus.id === appState.selectedCampus ? 'selected active' : ''} ${campus.active ? '' : 'disabled future'}" data-campus="${campus.id}"><span><strong>Campus ${campus.name}</strong><small>Serviço: ${campus.service}</small></span><span class="product-badge">${campus.status}</span></button>`).join('')
     : '<p class="helper-card">Nenhum campus encontrado para esse termo.</p>';
   renderInstitutionSummary();
 }
@@ -217,53 +219,77 @@ function renderInstitutionSummary() {
   if (!institution || !campus) {
     summary.hidden = true;
     summary.innerHTML = '';
+    updateContinueButton();
+    renderStepper();
     return;
   }
+  const readyText = campus.active ? 'Ambiente pronto para acesso.' : 'Este ambiente ainda está em preparação.';
   summary.hidden = false;
-  summary.innerHTML = `<span class="logo-tile compact-logo" data-fallback="${institution.fallback}"><img src="${institution.logo}" alt="${institution.alt}"></span><div><strong>${institution.name}</strong><small>Campus ${campus.name}</small><span class="product-badge">${campus.status}</span></div>`;
+  summary.innerHTML = `<h3>Ambiente selecionado</h3><dl><dt>Instituição</dt><dd>${institution.name}</dd><dt>Campus</dt><dd>${campus.name}</dd><dt>Tipo</dt><dd>${institution.type}</dd><dt>Perfil</dt><dd>${appState.role || 'Aluno'}</dd><dt>Serviço</dt><dd>${campus.service}</dd><dt>Status</dt><dd>${campus.status}</dd></dl><p>${readyText}</p>`;
+  updateContinueButton();
+  renderStepper();
+}
+
+function updateContinueButton() {
+  const button = document.querySelector('#continue-campus-button');
+  if (!button) return;
+  if (!appState.selectedType) button.textContent = 'Escolha o tipo de instituição';
+  else if (!appState.selectedInstitution) button.textContent = 'Escolha a instituição';
+  else if (!appState.selectedCampus) button.textContent = 'Escolha o campus';
+  else if (!canContinueCampus()) button.textContent = 'Ambiente em preparação';
+  else button.textContent = 'Continuar para login institucional';
+  button.classList.toggle('is-disabled', !canContinueCampus());
+}
+
+function canContinueCampus() {
+  return appState.selectedType === 'if' && appState.selectedInstitution === 'ifce' && appState.selectedCampus === 'maracanau';
 }
 
 function selectRole(button) {
   appState.role = button.dataset.role;
   document.querySelector('#profile-alert').textContent = '';
-  applySelection('[data-role]', button);
+  clearSelection('[data-role]');
+  button.classList.add('selected', 'active');
+  document.querySelectorAll('[data-role]').forEach((card) => card.classList.toggle('dimmed', card !== button));
 }
 
-function selectOrganization(value) {
-  appState.organization = value;
-  appState.institution = null;
-  appState.campus = null;
-  document.querySelector('#organization-search').value = value;
+function selectType(button) {
+  appState.selectedType = button.dataset.type;
+  appState.selectedInstitution = null;
+  appState.selectedCampus = null;
   document.querySelector('#institution-search').value = '';
   document.querySelector('#campus-search').value = '';
   document.querySelector('#campus-alert').textContent = '';
-  renderOrganizations();
+  clearSelection('[data-type]');
+  button.classList.add('selected', 'active');
   renderInstitutions();
   renderCampuses();
+  updateContinueButton();
+  renderStepper();
 }
 
 function selectInstitution(button) {
-  appState.institution = button.dataset.institution;
-  appState.campus = null;
-  document.querySelector('#institution-search').value = selectedInstitution()?.name || '';
+  appState.selectedInstitution = button.dataset.institution;
+  appState.selectedCampus = null;
   document.querySelector('#campus-search').value = '';
   document.querySelector('#campus-alert').textContent = '';
+  clearSelection('[data-institution]');
+  button.classList.add('selected', 'active');
   renderInstitutions();
   renderCampuses();
+  updateContinueButton();
+  renderStepper();
 }
 
 function selectCampus(button) {
-  const campus = (campuses[appState.institution] || []).find((item) => item.id === button.dataset.campus);
-  if (!campus?.active) {
-    appState.campus = null;
-    renderCampuses();
-    document.querySelector('#campus-alert').textContent = 'Este campus ainda está em preparação. Para testar o MVP, escolha IFCE Maracanaú.';
-    return;
-  }
-  appState.campus = campus.id;
-  document.querySelector('#campus-search').value = campus.name;
-  document.querySelector('#campus-alert').textContent = '';
+  appState.selectedCampus = button.dataset.campus;
+  clearSelection('[data-campus]');
+  button.classList.add('selected', 'active');
+  const campus = selectedCampus();
+  document.querySelector('#campus-alert').textContent = campus?.active ? '' : 'Para testar o MVP MinhaJardineira, escolha IFCE → Maracanaú.';
   renderCampuses();
+  updateContinueButton();
+  renderStepper();
 }
 
 function continueProfile() {
@@ -273,14 +299,19 @@ function continueProfile() {
   }
   if (appState.role === 'Aluno') return showScreen('campus');
   if (appState.role === 'Servidor') return showBlockedAccess('Acesso de servidor em preparação', 'No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Neste protótipo, o acesso de servidor ainda não está liberado.');
-  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista', 'Acesso operacional em preparação.', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.');
+  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista', 'Acesso operacional em preparação.', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real.');
   if (appState.role === 'Administrador') return prepareAdminLogin();
   return showScreen('visitor-access');
 }
 
+// BRUNO: apenas IFCE Maracanaú libera o MVP.
 function continueCampus() {
-  if (appState.organization !== 'Instituto Federal' || appState.institution !== 'ifce' || appState.campus !== 'maracanau') {
-    document.querySelector('#campus-alert').textContent = 'Para acessar o MVP MinhaJardineira, escolha IFCE → Maracanaú.';
+  if (!appState.selectedType || !appState.selectedInstitution || !appState.selectedCampus) {
+    document.querySelector('#campus-alert').textContent = 'Complete as etapas para continuar.';
+    return;
+  }
+  if (!canContinueCampus()) {
+    document.querySelector('#campus-alert').textContent = 'Para testar o MVP MinhaJardineira, escolha IFCE → Maracanaú.';
     return;
   }
   showScreen('login');
@@ -296,7 +327,7 @@ function showBlockedAccess(title, message, detail = '') {
   if (title.includes('servidor')) messageNode.dataset.simpleKey = 'serverRestriction';
   if (title.includes('motorista')) detailNode.dataset.simpleKey = 'motoristRestriction';
   simpleTexts.serverRestriction = ['No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Este acesso ainda será liberado pela instituição.'];
-  simpleTexts.motoristRestriction = ['Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real. Este painel controlará status da Jardineira, saída e localização autorizada em fases futuras.', 'Somente motoristas autorizados poderão entrar.'];
+  simpleTexts.motoristRestriction = ['Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real.', 'Somente motoristas autorizados poderão entrar.'];
   document.querySelector('#blocked-title').textContent = title;
   updateAccessibilityUi();
   showScreen('blocked-access');
@@ -393,16 +424,12 @@ function toggleAccessibility(key) {
   updateAccessibilityUi();
 }
 
-function normalize(value) {
-  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-
 function startSplash() {
   const delay = appState.accessibility.reduceMotion ? 100 : 2300;
   window.setTimeout(() => showScreen('welcome'), delay);
 }
 
-// FELIPE: não renomear classes usadas pelo JS sem atualizar os seletores.
+// FELIPE: estados selected/active controlam o LED verde dos cards.
 document.addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button) return;
@@ -410,7 +437,7 @@ document.addEventListener('click', (event) => {
   if (button.dataset.tab) showScreen(button.dataset.tab);
   if (button.dataset.action === 'back') goBack();
   if (button.dataset.role) selectRole(button);
-  if (button.dataset.organization) selectOrganization(button.dataset.organization);
+  if (button.dataset.type) selectType(button);
   if (button.dataset.institution) selectInstitution(button);
   if (button.dataset.campus) selectCampus(button);
   if (button.dataset.action === 'continue-profile') continueProfile();
@@ -424,7 +451,6 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('input', (event) => {
   const input = event.target;
-  if (input.dataset.search === 'organization') renderOrganizations();
   if (input.dataset.search === 'institution') renderInstitutions();
   if (input.dataset.search === 'campus') renderCampuses();
 });
@@ -437,9 +463,11 @@ document.addEventListener('error', (event) => {
 }, true);
 
 renderRoles();
-renderOrganizations();
+renderTypeOptions();
 renderInstitutions();
 renderCampuses();
+renderStepper();
+updateContinueButton();
 updateAccessibilityUi();
 showScreen('splash', false);
 startSplash();

@@ -293,3 +293,35 @@ body.a11y-large-text .screen { overflow-x: hidden; }
 .demo-credentials p, .demo-credentials dl { margin: 0; padding: 0 12px 12px; }
 .demo-credentials dt { margin-top: 10px; color: #86EFAC; font-weight: 800; }
 .demo-credentials dd { margin: 4px 0 0; color: #CBD5E1; line-height: 1.45; }
+
+/* SaaS environment selector */
+.section-subtitle { margin: -4px 0 14px; color: #CBD5E1; line-height: 1.45; }
+.saas-platform-card { display: grid; gap: 10px; margin: 14px 0; padding: 14px; border: 1px solid rgba(34,197,94,.24); border-radius: 20px; background: linear-gradient(145deg, rgba(27,107,58,.28), rgba(17,24,39,.94)); box-shadow: var(--shadow); }
+.saas-platform-card strong { color: #BBF7D0; }
+.saas-platform-card p { margin: 4px 0 0; color: #DCE8F8; font-size: .9rem; line-height: 1.4; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge-row span { border: 1px solid rgba(134,239,172,.22); border-radius: 999px; padding: 5px 8px; color: #BBF7D0; background: rgba(8,15,29,.42); font-size: .68rem; font-weight: 800; }
+.type-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.type-card { min-height: 72px; padding: 12px; border: 1px solid var(--border); border-radius: 18px; background: linear-gradient(145deg, rgba(31,41,55,.96), rgba(17,24,39,.9)); color: var(--text); text-align: left; box-shadow: var(--shadow); }
+.type-card strong, .type-card small { display: block; }
+.type-card small { margin-top: 5px; color: #CBD5E1; font-size: .75rem; }
+
+/* Selection stepper */
+.saas-stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 16px; }
+.saas-step { display: grid; place-items: center; gap: 4px; min-height: 48px; border: 1px solid var(--border); border-radius: 14px; background: rgba(8,15,29,.55); color: #94A3B8; font-size: .68rem; font-weight: 800; }
+.saas-step b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: rgba(148,163,184,.16); color: inherit; }
+.saas-step.active { border-color: rgba(34,197,94,.62); color: #F8FAFC; box-shadow: 0 0 0 1px rgba(34,197,94,.18); }
+.saas-step.complete { border-color: rgba(34,197,94,.32); color: #BBF7D0; background: rgba(27,107,58,.22); }
+
+/* Institution and campus cards */
+.institution-copy b, .institution-copy em { display: block; }
+.institution-copy b { color: #F8FAFC; font-size: .92rem; line-height: 1.25; }
+.institution-copy em { color: #BBF7D0; font-size: .76rem; font-style: normal; line-height: 1.35; }
+.campus-card span:first-child { display: grid; gap: 3px; }
+.campus-card small { color: #CBD5E1; }
+.institution-summary h3 { margin: 0 0 8px; color: #BBF7D0; }
+.institution-summary dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; margin: 0; }
+.institution-summary dt { color: #94A3B8; font-size: .76rem; font-weight: 800; }
+.institution-summary dd { margin: 0; color: #F8FAFC; }
+.institution-summary p { margin: 10px 0 0; color: #FDE68A; font-weight: 800; }
+.is-disabled { opacity: .72; }
