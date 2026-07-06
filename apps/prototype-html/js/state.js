@@ -23,7 +23,9 @@ export const appState = {
   routeContext: 'normal',
   selectedEventId: null,
   selectedSpecialRouteId: null,
-  departureEstimateResult: null
+  departureEstimateResult: null,
+  selectedScheduleDirection: 'station-to-campus',
+  selectedScheduleTime: null
 };
 
 export function updateState(patch) {
