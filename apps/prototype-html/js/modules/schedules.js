@@ -1,6 +1,6 @@
 import { appState } from '../state.js';
-import { institutionalSchedules } from '../data/schedules.js';
-import { formatMinutesToTime, formatRelativeDeparture, getCurrentMinutes, getNextDeparture, getScheduleStatus, isTodayOperationDay, parseTimeToMinutes } from '../utils.js';
+import { institutionalSchedules, transitSchedules } from '../data/schedules.js';
+import { formatMinutesToTime, formatRelativeDeparture, getCurrentMinutes, getDeparturesForHour, getNextDeparture, getScheduleHourGroup, getScheduleStatus, isTodayOperationDay, parseTimeToMinutes } from '../utils.js';
 
 const schedule = institutionalSchedules.ifceMaracanau;
 
@@ -26,8 +26,15 @@ function selectedTimeDetail(direction, next) {
   const selectedMinutes = parseTimeToMinutes(selectedTime);
   if (!direction || selectedMinutes === null) return '<article class="schedule-detail"><h3>Horário selecionado</h3><p>Selecione um horário para ver os detalhes demonstrativos.</p></article>';
   const diff = selectedMinutes - nowMinutes;
-  const chipState = next?.time === selectedTime ? 'Próxima saída' : diff < 0 ? 'Horário já passou' : 'Selecionado para hoje';
-  return `<article class="schedule-detail"><span class="product-badge">${chipState}</span><h3>${selectedTime}</h3><p><strong>Sentido:</strong> ${direction.label}</p><p><strong>Status relativo:</strong> ${formatRelativeDeparture(diff)}</p><p><strong>Chegada estimada:</strong> ${arrivalFor(selectedTime, direction)}</p><small>Estimativa por dados demonstrativos. Cálculo local do protótipo, sem rastreamento real.</small></article>`;
+  const chipState = next?.time === selectedTime ? 'Próxima saída' : diff < 0 ? 'Já passou' : 'Prevista';
+  const arrival = arrivalFor(selectedTime, direction);
+  const hour = getScheduleHourGroup(selectedTime);
+  const hourDepartures = getDeparturesForHour(direction.times, hour);
+  const exactTransitLines = Object.values(transitSchedules || {}).flatMap((group) => group.lines || []).filter((line) => Array.isArray(line.exactTimes) && line.exactTimes.length);
+  const connectionCopy = exactTransitLines.length
+    ? exactTransitLines.map((line) => `<p><strong>${line.label}:</strong> ${getDeparturesForHour(line.exactTimes, hour).join(', ') || 'sem partida exata nesta faixa'}</p>`).join('')
+    : '<p>Conexões metro/VLT não cadastradas neste protótipo.</p><small>Suporte preparado para dados exatos; sem integração oficial.</small>';
+  return `<article class="schedule-detail"><span class="product-badge">Horário fixo demonstrativo</span><h3>Horário selecionado: ${selectedTime}</h3><div class="schedule-detail-grid"><p><strong>Serviço</strong><span>${schedule.serviceName}</span></p><p><strong>Sentido</strong><span>${direction.label}</span></p><p><strong>Status</strong><span>${chipState}</span></p><p><strong>Sai em / Passou há</strong><span>${formatRelativeDeparture(diff)}</span></p><p><strong>Janela demonstrativa</strong><span>${selectedTime}–${arrival}</span></p><p><strong>Chegada estimada</strong><span>${arrival}</span></p></div><section class="schedule-hour-group"><h4>Conexões da faixa ${String(hour).padStart(2, '0')}h</h4><p><strong>${schedule.serviceName}:</strong> ${hourDepartures.join(', ')}</p>${connectionCopy}</section><small>Observação: horário fixo demonstrativo do MVP, sem integração oficial.</small></article>`;
 }
 
 function renderTimeChips(direction, next) {
@@ -58,7 +65,7 @@ export function renderSchedules() {
     <article class="schedule-now-card"><div><span>Agora</span><strong>${currentTime}</strong><small>Baseado no horário do navegador</small></div><div><span>Serviço</span><strong>${schedule.serviceName}</strong><small>Sem integração oficial</small></div></article>
     <div class="schedule-direction-tabs" role="group" aria-label="Selecionar sentido do transporte">${schedule.directions.map((item) => `<button type="button" class="schedule-direction-tab ${item.id === direction?.id ? 'active selected' : ''}" data-schedule-direction="${item.id}" aria-pressed="${item.id === direction?.id}"><strong>${item.shortLabel}</strong><span>${item.origin} → ${item.destination}</span></button>`).join('')}</div>
     <article class="schedule-hero ${next ? 'has-next' : ''}"><span class="${statusClass(status.id)}">${next ? 'Próxima saída' : status.label}</span><small>${direction?.label || 'Sentido indisponível'}</small><h3>${nextTime}</h3><strong>${relative}</strong><p>Chegada estimada: ${next ? arrivalFor(next.time, direction) : '—'}</p><small>Horários demonstrativos · Cálculo local do protótipo · Sem rastreamento real</small></article>
-    <section class="schedule-card smart-schedule-card"><h3>Horários demonstrativos</h3>${renderTimeChips(direction, next)}</section>
+    <section class="schedule-card smart-schedule-card"><h3>Horários fixos demonstrativos</h3>${renderTimeChips(direction, next)}</section>
     ${selectedTimeDetail(direction, next)}
     ${alert ? `<article class="schedule-alert"><strong>${alert.title}</strong><p>${alert.message}</p><small>${schedule.disclaimer}</small></article>` : ''}</div>`;
 }

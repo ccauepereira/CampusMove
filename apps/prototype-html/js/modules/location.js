@@ -1,7 +1,7 @@
 import { appState } from '../state.js';
 import { transitLines, routeScenarios, eventRoutes } from '../data/routes.js';
 import { getDirectionNextDeparture } from './schedules.js';
-import { formatMinutesToTime, formatRelativeDeparture } from '../utils.js';
+import { calculateArrivalMargin, calculateEstimatedArrival, classifyTripReadiness, formatMinutesToTime, formatRelativeDeparture, getPlanBRecommendation, getReadinessRecommendation, parseDurationToMinutes } from '../utils.js';
 import { events } from '../data/events.js';
 import { showScreen } from '../router.js';
 
@@ -158,6 +158,41 @@ function renderInstitutionalScheduleEstimate(route) {
   return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>${schedule.serviceName}:</strong> ${direction.label}</p><p><strong>Próxima saída demonstrativa:</strong> ${next.time} · ${formatRelativeDeparture(next.minutesUntil)}</p><p><strong>Chegada estimada:</strong> ${arrival}</p><small>Estimativa por dados demonstrativos. Cálculo local baseado no horário do navegador, sem integração oficial.</small></article>`;
 }
 
+
+function readinessLabel(status) {
+  return {
+    'on-time': 'Chega a tempo',
+    tight: 'Chega com pouca margem',
+    risk: 'Risco de atraso',
+    late: 'Não chega a tempo',
+    ended: 'Operação encerrada hoje',
+    'no-service': 'Sem operação demonstrativa',
+    unavailable: 'Análise indisponível'
+  }[status] || 'Análise indisponível';
+}
+
+function renderPlanB(status, isEvent = false) {
+  if (!['risk', 'late', 'ended', 'no-service', 'unavailable'].includes(status)) return '';
+  const plan = getPlanBRecommendation({ status, event: isEvent });
+  return `<article class="plan-b-card"><span class="product-badge">Plano B demonstrativo</span><h4>${plan.label}</h4><p><strong>Tempo estimado:</strong> ${plan.estimatedRange}</p><p>${plan.whenToUse}</p><small>${plan.limitation}</small></article>`;
+}
+
+function renderTripReadiness(route, event = null) {
+  const directionId = institutionalDirectionForRoute(route);
+  if (!directionId && !event) return '';
+  if (!directionId) return '<article class="readiness-card"><h4>Chego a tempo para o evento?</h4><p>Análise demonstrativa indisponível para esta rota sem transporte institucional.</p><small>Sem integração oficial.</small></article>';
+  const duration = parseDurationToMinutes(route.estimatedTime);
+  const targetTime = event?.startTime || appState.selectedArrivalTargetTime;
+  const { status, next } = getDirectionNextDeparture(directionId);
+  const estimatedArrival = next && duration !== null ? calculateEstimatedArrival(next.time, duration) : null;
+  const margin = calculateArrivalMargin(targetTime, estimatedArrival);
+  const readinessStatus = classifyTripReadiness(margin, status.id);
+  const title = event ? 'Chego a tempo para o evento?' : 'Chego a tempo?';
+  const marginText = Number.isFinite(margin) ? `${margin} min` : '—';
+  const arrivalText = estimatedArrival !== null ? formatMinutesToTime(estimatedArrival) : '—';
+  return `<article class="readiness-card readiness-card--${readinessStatus}"><span class="product-badge">Cálculo local do protótipo</span><h4>${title}</h4>${event ? `<p><strong>Evento:</strong> ${event.title}</p><p><strong>Início:</strong> ${targetTime} <small>${event.timeNote || 'Horário demonstrativo'}</small></p>` : ''}<div class="readiness-grid"><p><strong>Próxima saída</strong><span>${next?.time || '—'}</span></p><p><strong>Tempo estimado da rota</strong><span>${route.estimatedTime || '—'}</span></p><p><strong>Chegada estimada</strong><span>${arrivalText}</span></p><p><strong>Horário alvo</strong><span>${targetTime || '—'}</span></p><p><strong>Margem</strong><span>${marginText}</span></p><p><strong>Status</strong><span>${readinessLabel(readinessStatus)}</span></p></div><p><strong>Recomendação:</strong> ${getReadinessRecommendation(readinessStatus)}</p><small>Baseado no horário do navegador, em horários demonstrativos e sem rastreamento real.</small></article>${renderPlanB(readinessStatus, Boolean(event))}`;
+}
+
 function estimateDepartureNow(route) {
   if (route.steps.some((step) => step.mode === 'shuttle')) return renderInstitutionalScheduleEstimate(route);
   const timedSteps = route.steps.filter((step) => ['metro', 'vlt'].includes(step.mode));
@@ -183,7 +218,8 @@ function renderRouteResult(route, options = {}) {
   const origin = options.origin || appState.routeOrigin || route.originLabel || route.origin;
   const destination = options.destination || appState.routeDestination || route.destinationLabel || route.destination;
   const estimate = isEvent ? '' : estimateDepartureNow(route);
-  return `<article class="route-card polished-route ${isEvent ? 'event-route-card' : ''}"><div class="route-card-header"><span class="product-badge">${badge}</span><h3>${title}</h3>${options.eventTitle ? `<p>${options.eventTitle}</p>` : ''}</div><div class="route-hero-summary"><p><strong>Origem</strong><span>${origin}</span></p><p><strong>Destino</strong><span>${destination}</span></p><p><strong>Tempo estimado</strong><span>${route.estimatedTime}</span></p></div>${renderEnhancedRouteMap(route, { context: isEvent ? 'event' : 'normal', destination })}<div class="route-badges mode-chip-row">${routeModes(route).map((mode) => `<span class="route-badge mode-chip">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge mode-chip">Integração</span>' : ''}${isEvent ? '<span class="route-badge mode-chip">Evento</span>' : ''}</div><div class="route-timeline compact-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${shortStepText(step)}</strong><small>${step.durationText}</small><span class="route-confidence">${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimate}<p class="privacy-note">${route.dataNote || 'Rota demonstrativa baseada em cenários locais.'} Dados demonstrativos, sem integração oficial.</p></article>`;
+  const readiness = renderTripReadiness(route, options.event);
+  return `<article class="route-card polished-route ${isEvent ? 'event-route-card' : ''}"><div class="route-card-header"><span class="product-badge">${badge}</span><h3>${title}</h3>${options.eventTitle ? `<p>${options.eventTitle}</p>` : ''}</div><div class="route-hero-summary"><p><strong>Origem</strong><span>${origin}</span></p><p><strong>Destino</strong><span>${destination}</span></p><p><strong>Tempo estimado</strong><span>${route.estimatedTime}</span></p></div>${renderEnhancedRouteMap(route, { context: isEvent ? 'event' : 'normal', destination })}<div class="route-badges mode-chip-row">${routeModes(route).map((mode) => `<span class="route-badge mode-chip">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge mode-chip">Integração</span>' : ''}${isEvent ? '<span class="route-badge mode-chip">Evento</span>' : ''}</div><div class="route-timeline compact-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${shortStepText(step)}</strong><small>${step.durationText}</small><span class="route-confidence">${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimate}${readiness}<p class="privacy-note">${route.dataNote || 'Rota demonstrativa baseada em cenários locais.'} Dados demonstrativos, sem integração oficial.</p></article>`;
 }
 
 function selectedRoute() {
@@ -202,7 +238,7 @@ function renderEventRoutePanel() {
   const selected = selectedEventRoute();
   if (!selected) return '';
   const { event, route } = selected;
-  return `<section class="location-panel active event-route-panel"><article class="event-route-hero"><span class="product-badge">Rota para evento</span><h3>${event.title}</h3><p><strong>Destino:</strong> ${event.locationLabel}</p><p>Esta é uma rota demonstrativa para evento acadêmico.</p><button type="button" class="secondary-button" data-action="clear-event-route">Voltar para rotas comuns</button></article>${renderRouteResult(route, { context: 'event', eventTitle: event.title, origin: route.originLabel, destination: route.destinationLabel })}</section>`;
+  return `<section class="location-panel active event-route-panel"><article class="event-route-hero"><span class="product-badge">Rota para evento</span><h3>${event.title}</h3><p><strong>Destino:</strong> ${event.locationLabel}</p><p>Esta é uma rota demonstrativa para evento acadêmico.</p><button type="button" class="secondary-button" data-action="clear-event-route">Voltar para rotas comuns</button></article>${renderRouteResult(route, { context: 'event', eventTitle: event.title, event, origin: route.originLabel, destination: route.destinationLabel })}</section>`;
 }
 
 function renderDirectionsPanel() {

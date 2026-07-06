@@ -68,3 +68,74 @@ export function formatRelativeDeparture(minutes) {
   if (minutes < 60) return `Sai em ${minutes} min`;
   return `Sai em ${Math.floor(minutes / 60)}h${String(minutes % 60).padStart(2, '0')}`;
 }
+
+
+export function parseDurationToMinutes(durationText) {
+  const text = normalizeText(String(durationText || '')).replace(/[–—-]/g, ' a ').replace(/\s+/g, ' ').trim();
+  if (!text) return null;
+  const values = text.split(/\s+a\s+/).map((part) => {
+    const hourMatch = part.match(/(\d+)\s*h/);
+    const minuteMatch = part.match(/h\s*(\d+)|(?:^|\s)(\d+)\s*min?/);
+    const bareNumber = part.match(/^(\d+)$/);
+    const hours = hourMatch ? Number(hourMatch[1]) : 0;
+    const minutes = minuteMatch ? Number(minuteMatch[1] || minuteMatch[2] || 0) : bareNumber ? Number(bareNumber[1]) : 0;
+    const total = hours * 60 + minutes;
+    return total > 0 ? total : null;
+  }).filter((value) => value !== null);
+  return values.length ? Math.max(...values) : null;
+}
+
+export function calculateEstimatedArrival(departureTime, routeDurationMinutes) {
+  const departureMinutes = typeof departureTime === 'number' ? departureTime : parseTimeToMinutes(departureTime);
+  if (departureMinutes === null || !Number.isFinite(routeDurationMinutes)) return null;
+  return departureMinutes + routeDurationMinutes;
+}
+
+export function calculateArrivalMargin(targetTime, estimatedArrivalTime) {
+  const targetMinutes = typeof targetTime === 'number' ? targetTime : parseTimeToMinutes(targetTime);
+  if (targetMinutes === null || !Number.isFinite(estimatedArrivalTime)) return null;
+  return targetMinutes - estimatedArrivalTime;
+}
+
+export function classifyTripReadiness(marginMinutes, scheduleStatus) {
+  if (scheduleStatus === 'ended-today') return 'ended';
+  if (scheduleStatus === 'no-service-today') return 'no-service';
+  if (!Number.isFinite(marginMinutes)) return 'unavailable';
+  if (marginMinutes >= 15) return 'on-time';
+  if (marginMinutes >= 5) return 'tight';
+  if (marginMinutes >= 0) return 'risk';
+  return 'late';
+}
+
+export function getReadinessRecommendation(status) {
+  return {
+    'on-time': 'Siga com a próxima saída demonstrativa e mantenha uma pequena margem.',
+    tight: 'Vá direto ao ponto de embarque e evite paradas no trajeto.',
+    risk: 'Considere o Plano B demonstrativo ou antecipe a saída quando possível.',
+    late: 'Use o Plano B demonstrativo; esta combinação não chega no alvo informado.',
+    ended: 'Consulte os horários demonstrativos do próximo dia de operação.',
+    'no-service': 'Use uma rota alternativa demonstrativa sem depender do transporte institucional.',
+    unavailable: 'Complete os dados de horário alvo e duração para estimar a chegada.'
+  }[status] || 'Análise demonstrativa indisponível.';
+}
+
+export function getPlanBRecommendation(context = {}) {
+  const reason = context.status === 'ended' ? 'a operação institucional estiver encerrada' : context.status === 'no-service' ? 'não houver operação demonstrativa' : 'houver risco de atraso';
+  return {
+    label: 'Transporte público demonstrativo + caminhada',
+    estimatedRange: context.event ? '40–60 min' : '35–50 min',
+    whenToUse: `Indicado quando ${reason}.`,
+    limitation: 'Plano B demonstrativo, sem integração oficial.'
+  };
+}
+
+export function getScheduleHourGroup(timeString) {
+  const minutes = parseTimeToMinutes(timeString);
+  if (minutes === null) return null;
+  return Math.floor(minutes / 60);
+}
+
+export function getDeparturesForHour(times = [], hour) {
+  if (!Number.isInteger(hour)) return [];
+  return (Array.isArray(times) ? times : []).filter((time) => getScheduleHourGroup(time) === hour);
+}

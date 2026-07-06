@@ -11,7 +11,7 @@ export const institutionalSchedules = {
         origin: 'IFCE Campus Maracanaú',
         destination: 'Estação Virgílio Távora',
         averageDurationMinutes: 8,
-        times: ['07:00', '07:30', '08:00', '11:40', '12:10', '13:00', '17:20', '17:50', '18:20', '21:40']
+        times: ['07:00', '09:00', '11:00', '13:00', '15:00', '17:30']
       },
       {
         id: 'station-to-campus',
@@ -20,7 +20,7 @@ export const institutionalSchedules = {
         origin: 'Estação Virgílio Távora',
         destination: 'IFCE Campus Maracanaú',
         averageDurationMinutes: 8,
-        times: ['06:40', '07:10', '07:40', '11:20', '11:50', '12:40', '17:00', '17:30', '18:00', '21:20']
+        times: ['07:30', '09:30', '11:30', '13:30', '15:30', '18:00']
       }
     ],
     operationDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
@@ -40,4 +40,21 @@ export const institutionalSchedules = {
 export const schedules = {
   outbound: institutionalSchedules.ifceMaracanau.directions[0].times,
   inbound: institutionalSchedules.ifceMaracanau.directions[1].times
+};
+
+
+export const transitSchedules = {
+  metroSul: {
+    serviceName: 'Metrô / VLT demonstrativo',
+    dataStatus: 'demonstrative',
+    disclaimer: 'Dados demonstrativos, sem integração oficial.',
+    lines: [
+      {
+        id: 'linha-sul-demo',
+        label: 'Linha Sul demonstrativa',
+        headwayLabel: 'Intervalo demonstrativo',
+        exactTimes: []
+      }
+    ]
+  }
 };

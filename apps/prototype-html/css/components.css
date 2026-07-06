@@ -156,3 +156,20 @@ button:focus-visible, .schedule-chip:focus-visible, .schedule-direction-tab:focu
 @keyframes schedule-chip-pulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(34,197,94,.18); } 50% { box-shadow: 0 0 0 4px rgba(34,197,94,.14); } }
 body.reduce-motion .schedule-hero.has-next::after, body.reduce-motion .schedule-chip--next { animation: none; }
 @media (prefers-reduced-motion: reduce) { .schedule-hero.has-next::after, .schedule-chip--next { animation: none; } .schedule-direction-tab { transition: none; } }
+
+/* Prompt 4B selected-hour details and readiness */
+.schedule-detail-grid, .readiness-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.schedule-detail-grid p, .readiness-grid p { display: grid; gap: 3px; margin: 0; padding: 10px; border: 1px solid rgba(148,163,184,.14); border-radius: 14px; background: rgba(8,15,29,.45); }
+.schedule-detail-grid strong, .readiness-grid strong { color: #86EFAC; font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; }
+.schedule-detail-grid span, .readiness-grid span { color: #F8FAFC; font-weight: 800; line-height: 1.25; }
+.schedule-hour-group { display: grid; gap: 6px; margin-top: 4px; padding: 12px; border: 1px solid rgba(34,197,94,.18); border-radius: 16px; background: rgba(27,107,58,.14); }
+.schedule-hour-group h4, .readiness-card h4, .plan-b-card h4 { margin: 0; color: #BBF7D0; }
+.schedule-hour-group p { margin: 0; color: #DCE8F8; }
+.readiness-card, .plan-b-card { display: grid; gap: 9px; margin-top: 12px; padding: 14px; border: 1px solid rgba(134,239,172,.22); border-radius: 20px; background: linear-gradient(145deg, rgba(31,41,55,.94), rgba(8,15,29,.9)); box-shadow: var(--shadow); }
+.readiness-card p, .plan-b-card p { margin: 0; color: #DCE8F8; line-height: 1.4; }
+.readiness-card--on-time { border-color: rgba(34,197,94,.46); }
+.readiness-card--tight { border-color: rgba(250,204,21,.42); }
+.readiness-card--risk, .readiness-card--late, .readiness-card--ended, .readiness-card--no-service { border-color: rgba(245,158,11,.42); }
+.plan-b-card { border-color: rgba(245,158,11,.28); background: linear-gradient(145deg, rgba(245,158,11,.12), rgba(15,23,42,.92)); }
+.plan-b-card .product-badge { border-color: rgba(245,158,11,.32); background: rgba(245,158,11,.13); color: #FDE68A; }
+@media (max-width: 380px) { .schedule-detail-grid, .readiness-grid { grid-template-columns: 1fr; } }

@@ -25,7 +25,9 @@ export const appState = {
   selectedSpecialRouteId: null,
   departureEstimateResult: null,
   selectedScheduleDirection: 'station-to-campus',
-  selectedScheduleTime: null
+  selectedScheduleTime: null,
+  selectedArrivalTargetTime: '18:30',
+  routeReadinessContext: 'demo'
 };
 
 export function updateState(patch) {
