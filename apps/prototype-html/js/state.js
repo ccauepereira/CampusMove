@@ -20,6 +20,9 @@ export const appState = {
   routeDestination: 'IFCE Campus Maracanaú',
   selectedScenario: 'maraponga-ifce',
   selectedEventDestination: null,
+  routeContext: 'normal',
+  selectedEventId: null,
+  selectedSpecialRouteId: null,
   departureEstimateResult: null
 };
 

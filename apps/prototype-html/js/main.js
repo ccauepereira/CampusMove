@@ -2,15 +2,20 @@ import { appState } from './state.js';
 import { roles, environmentTypes, institutions, demoCredentials } from './data/institutions.js';
 import { showScreen, goBack, registerScreenHook } from './router.js';
 import { updateAccessibilityUi, toggleAccessibility } from './modules/accessibility.js';
-import { setLocationMode, setRouteDirection, selectRouteScenario, simulateRoute, renderLocation, goToEventRoute, selectEventDestination } from './modules/location.js';
+import { setLocationMode, setRouteDirection, selectRouteScenario, simulateRoute, renderLocation, goToEventRoute, selectEventDestination, clearEventRoute } from './modules/location.js';
 import { renderEvents } from './modules/events.js';
+
+const selectorUi = {
+  openField: null,
+  filters: { type: '', institution: '', campus: '', access: '' }
+};
 
 function clearSelection(groupSelector) {
   document.querySelectorAll(groupSelector).forEach((button) => button.classList.remove('selected', 'active', 'dimmed'));
 }
 
 function renderRoles() {
-  document.querySelector('#role-options').innerHTML = roles.map((role) => `<button class="option-card role-card" data-role="${role.id}" role="option"><span class="role-icon" aria-hidden="true">${role.icon}</span><strong>${role.title}</strong><small>${role.description}</small></button>`).join('');
+  document.querySelector('#role-options').innerHTML = roles.map((role) => `<button class="option-card role-card ${role.id === appState.role ? 'selected active' : ''} ${appState.role && role.id !== appState.role ? 'dimmed' : ''}" data-role="${role.id}" role="option"><span class="role-icon" aria-hidden="true">${role.icon}</span><strong>${role.title}</strong><small>${role.description}</small></button>`).join('');
 }
 
 function normalize(value) {
@@ -42,6 +47,110 @@ function institutionsForType() {
   return institutions.filter((item) => item.type === label);
 }
 
+
+function roleOptions() {
+  return roles.map((role) => ({
+    id: role.id,
+    title: role.title,
+    description: role.description,
+    status: ['Servidor', 'Motorista'].includes(role.id) ? 'Em preparação' : role.id === 'Administrador' ? 'Acesso restrito' : 'Disponível'
+  }));
+}
+
+function selectorStatusForInstitution(institution) {
+  if (!institution) return 'Seleção necessária';
+  if (institution.id === 'ifce') return 'MVP disponível no Campus Maracanaú';
+  return institution.status || 'Em preparação';
+}
+
+function selectorOptions(field) {
+  if (field === 'type') {
+    return environmentTypes.map((type) => ({
+      id: type.id,
+      title: type.label,
+      description: type.id === 'outra' ? 'Cadastro futuro para novas instituições' : 'Ambientes institucionais disponíveis',
+      status: type.id === 'outra' ? 'Sob configuração' : 'Demonstrativo'
+    }));
+  }
+  if (field === 'institution') {
+    return institutionsForType().map((institution) => ({
+      id: institution.id,
+      title: institution.acronym,
+      description: institution.name,
+      status: selectorStatusForInstitution(institution),
+      keywords: institution.keywords
+    }));
+  }
+  if (field === 'campus') {
+    const institution = selectedInstitution();
+    return (institution?.campuses || []).map((campus) => ({
+      id: campus.id,
+      title: `Campus ${campus.name}`,
+      description: campus.service,
+      status: campus.status,
+      keywords: campus.keywords
+    }));
+  }
+  return roleOptions();
+}
+
+function selectedSelectorOption(field) {
+  if (field === 'type') return selectorOptions(field).find((option) => option.id === appState.selectedType);
+  if (field === 'institution') return selectorOptions(field).find((option) => option.id === appState.selectedInstitution);
+  if (field === 'campus') return selectorOptions(field).find((option) => option.id === appState.selectedCampus);
+  return selectorOptions(field).find((option) => option.id === appState.role);
+}
+
+function selectorPlaceholder(field) {
+  return { type: 'Escolha o tipo', institution: 'Escolha a instituição', campus: 'Escolha o campus', access: 'Escolha o perfil' }[field];
+}
+
+function selectorHelper(field) {
+  return { type: 'Categoria do ambiente institucional.', institution: 'Filtrado pelo tipo selecionado.', campus: 'Unidades configuradas nesta instituição.', access: 'Sincronizado com o perfil de acesso.' }[field];
+}
+
+function selectorDisabled(field) {
+  if (field === 'institution') return !appState.selectedType || appState.selectedType === 'outra';
+  if (field === 'campus') return !appState.selectedInstitution;
+  return false;
+}
+
+function selectorMatches(option, filter) {
+  if (!filter) return true;
+  const values = [option.title, option.description, option.status, ...(option.keywords || [])];
+  return values.some((value) => normalize(value).includes(filter));
+}
+
+function renderSelectorField(field, label) {
+  const selected = selectedSelectorOption(field);
+  const disabled = selectorDisabled(field);
+  const isOpen = selectorUi.openField === field && !disabled;
+  const filter = selectorUi.filters[field] || '';
+  const filtered = selectorOptions(field).filter((option) => selectorMatches(option, normalize(filter)));
+  const listId = `saas-${field}-listbox`;
+  const badge = selected?.status ? `<span class="selector-status">${selected.status}</span>` : '';
+  return `<article class="saas-select ${disabled ? 'disabled' : ''} ${isOpen ? 'open' : ''}">
+    <span class="selector-label">${label}</span>
+    <button class="selector-trigger" type="button" data-selector-trigger="${field}" aria-expanded="${isOpen}" aria-controls="${listId}" ${disabled ? 'disabled' : ''}>
+      <span><strong>${selected?.title || selectorPlaceholder(field)}</strong><small>${selected?.description || selectorHelper(field)}</small></span>
+      ${badge}<span class="selector-chevron" aria-hidden="true"></span>
+    </button>
+    ${isOpen ? `<div class="selector-popover" id="${listId}" role="listbox" aria-label="${label}">
+      <label class="selector-search"><span>Filtrar ${label.toLowerCase()}</span><input type="text" value="${filter}" data-selector-filter="${field}" placeholder="Digite para filtrar" autocomplete="off"></label>
+      <div class="selector-option-list">${filtered.length ? filtered.map((option) => `<button class="selector-option ${selected?.id === option.id ? 'selected' : ''}" type="button" data-selector-option="${field}" data-selector-value="${option.id}" role="option" aria-selected="${selected?.id === option.id}"><span class="check-mark" aria-hidden="true">${selected?.id === option.id ? '✓' : ''}</span><span><strong>${option.title}</strong><small>${option.description}</small></span><em>${option.status}</em></button>`).join('') : '<p class="helper-card">Nenhum resultado encontrado.</p>'}</div>
+    </div>` : ''}
+  </article>`;
+}
+
+function renderSaasSelector() {
+  renderTypeOptions();
+  renderInstitutions();
+  renderCampuses();
+  renderAccessOptions();
+  renderStepper();
+  updateContinueButton();
+}
+
 function renderStepper() {
   const steps = [
     { id: 'type', label: 'Tipo', complete: Boolean(appState.selectedType), active: !appState.selectedType },
@@ -53,26 +162,11 @@ function renderStepper() {
 }
 
 function renderTypeOptions() {
-  document.querySelector('#type-options').innerHTML = environmentTypes.map((type) => `<button class="type-card ${type.id === appState.selectedType ? 'selected active' : ''}" data-type="${type.id}"><strong>${type.label}</strong><small>${type.id === 'outra' ? 'Expansão futura' : 'Ver ambientes disponíveis'}</small></button>`).join('');
+  document.querySelector('#type-options').innerHTML = renderSelectorField('type', 'Tipo de instituição');
 }
 
 function renderInstitutions() {
-  const searchField = document.querySelector('#institution-search');
-  const target = document.querySelector('#institution-options');
-  searchField.disabled = !appState.selectedType || appState.selectedType === 'outra';
-  if (!appState.selectedType) {
-    target.innerHTML = '<p class="helper-card">Escolha o tipo de instituição para ver ambientes disponíveis.</p>';
-    return;
-  }
-  if (appState.selectedType === 'outra') {
-    target.innerHTML = '<p class="helper-card"><strong>Nenhum ambiente ativo nesta categoria ainda.</strong><span>O CampusMove foi preparado para expansão multi-instituição em fases futuras.</span></p>';
-    return;
-  }
-  const search = normalize(searchField.value);
-  const list = institutionsForType().filter((item) => keywordMatches(item, search));
-  target.innerHTML = list.length
-    ? list.map((item) => renderInstitutionCard(item)).join('')
-    : '<p class="helper-card">Nenhuma instituição encontrada nesta categoria.</p>';
+  document.querySelector('#institution-options').innerHTML = renderSelectorField('institution', 'Instituição');
 }
 
 function renderInstitutionCard(item) {
@@ -82,26 +176,39 @@ function renderInstitutionCard(item) {
 
 // BRUNO: selecionar tipo limpa instituição e campus.
 function renderCampuses() {
-  const field = document.querySelector('#campus-search');
-  const target = document.querySelector('#campus-options');
-  field.disabled = !appState.selectedInstitution;
-  if (!appState.selectedInstitution) {
-    target.innerHTML = '<p class="helper-card">Escolha uma instituição antes de selecionar o campus.</p>';
-    renderInstitutionSummary();
-    return;
-  }
-  const search = normalize(field.value);
-  const list = selectedInstitution().campuses.filter((campus) => keywordMatches(campus, search));
-  target.innerHTML = list.length
-    ? list.map((campus) => `<button class="option-card horizontal campus-card ${campus.id === appState.selectedCampus ? 'selected active' : ''} ${campus.active ? '' : 'disabled future'}" data-campus="${campus.id}"><span><strong>Campus ${campus.name}</strong><small>Serviço: ${campus.service}</small></span><span class="product-badge">${campus.status}</span></button>`).join('')
-    : '<p class="helper-card">Nenhum campus encontrado para esse termo.</p>';
+  document.querySelector('#campus-options').innerHTML = renderSelectorField('campus', 'Campus/unidade');
   renderInstitutionSummary();
+}
+
+function renderAccessOptions() {
+  const target = document.querySelector('#access-options');
+  if (!target) return;
+  target.innerHTML = renderSelectorField('access', 'Perfil de acesso');
+}
+
+function roleIsRestricted() {
+  return ['Servidor', 'Motorista'].includes(appState.role);
+}
+
+function roleIsVisitor() {
+  return appState.role === 'Visitante';
+}
+
+function roleIsAdmin() {
+  return appState.role === 'Administrador';
 }
 
 function renderInstitutionSummary() {
   const institution = selectedInstitution();
   const campus = selectedCampus();
   const summary = document.querySelector('#institution-summary');
+  if (appState.selectedType === 'outra') {
+    summary.hidden = false;
+    summary.innerHTML = `<div><span class="product-badge">Sob configuração</span><h3>Nova instituição</h3><p>CampusMove pode ser configurado para novas instituições.</p></div><dl><dt>Tipo</dt><dd>Outra instituição</dd><dt>Perfil</dt><dd>${appState.role || 'Aluno'}</dd><dt>Status</dt><dd>Sob configuração</dd></dl><p>Ambiente previsto para expansão multi-instituição.</p>`;
+    updateContinueButton();
+    renderStepper();
+    return;
+  }
   if (!institution || !campus) {
     summary.hidden = true;
     summary.innerHTML = '';
@@ -109,9 +216,12 @@ function renderInstitutionSummary() {
     renderStepper();
     return;
   }
-  const readyText = campus.active ? 'Ambiente pronto para acesso.' : 'Este ambiente ainda está em preparação.';
+  const activeMvp = canContinueCampus();
+  const status = activeMvp ? 'MVP disponível' : 'Em preparação';
+  const readyText = activeMvp ? 'Este ambiente demonstrativo libera o protótipo CampusMove.' : 'Ambiente previsto para expansão multi-instituição.';
+  const serviceNote = activeMvp ? '<p class="service-note">Serviço ativo neste ambiente: MinhaJardineira.</p>' : '';
   summary.hidden = false;
-  summary.innerHTML = `<h3>Ambiente selecionado</h3><dl><dt>Instituição</dt><dd>${institution.name}</dd><dt>Campus</dt><dd>${campus.name}</dd><dt>Tipo</dt><dd>${institution.type}</dd><dt>Perfil</dt><dd>${appState.role || 'Aluno'}</dd><dt>Serviço</dt><dd>${campus.service}</dd><dt>Status</dt><dd>${campus.status}</dd></dl><p>${readyText}</p>`;
+  summary.innerHTML = `<div><span class="product-badge">${status}</span><h3>${institution.acronym} · Campus ${campus.name}</h3><p>${institution.name}</p></div><dl><dt>Tipo</dt><dd>${institution.type}</dd><dt>Perfil</dt><dd>${appState.role || 'Aluno'}</dd><dt>Serviços por campus</dt><dd>${campus.service}</dd><dt>Status</dt><dd>${campus.status}</dd></dl><p>${readyText}</p>${serviceNote}`;
   updateContinueButton();
   renderStepper();
 }
@@ -123,8 +233,13 @@ function updateContinueButton() {
   else if (!appState.selectedInstitution) button.textContent = 'Escolha a instituição';
   else if (!appState.selectedCampus) button.textContent = 'Escolha o campus';
   else if (!canContinueCampus()) button.textContent = 'Ambiente em preparação';
+  else if (roleIsRestricted()) button.textContent = 'Perfil em preparação';
+  else if (roleIsVisitor()) button.textContent = 'Entrar como visitante';
+  else if (roleIsAdmin()) button.textContent = 'Continuar para acesso restrito';
   else button.textContent = 'Continuar para login institucional';
-  button.classList.toggle('is-disabled', !canContinueCampus());
+  const disabled = !canContinueCampus() || roleIsRestricted();
+  button.classList.toggle('is-disabled', disabled);
+  button.disabled = disabled;
 }
 
 function canContinueCampus() {
@@ -143,39 +258,43 @@ function selectType(button) {
   appState.selectedType = button.dataset.type;
   appState.selectedInstitution = null;
   appState.selectedCampus = null;
-  document.querySelector('#institution-search').value = '';
-  document.querySelector('#campus-search').value = '';
+  selectorUi.openField = null;
+  selectorUi.filters.institution = '';
+  selectorUi.filters.campus = '';
   document.querySelector('#campus-alert').textContent = '';
-  clearSelection('[data-type]');
-  button.classList.add('selected', 'active');
-  renderInstitutions();
-  renderCampuses();
-  updateContinueButton();
-  renderStepper();
+  renderSaasSelector();
 }
 
 function selectInstitution(button) {
   appState.selectedInstitution = button.dataset.institution;
   appState.selectedCampus = null;
-  document.querySelector('#campus-search').value = '';
+  selectorUi.openField = null;
+  selectorUi.filters.campus = '';
   document.querySelector('#campus-alert').textContent = '';
-  clearSelection('[data-institution]');
-  button.classList.add('selected', 'active');
-  renderInstitutions();
-  renderCampuses();
-  updateContinueButton();
-  renderStepper();
+  renderSaasSelector();
 }
 
 function selectCampus(button) {
   appState.selectedCampus = button.dataset.campus;
-  clearSelection('[data-campus]');
-  button.classList.add('selected', 'active');
+  selectorUi.openField = null;
   const campus = selectedCampus();
   document.querySelector('#campus-alert').textContent = campus?.active ? '' : 'Para testar o MVP MinhaJardineira, escolha IFCE → Maracanaú.';
-  renderCampuses();
-  updateContinueButton();
-  renderStepper();
+  renderSaasSelector();
+}
+
+function selectAccessRole(roleId) {
+  appState.role = roleId;
+  selectorUi.openField = null;
+  document.querySelector('#profile-alert').textContent = '';
+  renderRoles();
+  renderSaasSelector();
+}
+
+function selectSelectorOption(field, value) {
+  if (field === 'type') return selectType({ dataset: { type: value } });
+  if (field === 'institution') return selectInstitution({ dataset: { institution: value } });
+  if (field === 'campus') return selectCampus({ dataset: { campus: value } });
+  if (field === 'access') return selectAccessRole(value);
 }
 
 function continueProfile() {
@@ -200,6 +319,10 @@ function continueCampus() {
     document.querySelector('#campus-alert').textContent = 'Para testar o MVP MinhaJardineira, escolha IFCE → Maracanaú.';
     return;
   }
+  if (roleIsVisitor()) return enterApp(true);
+  if (appState.role === 'Servidor') return showBlockedAccess('Acesso de servidor em preparação', 'No sistema real, servidores terão permissões institucionais validadas pelo campus.', 'Neste protótipo, o acesso de servidor ainda não está liberado.');
+  if (appState.role === 'Motorista') return showBlockedAccess('Acesso do motorista', 'Acesso operacional em preparação.', 'Apenas motoristas autorizados pela operação do campus poderão acessar este ambiente no sistema real.');
+  if (roleIsAdmin()) return prepareAdminLogin();
   showScreen('login');
 }
 
@@ -305,6 +428,19 @@ document.addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button) return;
   if (button.dataset.go === 'location' || button.dataset.tab === 'location') appState.locationMode = 'directions';
+  if (button.dataset.selectorTrigger) {
+    selectorUi.openField = selectorUi.openField === button.dataset.selectorTrigger ? null : button.dataset.selectorTrigger;
+    renderSaasSelector();
+    return;
+  }
+  if (button.dataset.selectorOption) {
+    selectSelectorOption(button.dataset.selectorOption, button.dataset.selectorValue);
+    return;
+  }
+  if (!button.closest('.saas-select') && selectorUi.openField) {
+    selectorUi.openField = null;
+    renderSaasSelector();
+  }
   if (button.dataset.go) showScreen(button.dataset.go);
   if (button.dataset.tab) showScreen(button.dataset.tab);
   if (button.dataset.action === 'back') goBack();
@@ -323,14 +459,34 @@ document.addEventListener('click', (event) => {
   if (button.dataset.routeDirection) setRouteDirection(button.dataset.routeDirection);
   if (button.dataset.routeScenario) selectRouteScenario(button.dataset.routeScenario);
   if (button.dataset.action === 'simulate-route') simulateRoute();
+  if (button.dataset.action === 'clear-event-route') clearEventRoute();
   if (button.dataset.eventRoute) goToEventRoute(button.dataset.eventRoute);
   if (button.dataset.eventDestination) selectEventDestination(button.dataset.eventDestination);
 });
 
+document.addEventListener('click', (event) => {
+  if (selectorUi.openField && !event.target.closest('.saas-select')) {
+    selectorUi.openField = null;
+    renderSaasSelector();
+  }
+});
+
 document.addEventListener('input', (event) => {
   const input = event.target;
+  if (input.dataset.selectorFilter) {
+    selectorUi.filters[input.dataset.selectorFilter] = input.value;
+    renderSaasSelector();
+    setTimeout(() => document.querySelector(`[data-selector-filter="${input.dataset.selectorFilter}"]`)?.focus(), 0);
+  }
   if (input.dataset.search === 'institution') renderInstitutions();
   if (input.dataset.search === 'campus') renderCampuses();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && selectorUi.openField) {
+    selectorUi.openField = null;
+    renderSaasSelector();
+  }
 });
 
 document.addEventListener('error', (event) => {
@@ -344,10 +500,7 @@ registerScreenHook('location', renderLocation);
 registerScreenHook('events', renderEvents);
 
 renderRoles();
-renderTypeOptions();
-renderInstitutions();
-renderCampuses();
-renderStepper();
+renderSaasSelector();
 renderLocation();
 renderEvents();
 updateContinueButton();

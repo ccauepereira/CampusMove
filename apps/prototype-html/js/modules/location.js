@@ -1,10 +1,10 @@
 import { appState } from '../state.js';
-import { transitLines, campusShuttle, routeScenarios } from '../data/routes.js';
+import { transitLines, campusShuttle, routeScenarios, eventRoutes } from '../data/routes.js';
 import { events } from '../data/events.js';
 import { showScreen } from '../router.js';
 
 const locationModes = [{ id: 'directions', label: 'Como chegar' }, { id: 'shuttle', label: 'Transporte institucional' }, { id: 'live', label: 'Ao vivo' }];
-const modeLabels = { walk: 'Caminhada', bus: 'Ônibus', metro: 'Metrô', vlt: 'VLT', shuttle: 'Transporte institucional', transfer: 'Integração' };
+const modeLabels = { walk: 'Caminhada', bus: 'Ônibus', metro: 'Metrô/VLT', vlt: 'Metrô/VLT', shuttle: 'Transporte institucional', transfer: 'Integração', event: 'Evento', intercampus: 'Intercampus', regional: 'Regional' };
 const confidenceLabels = { alta: 'Alta — baseada em regra fixa institucional', media: 'Média — baseada em intervalo médio estimado', baixa: 'Baixa — depende de trânsito e não há dado no protótipo' };
 
 export function renderLocationTabs() {
@@ -73,11 +73,43 @@ function invertRoute(route) {
   };
 }
 
+function getRouteMapVariant(route, context = appState.routeContext || 'normal') {
+  if (context === 'event') return route.mapVariant || 'event';
+  if (route?.steps?.some((step) => step.mode === 'shuttle') && route.steps.length === 1) return 'institutional';
+  if (route?.steps?.some((step) => step.mode === 'transfer')) return 'integrated';
+  return 'campus';
+}
+
+function renderRouteMapLegend(route, context = appState.routeContext || 'normal') {
+  const modes = routeModes(route || { steps: [] });
+  const chips = [...modes, ...(context === 'event' ? ['Evento'] : [])].slice(0, 6);
+  return chips.map((mode) => `<span class="enhanced-map__mode-chip">${mode}</span>`).join('');
+}
+
+function renderRouteMapMarkers(route, context = appState.routeContext || 'normal') {
+  const hasIntegration = route?.steps?.some((step) => step.mode === 'transfer');
+  const destinationClass = context === 'event' ? 'enhanced-map__marker--event' : 'enhanced-map__marker--destination';
+  const middleLabel = hasIntegration ? 'Integração' : route?.steps?.some((step) => ['metro', 'vlt'].includes(step.mode)) ? 'Estação' : route?.steps?.some((step) => step.mode === 'shuttle') ? 'Embarque' : 'Trajeto';
+  return `<span class="enhanced-map__marker enhanced-map__marker--origin"><i></i><b>Origem</b></span><span class="enhanced-map__marker enhanced-map__marker--integration"><i></i><b>${middleLabel}</b></span><span class="enhanced-map__marker ${destinationClass}"><i></i><b>${context === 'event' ? 'Evento' : 'Destino'}</b></span>`;
+}
+
+function renderEnhancedRouteMap(route, options = {}) {
+  const context = options.context || appState.routeContext || 'normal';
+  const variant = options.variant || getRouteMapVariant(route, context);
+  const title = context === 'event' ? 'Mapa demonstrativo do evento' : variant === 'live' ? 'Operação simulada' : 'Mapa demonstrativo';
+  const destination = options.destination || route?.destinationLabel || route?.destination || 'Destino';
+  const eta = options.eta || route?.estimatedTime || '6 a 10 min';
+  return `<div class="enhanced-map enhanced-map--${variant}" role="img" aria-label="${title}. Dados demonstrativos, sem integração oficial.">
+    <div class="enhanced-map__grid" aria-hidden="true"></div><div class="enhanced-map__surface" aria-hidden="true"></div>
+    <svg class="enhanced-map__svg" viewBox="0 0 360 190" aria-hidden="true" focusable="false"><path class="enhanced-map__road" d="M18 54 C90 32 130 80 190 58 S284 30 342 70"/><path class="enhanced-map__road enhanced-map__road--thin" d="M34 142 C96 118 138 150 202 124 S288 116 330 148"/><path class="enhanced-map__route-alt" d="M58 132 C118 96 154 108 184 86"/><path class="enhanced-map__route" d="M42 132 C100 102 126 104 174 86 S252 54 318 76"/></svg>
+    ${renderRouteMapMarkers(route, context)}
+    <div class="enhanced-map__eta"><span>${route?.routeType || title}</span><strong>${eta}</strong><small>${destination}</small></div>
+    <div class="enhanced-map__legend">${renderRouteMapLegend(route, context)}<span class="enhanced-map__badge">Mapa demonstrativo</span></div>
+  </div>`;
+}
+
 function renderSimulatedMap(route, variant = 'route') {
-  const modes = routeModes(route || { steps: [{ mode: 'shuttle' }] });
-  const middleLabel = modes.includes('Integração') ? 'Integração' : modes.includes('Metrô') ? 'Estação' : modes.includes('Transporte institucional') ? 'Embarque' : 'Trajeto';
-  const destinationLabel = variant === 'institutional' || variant === 'live' ? 'Campus' : 'Destino';
-  return `<div class="simulated-map ${variant}" role="img" aria-label="Mapa simulado demonstrativo, sem rastreamento real"><span class="map-detail detail-a"></span><span class="map-detail detail-b"></span><span class="map-route-line"></span><span class="map-marker origin"><b>Origem</b></span><span class="map-marker transport"><b>${middleLabel}</b></span><span class="map-marker destination"><b>${destinationLabel}</b></span><span class="map-legend">Dados demonstrativos · Sem integração oficial</span></div>`;
+  return renderEnhancedRouteMap(route, { variant: variant === 'route' ? undefined : variant, context: variant === 'live' ? 'live' : appState.routeContext || 'normal' });
 }
 
 function shortStepText(step) {
@@ -120,9 +152,15 @@ function estimateDepartureNow(route) {
   return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>Saindo agora:</strong> ${timeFromMinutes(current)}</p>${rows.join('')}<p><strong>Chegada prevista:</strong> ${timeFromMinutes(cursor + 10)}</p><p><strong>Risco:</strong> ${risk}</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>`;
 }
 
-function renderRouteResult(route) {
+function renderRouteResult(route, options = {}) {
   const confidence = computeOverallConfidence(route);
-  return `<article class="route-card polished-route"><div class="route-card-header"><span class="product-badge">${appState.accessMode === 'visitor' ? 'Rota pública demonstrativa' : 'Rota demonstrativa'}</span><h3>Sua rota multimodal</h3></div><div class="route-hero-summary"><p><strong>Origem</strong><span>${appState.routeOrigin || route.origin}</span></p><p><strong>Destino</strong><span>${appState.routeDestination || route.destination}</span></p><p><strong>Tempo estimado</strong><span>${route.estimatedTime}</span></p></div>${renderSimulatedMap(route, 'route')}<div class="route-badges">${routeModes(route).map((mode) => `<span class="route-badge">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge">Integração</span>' : ''}</div><div class="route-timeline compact-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${shortStepText(step)}</strong><small>${step.durationText}</small><span class="route-confidence">${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimateDepartureNow(route)}<p class="privacy-note">Rota demonstrativa baseada em cenários locais. Dados demonstrativos, sem integração oficial.</p></article>`;
+  const isEvent = options.context === 'event';
+  const title = isEvent ? 'Rota para evento' : 'Sua rota multimodal';
+  const badge = isEvent ? 'Evento acadêmico · rota demonstrativa' : appState.accessMode === 'visitor' ? 'Rota pública demonstrativa' : 'Rota demonstrativa';
+  const origin = options.origin || appState.routeOrigin || route.originLabel || route.origin;
+  const destination = options.destination || appState.routeDestination || route.destinationLabel || route.destination;
+  const estimate = isEvent ? '' : estimateDepartureNow(route);
+  return `<article class="route-card polished-route ${isEvent ? 'event-route-card' : ''}"><div class="route-card-header"><span class="product-badge">${badge}</span><h3>${title}</h3>${options.eventTitle ? `<p>${options.eventTitle}</p>` : ''}</div><div class="route-hero-summary"><p><strong>Origem</strong><span>${origin}</span></p><p><strong>Destino</strong><span>${destination}</span></p><p><strong>Tempo estimado</strong><span>${route.estimatedTime}</span></p></div>${renderEnhancedRouteMap(route, { context: isEvent ? 'event' : 'normal', destination })}<div class="route-badges mode-chip-row">${routeModes(route).map((mode) => `<span class="route-badge mode-chip">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge mode-chip">Integração</span>' : ''}${isEvent ? '<span class="route-badge mode-chip">Evento</span>' : ''}</div><div class="route-timeline compact-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${shortStepText(step)}</strong><small>${step.durationText}</small><span class="route-confidence">${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimate}<p class="privacy-note">${route.dataNote || 'Rota demonstrativa baseada em cenários locais.'} Dados demonstrativos, sem integração oficial.</p></article>`;
 }
 
 function selectedRoute() {
@@ -130,7 +168,22 @@ function selectedRoute() {
   return appState.routeDirection === 'outbound' && routeScenarios.inbound.some((route) => route.id === appState.selectedScenario) ? invertRoute(baseRoute) : baseRoute;
 }
 
+function selectedEventRoute() {
+  if (!appState.selectedEventId) return null;
+  const event = events.find((item) => item.id === appState.selectedEventId);
+  const route = eventRoutes[appState.selectedEventId];
+  return event && route ? { event, route } : null;
+}
+
+function renderEventRoutePanel() {
+  const selected = selectedEventRoute();
+  if (!selected) return '';
+  const { event, route } = selected;
+  return `<section class="location-panel active event-route-panel"><article class="event-route-hero"><span class="product-badge">Rota para evento</span><h3>${event.title}</h3><p><strong>Destino:</strong> ${event.locationLabel}</p><p>Esta é uma rota demonstrativa para evento acadêmico.</p><button type="button" class="secondary-button" data-action="clear-event-route">Voltar para rotas comuns</button></article>${renderRouteResult(route, { context: 'event', eventTitle: event.title, origin: route.originLabel, destination: route.destinationLabel })}</section>`;
+}
+
 function renderDirectionsPanel() {
+  if (appState.routeContext === 'event') return renderEventRoutePanel();
   const route = selectedRoute();
   const inbound = appState.routeDirection === 'inbound';
   const scenarioChips = routeScenarios.inbound.map((item) => `<button class="type-chip ${item.id === appState.selectedScenario ? 'selected active' : ''}" data-route-scenario="${item.id}">${item.id === 'bruno-ifce' ? (appState.accessMode === 'visitor' ? 'Aluno — mora longe do campus' : 'Bruno') : item.id === 'outro-ifce' ? 'Outro endereço' : item.destination.replace('IFCE Campus Maracanaú', item.origin)}</button>`).join('');
@@ -160,13 +213,22 @@ export function renderLocation() {
 export function goToEventRoute(eventId) {
   const item = events.find((eventItem) => eventItem.id === eventId);
   if (!item) return;
-  appState.selectedEventDestination = item.location;
+  appState.routeContext = 'event';
+  appState.selectedEventId = eventId;
+  appState.selectedSpecialRouteId = item.routeProfile;
+  appState.selectedEventDestination = item.routeDestination || item.location;
   appState.locationMode = 'directions';
   appState.routeDirection = 'inbound';
-  appState.selectedScenario = item.location.includes('Auditório') ? 'maraponga-ifce' : 'outro-ifce';
-  appState.routeOrigin = appState.accessMode === 'visitor' ? 'Origem do visitante' : 'Maraponga';
-  appState.routeDestination = item.location;
+  appState.routeDestination = item.routeDestination || item.location;
   showScreen('location');
+  renderLocation();
+}
+
+export function clearEventRoute() {
+  appState.routeContext = 'normal';
+  appState.selectedEventId = null;
+  appState.selectedSpecialRouteId = null;
+  appState.selectedEventDestination = null;
   renderLocation();
 }
 

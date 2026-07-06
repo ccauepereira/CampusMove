@@ -78,25 +78,14 @@
             <div class="badge-row"><span>Multi-instituição</span><span>Multi-campus</span><span>Acesso por perfil</span><span>Serviços por campus</span></div>
           </article>
           <div class="saas-stepper" id="saas-stepper" aria-label="Etapas de seleção do ambiente"></div>
-          <!-- BRUNO: tipo de instituição é clicável, não digitável. -->
-          <section class="flow-section progressive-field" aria-labelledby="type-title">
-            <h3 id="type-title">Tipo de instituição</h3>
-            <p class="field-help">Escolha uma categoria para ver os ambientes disponíveis.</p>
-            <div class="type-card-grid" id="type-options" aria-label="Tipos de instituição"></div>
-          </section>
-          <section class="flow-section progressive-field" aria-labelledby="institution-list-title">
-            <label id="institution-list-title" for="institution-search">Ambiente institucional</label>
-            <p class="field-help">Escolha a instituição para ver os campi disponíveis.</p>
-            <input id="institution-search" class="search-field" type="text" placeholder="Buscar instituição por nome ou sigla" autocomplete="off" data-search="institution" disabled>
-            <p class="field-example">Ex.: IFCE, IFSP, IFPB, UFC, UECE, UNILAB, FB</p>
-            <div class="institution-list" id="institution-options" aria-label="Instituições disponíveis"></div>
-          </section>
-          <section class="flow-section progressive-field" aria-labelledby="campus-list-title">
-            <label id="campus-list-title" for="campus-search">Campus ou unidade</label>
-            <p class="field-help">Escolha o campus onde deseja acessar o serviço.</p>
-            <input id="campus-search" class="search-field" type="text" placeholder="Buscar campus ou unidade" autocomplete="off" data-search="campus" disabled>
-            <p class="field-example">Ex.: Maracanaú, Fortaleza, Pici, Itaperi, João Pessoa</p>
-            <div class="stack-list" id="campus-options" aria-label="Campi disponíveis"></div>
+          <!-- BRUNO: seletor SaaS usa menus customizados e mantém o estado aprovado. -->
+          <section class="saas-selector-shell" aria-label="Seletor de ambiente CampusMove">
+            <div class="saas-select-grid">
+              <div id="type-options" aria-label="Tipos de instituição"></div>
+              <div id="institution-options" aria-label="Instituições disponíveis"></div>
+              <div id="campus-options" aria-label="Campi disponíveis"></div>
+              <div id="access-options" aria-label="Perfis de acesso disponíveis"></div>
+            </div>
           </section>
           <article class="institution-summary" id="institution-summary" hidden></article>
           <p class="inline-alert" id="campus-alert" aria-live="polite"></p>
