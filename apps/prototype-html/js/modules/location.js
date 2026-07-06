@@ -1,5 +1,7 @@
 import { appState } from '../state.js';
-import { transitLines, campusShuttle, routeScenarios, eventRoutes } from '../data/routes.js';
+import { transitLines, routeScenarios, eventRoutes } from '../data/routes.js';
+import { getDirectionNextDeparture } from './schedules.js';
+import { formatMinutesToTime, formatRelativeDeparture } from '../utils.js';
 import { events } from '../data/events.js';
 import { showScreen } from '../router.js';
 
@@ -133,23 +135,44 @@ function nextDeparture(line, current) {
   return start + Math.ceil((current - start) / line.headwayMinutes) * line.headwayMinutes;
 }
 
-// BRUNO: Prompt 4 substituirá estimativas por dados reais quando houver fonte.
+function institutionalDirectionForRoute(route) {
+  if (!route?.steps?.some((step) => step.mode === 'shuttle')) return null;
+  if (appState.routeContext === 'event') {
+    const first = route.steps[0];
+    if (first?.from?.includes('IFCE')) return 'campus-to-station';
+    if (route.destination?.includes('IFCE') || route.destinationLabel?.includes('IFCE')) return 'station-to-campus';
+    return null;
+  }
+  return appState.routeDirection === 'outbound' ? 'campus-to-station' : 'station-to-campus';
+}
+
+function renderInstitutionalScheduleEstimate(route) {
+  const directionId = institutionalDirectionForRoute(route);
+  if (!directionId) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende do transporte institucional no trecho principal.</p><small>Estimativa por dados demonstrativos, sem rastreamento real.</small></article>';
+  const { schedule, direction, status, next } = getDirectionNextDeparture(directionId);
+  if (!next) {
+    const message = status.id === 'no-service-today' ? 'Sem operação demonstrativa hoje.' : status.id === 'ended-today' ? 'Transporte institucional encerrado hoje no dado demonstrativo.' : status.label;
+    return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>${message}</p><small>${schedule.disclaimer} ${schedule.timezoneNote}</small></article>`;
+  }
+  const arrival = formatMinutesToTime(next.minutes + (direction.averageDurationMinutes || 0));
+  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>${schedule.serviceName}:</strong> ${direction.label}</p><p><strong>Próxima saída demonstrativa:</strong> ${next.time} · ${formatRelativeDeparture(next.minutesUntil)}</p><p><strong>Chegada estimada:</strong> ${arrival}</p><small>Estimativa por dados demonstrativos. Cálculo local baseado no horário do navegador, sem integração oficial.</small></article>`;
+}
+
 function estimateDepartureNow(route) {
-  const timedSteps = route.steps.filter((step) => ['metro', 'vlt', 'shuttle'].includes(step.mode));
-  if (!timedSteps.length) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende de Metrô/VLT ou transporte institucional. A estimativa depende principalmente do trânsito e da frequência do ônibus urbano, ainda não integrada neste protótipo.</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>';
+  if (route.steps.some((step) => step.mode === 'shuttle')) return renderInstitutionalScheduleEstimate(route);
+  const timedSteps = route.steps.filter((step) => ['metro', 'vlt'].includes(step.mode));
+  if (!timedSteps.length) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende do transporte institucional no trecho principal.</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>';
   const now = new Date();
   const current = now.getHours() * 60 + now.getMinutes();
   const rows = [];
   let cursor = current;
-  let gap = 99;
   for (const step of timedSteps) {
-    const line = step.mode === 'shuttle' ? campusShuttle : transitLines[step.lineId];
+    const line = transitLines[step.lineId];
     const dep = line ? nextDeparture(line, cursor) : null;
     if (dep === null) rows.push(`<p>Fora do horário de operação estimado da linha: ${step.line || step.label}.</p>`);
-    else { if (step.mode === 'shuttle') gap = dep - cursor; rows.push(`<p><strong>${step.mode === 'shuttle' ? 'Próximo transporte institucional estimado' : `Próxima partida estimada (${step.line})`}:</strong> ${timeFromMinutes(dep)}</p>`); cursor = dep + 10; }
+    else { rows.push(`<p><strong>Próxima partida estimada (${step.line}):</strong> ${timeFromMinutes(dep)}</p>`); cursor = dep + 10; }
   }
-  const risk = gap < 5 ? 'Risco alto — conexão muito apertada' : gap < 12 ? 'Risco médio — conexão exige atenção' : 'Risco baixo — margem confortável';
-  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>Saindo agora:</strong> ${timeFromMinutes(current)}</p>${rows.join('')}<p><strong>Chegada prevista:</strong> ${timeFromMinutes(cursor + 10)}</p><p><strong>Risco:</strong> ${risk}</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>`;
+  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>Saindo agora:</strong> ${timeFromMinutes(current)}</p>${rows.join('')}<p><strong>Chegada prevista:</strong> ${timeFromMinutes(cursor + 10)}</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>`;
 }
 
 function renderRouteResult(route, options = {}) {
