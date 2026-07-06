@@ -26,7 +26,7 @@ const appState = {
 const roles = [
   { id: 'Aluno', icon: '🎓', title: 'Aluno', description: 'Acompanhe horários, rotas e eventos do seu campus.' },
   { id: 'Servidor', icon: '🏛️', title: 'Servidor', description: 'Acesse informações institucionais e rotas do campus.' },
-  { id: 'Motorista', icon: '🚌', title: 'Motorista', description: 'Acesso restrito para operação da Jardineira.' },
+  { id: 'Motorista', icon: '▰', title: 'Motorista', description: 'Acesso restrito para operação do transporte institucional.' },
   { id: 'Administrador', icon: '🛡️', title: 'Administrador', description: 'Gestão restrita para equipe autorizada.' },
   { id: 'Visitante', icon: '📍', title: 'Visitante', description: 'Rotas públicas e eventos sem login acadêmico.' }
 ];
@@ -461,7 +461,7 @@ function updateAccessibilityUi() {
     const values = simpleTexts[element.dataset.simpleKey];
     if (values) element.textContent = appState.accessibility.simpleLanguage ? values[1] : values[0];
   });
-  document.querySelector('#simple-example').textContent = appState.accessibility.simpleLanguage ? 'Não estamos recebendo a localização da jardineira agora. Mostrando a última posição conhecida.' : 'SEM_SINAL';
+  document.querySelector('#simple-example').textContent = appState.accessibility.simpleLanguage ? 'Este protótipo não usa rastreamento real. Mostrando uma posição simulada.' : 'SEM_SINAL';
 }
 
 function toggleAccessibility(key) {
@@ -475,8 +475,8 @@ function startSplash() {
 }
 
 
-const locationModes = [{ id: 'directions', label: 'Como chegar' }, { id: 'shuttle', label: 'Rota da Jardineira' }, { id: 'live', label: 'Ao vivo' }];
-const modeLabels = { walk: 'Caminhada', bus: 'Ônibus', metro: 'Metrô', vlt: 'VLT', shuttle: 'Jardineira', transfer: 'Integração' };
+const locationModes = [{ id: 'directions', label: 'Como chegar' }, { id: 'shuttle', label: 'Transporte institucional' }, { id: 'live', label: 'Ao vivo' }];
+const modeLabels = { walk: 'Caminhada', bus: 'Ônibus', metro: 'Metrô', vlt: 'VLT', shuttle: 'Transporte institucional', transfer: 'Integração' };
 const confidenceLabels = { alta: 'Alta — baseada em regra fixa institucional', media: 'Média — baseada em intervalo médio estimado', baixa: 'Baixa — depende de trânsito e não há dado no protótipo' };
 
 function renderLocationTabs() {
@@ -528,6 +528,18 @@ function routeModes(route) {
   return [...new Set(route.steps.map((step) => modeLabels[step.mode] || step.label))];
 }
 
+function renderSimulatedMap(route, variant = 'route') {
+  const origin = route?.steps?.[0]?.from || 'Ponto de embarque';
+  const destination = route?.steps?.at(-1)?.to || 'Campus';
+  const transportLabel = variant === 'live' ? 'Veículos institucionais' : routeModes(route || { steps: [{ mode: 'shuttle' }] }).join(' + ');
+  return `<div class="simulated-map ${variant}" role="img" aria-label="Mapa simulado demonstrativo, sem rastreamento real"><span class="map-route-line"></span><span class="map-marker origin"><b>${origin}</b></span><span class="map-marker transport"><b>${transportLabel}</b></span><span class="map-marker destination"><b>${destination}</b></span><span class="map-legend">Dados demonstrativos · Sem integração oficial</span></div>`;
+}
+
+function shortStepText(step) {
+  const to = step.to.replace('IFCE Campus Maracanaú', 'campus').replace('Estação Virgílio Távora', 'Virgílio Távora');
+  return `${modeLabels[step.mode] || step.label} — até ${to}`;
+}
+
 function renderTripDiagnosis(route) {
   const confidence = computeOverallConfidence(route);
   const integrations = route.steps.filter((step) => step.mode === 'transfer').length;
@@ -546,7 +558,7 @@ function nextDeparture(line, current) {
 // BRUNO: Prompt 4 substituirá estimativas por dados reais quando houver fonte.
 function estimateDepartureNow(route) {
   const timedSteps = route.steps.filter((step) => ['metro', 'vlt', 'shuttle'].includes(step.mode));
-  if (!timedSteps.length) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende de Metrô/VLT ou Jardineira. A estimativa depende principalmente do trânsito e da frequência do ônibus urbano, ainda não integrada neste protótipo.</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>';
+  if (!timedSteps.length) return '<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>Esta rota não depende de Metrô/VLT ou transporte institucional. A estimativa depende principalmente do trânsito e da frequência do ônibus urbano, ainda não integrada neste protótipo.</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>';
   const now = new Date();
   const current = now.getHours() * 60 + now.getMinutes();
   const rows = [];
@@ -556,7 +568,7 @@ function estimateDepartureNow(route) {
     const line = step.mode === 'shuttle' ? campusShuttle : transitLines[step.lineId];
     const dep = line ? nextDeparture(line, cursor) : null;
     if (dep === null) rows.push(`<p>Fora do horário de operação estimado da linha: ${step.line || step.label}.</p>`);
-    else { if (step.mode === 'shuttle') gap = dep - cursor; rows.push(`<p><strong>${step.mode === 'shuttle' ? 'Próxima Jardineira estimada' : `Próxima partida estimada (${step.line})`}:</strong> ${timeFromMinutes(dep)}</p>`); cursor = dep + 10; }
+    else { if (step.mode === 'shuttle') gap = dep - cursor; rows.push(`<p><strong>${step.mode === 'shuttle' ? 'Próximo transporte institucional estimado' : `Próxima partida estimada (${step.line})`}:</strong> ${timeFromMinutes(dep)}</p>`); cursor = dep + 10; }
   }
   const risk = gap < 5 ? 'Risco alto — conexão muito apertada' : gap < 12 ? 'Risco médio — conexão exige atenção' : 'Risco baixo — margem confortável';
   return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>Saindo agora:</strong> ${timeFromMinutes(current)}</p>${rows.join('')}<p><strong>Chegada prevista:</strong> ${timeFromMinutes(cursor + 10)}</p><p><strong>Risco:</strong> ${risk}</p><small>Estimativa baseada em intervalo médio, não em dado oficial em tempo real.</small></article>`;
@@ -564,8 +576,7 @@ function estimateDepartureNow(route) {
 
 function renderRouteResult(route) {
   const confidence = computeOverallConfidence(route);
-  const needs = (value) => value === 'maybe' ? 'talvez' : value ? 'sim' : 'não';
-  return `<article class="route-card"><span class="product-badge">${appState.accessMode === 'visitor' ? 'Rota pública demonstrativa' : 'Rota demonstrativa'}</span><h3>${route.label}</h3><div class="route-summary"><p><strong>Tipo de rota:</strong> ${route.routeType}</p><p><strong>Origem:</strong> ${appState.routeOrigin || route.origin}</p><p><strong>Destino:</strong> ${appState.routeDestination || route.destination}</p><p><strong>Melhor rota recomendada:</strong> ${route.mainRoute}</p><p><strong>Tempo estimado:</strong> ${route.estimatedTime}</p><p><strong>Modais usados:</strong> ${routeModes(route).join(' + ')}</p><p><strong>Precisa de ônibus?</strong> ${needs(route.needsBus)}</p><p><strong>Precisa de metrô?</strong> ${needs(route.needsMetro)}</p><p><strong>Precisa de VLT?</strong> ${needs(route.needsVlt)}</p><p><strong>Precisa da Jardineira?</strong> ${needs(route.needsJardineira)}</p><p><strong>Integração necessária?</strong> ${needs(route.needsIntegration)}</p></div><div class="route-badges">${routeModes(route).map((mode) => `<span class="route-badge">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge">Integração</span>' : ''}</div><p class="route-warning">Dados demonstrativos, sem integração oficial.</p><div class="route-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${step.from}</strong><small>↓ <b>${modeLabels[step.mode] || step.label}</b> — ${step.durationText}${step.line ? ` · ${step.line}` : ''}</small><em>${step.to}</em><span class="route-confidence">Confiança do trecho: ${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimateDepartureNow(route)}<p class="privacy-note">Rota demonstrativa baseada em cenários locais informados pela equipe. No sistema real, o CampusMove usaria dados oficiais de transporte e localização autorizada.</p></article>`;
+  return `<article class="route-card polished-route"><div class="route-card-header"><span class="product-badge">${appState.accessMode === 'visitor' ? 'Rota pública demonstrativa' : 'Rota demonstrativa'}</span><h3>Sua rota multimodal</h3></div><div class="route-hero-summary"><p><strong>Origem</strong><span>${appState.routeOrigin || route.origin}</span></p><p><strong>Destino</strong><span>${appState.routeDestination || route.destination}</span></p><p><strong>Tempo estimado</strong><span>${route.estimatedTime}</span></p></div>${renderSimulatedMap(route, 'route')}<div class="route-badges">${routeModes(route).map((mode) => `<span class="route-badge">${mode}</span>`).join('')}${route.needsIntegration ? '<span class="route-badge">Integração</span>' : ''}</div><div class="route-timeline compact-timeline">${route.steps.map((step) => `<div class="route-step"><span class="route-dot"></span><strong>${shortStepText(step)}</strong><small>${step.durationText}</small><span class="route-confidence">${step.confidence}</span></div>`).join('')}</div><p class="route-confidence"><strong>Confiança geral:</strong> ${confidence[0].toUpperCase() + confidence.slice(1)} — estimado demonstrativo</p>${route.needsIntegration && route.riskLabel ? `<p class="route-risk">${route.riskLabel}</p>` : ''}${renderTripDiagnosis(route)}${estimateDepartureNow(route)}<p class="privacy-note">Rota demonstrativa baseada em cenários locais. Dados demonstrativos, sem integração oficial.</p></article>`;
 }
 
 function selectedRoute() { return routeScenarios[appState.routeDirection].find((route) => route.id === appState.selectedScenario) || routeScenarios.inbound[1]; }
@@ -573,18 +584,20 @@ function selectedRoute() { return routeScenarios[appState.routeDirection].find((
 function renderDirectionsPanel() {
   const route = selectedRoute();
   const inbound = appState.routeDirection === 'inbound';
-  const scenarioChips = (inbound ? routeScenarios.inbound : routeScenarios.outbound).map((item) => `<button class="type-chip ${item.id === appState.selectedScenario ? 'selected active' : ''}" data-route-scenario="${item.id}">${item.id === 'bruno-ifce' ? 'Bruno' : item.id === 'outro-ifce' ? 'Outro endereço' : item.destination.replace('IFCE Campus Maracanaú', item.origin)}</button>`).join('');
+  const scenarioChips = (inbound ? routeScenarios.inbound : routeScenarios.outbound).map((item) => `<button class="type-chip ${item.id === appState.selectedScenario ? 'selected active' : ''}" data-route-scenario="${item.id}">${item.id === 'bruno-ifce' ? (appState.accessMode === 'visitor' ? 'Aluno — mora longe do campus' : 'Bruno') : item.id === 'outro-ifce' ? 'Outro endereço' : item.destination.replace('IFCE Campus Maracanaú', item.origin)}</button>`).join('');
   const chips = inbound ? scenarioChips : `${scenarioChips}<button class="type-chip" data-event-destination="Local do evento selecionado">Evento no campus</button>`;
   const eventMessage = appState.selectedEventDestination ? '<p class="inline-alert">Rota até o evento selecionado.</p>' : '';
-  return `<section class="location-panel active"><h3>Como chegar</h3><p class="section-subtitle">Escolha uma origem e destino para ver uma rota demonstrativa.</p><div class="direction-selector"><button class="location-tab ${inbound ? 'active' : ''}" data-route-direction="inbound">Estou indo para o IFCE</button><button class="location-tab ${!inbound ? 'active' : ''}" data-route-direction="outbound">Estou saindo do IFCE</button></div><div class="chip-grid">${chips}</div><div class="form-card route-form"><label>Origem<input id="route-origin" type="text" ${inbound ? '' : 'readonly'} placeholder="Digite bairro, ponto de referência ou cenário" value="${inbound ? appState.routeOrigin : 'IFCE Campus Maracanaú'}"></label><label>Destino${inbound ? `<select id="route-destination"><option ${appState.routeDestination === 'IFCE Campus Maracanaú' ? 'selected' : ''}>IFCE Campus Maracanaú</option><option ${appState.routeDestination === 'Estação Virgílio Távora' ? 'selected' : ''}>Estação Virgílio Távora</option><option ${appState.routeDestination === 'Auditório do IFCE Maracanaú' ? 'selected' : ''}>Auditório do IFCE Maracanaú</option><option ${appState.selectedEventDestination ? 'selected' : ''}>${appState.selectedEventDestination || 'Auditório do IFCE Maracanaú'}</option></select>` : `<input id="route-destination" type="text" placeholder="Escolha uma instituição ou evento acadêmico" value="${appState.routeDestination}">`}</label><button type="button" class="primary-button" data-action="simulate-route">Simular rota</button></div>${eventMessage}${renderRouteResult(route)}</section>`;
+  return `<section class="location-panel active"><h3>Como chegar</h3><p class="section-subtitle">Escolha uma origem e destino para ver uma rota demonstrativa.</p><div class="direction-selector"><button class="location-tab ${inbound ? 'active' : ''}" data-route-direction="inbound">Chegar ao campus</button><button class="location-tab ${!inbound ? 'active' : ''}" data-route-direction="outbound">Sair do campus</button></div><div class="chip-grid">${chips}</div><div class="form-card route-form"><label>Origem<input id="route-origin" type="text" ${inbound ? '' : 'readonly'} placeholder="Digite bairro, ponto de referência ou cenário" value="${inbound ? appState.routeOrigin : 'IFCE Campus Maracanaú'}"></label><label>Destino${inbound ? `<select id="route-destination"><option ${appState.routeDestination === 'IFCE Campus Maracanaú' ? 'selected' : ''}>IFCE Campus Maracanaú</option><option ${appState.routeDestination === 'Estação Virgílio Távora' ? 'selected' : ''}>Estação Virgílio Távora</option><option ${appState.routeDestination === 'Auditório do IFCE Maracanaú' ? 'selected' : ''}>Auditório do IFCE Maracanaú</option><option ${appState.selectedEventDestination ? 'selected' : ''}>${appState.selectedEventDestination || 'Auditório do IFCE Maracanaú'}</option></select>` : `<input id="route-destination" type="text" placeholder="Escolha uma instituição ou evento acadêmico" value="${appState.routeDestination}">`}</label><button type="button" class="primary-button" data-action="simulate-route">Simular rota</button></div>${eventMessage}${renderRouteResult(route)}</section>`;
 }
 
 function renderShuttlePanel() {
-  return `<section class="location-panel active"><h3>Rota da Jardineira</h3><p class="section-subtitle">Trajeto institucional entre a Estação Virgílio Távora e o IFCE Campus Maracanaú.</p><div class="live-map shuttle-map"><span class="station-marker">Estação Virgílio Távora</span><span class="route-line"></span><span class="live-marker shuttle-one">🚌</span><span class="campus-marker">IFCE Campus Maracanaú</span></div><article class="route-card"><div class="route-timeline"><div class="route-step"><strong>Estação Virgílio Távora</strong><small>↓ Ponto de embarque — Trajeto da Jardineira</small><em>Entrada do IFCE</em><span>IFCE Campus Maracanaú</span></div></div><p><strong>Sentido principal:</strong> Estação Virgílio Távora → IFCE Campus Maracanaú</p><p><strong>Retorno:</strong> IFCE Campus Maracanaú → Estação Virgílio Távora</p><p><strong>Frequência operacional:</strong> a cada 15 minutos</p><p><strong>Tempo médio:</strong> 6 a 10 minutos</p><p><strong>Veículos:</strong> Jardineira 1 e Jardineira 2</p><p><strong>Status:</strong> Operação simulada</p><p><strong>Confiança:</strong> Alta — regra institucional fixa</p><p class="route-warning">Dados demonstrativos, sem integração oficial em tempo real.</p></article></section>`;
+  const route = { steps: [{ mode: 'shuttle', from: 'Estação Virgílio Távora', to: 'IFCE Campus Maracanaú' }] };
+  return `<section class="location-panel active"><h3>Transporte institucional</h3><p class="section-subtitle">Trajeto demonstrativo entre ponto de embarque e campus.</p>${renderSimulatedMap(route, 'institutional')}<article class="route-card institutional-card"><span class="product-badge">Serviço ativo: MinhaJardineira</span><p><strong>Sentido principal:</strong> Estação Virgílio Távora → IFCE Campus Maracanaú</p><p><strong>Retorno:</strong> IFCE Campus Maracanaú → Estação Virgílio Távora</p><p><strong>Tempo médio:</strong> 6 a 10 minutos</p><p><strong>Status:</strong> Operação simulada</p><p><strong>Dados:</strong> demonstrativos, sem rastreamento real</p><p><strong>Confiança:</strong> Alta — regra institucional fixa</p></article></section>`;
 }
 
 function renderLivePanel() {
-  return `<section class="location-panel active"><h3>Ao vivo</h3><p class="section-subtitle">Localização simulada das jardineiras em operação.</p><div class="live-map"><span class="route-line"></span><span class="live-marker shuttle-one">🚌</span><span class="live-marker shuttle-two">🚌</span><small>Operação simulada no protótipo, atualizado no navegador.</small></div><article class="live-card"><h4>Jardineira 1</h4><p><strong>Status:</strong> Em movimento</p><p><strong>Posição simulada:</strong> Saindo da Estação Virgílio Távora</p><p><strong>Estimativa:</strong> Chega ao campus em 7 min</p><p><strong>Atualização:</strong> Atualizado no navegador</p></article><article class="live-card"><h4>Jardineira 2</h4><p><strong>Status:</strong> Aguardando próxima saída</p><p><strong>Posição simulada:</strong> IFCE Campus Maracanaú</p><p><strong>Estimativa:</strong> Próxima saída operacional</p><p><strong>Atualização:</strong> Atualizado no navegador</p></article><p class="route-warning">Sem dados oficiais em tempo real neste protótipo.</p></section>`;
+  const route = { steps: [{ mode: 'shuttle', from: 'Ponto de embarque', to: 'Campus' }] };
+  return `<section class="location-panel active"><h3>Ao vivo institucional</h3><p class="section-subtitle">Visualização simulada da operação do transporte institucional.</p>${renderSimulatedMap(route, 'live')}<article class="live-card"><h4>Veículo 1</h4><p><strong>Status:</strong> Em movimento</p><p><strong>Posição simulada:</strong> Saindo do ponto de embarque</p><p><strong>Estimativa:</strong> Chega ao campus em 7 min</p></article><article class="live-card"><h4>Veículo 2</h4><p><strong>Status:</strong> Aguardando saída</p><p><strong>Posição simulada:</strong> Campus</p><p><strong>Estimativa:</strong> Próxima saída operacional</p></article><p class="route-warning">Protótipo sem rastreamento real.</p></section>`;
 }
 
 // FELIPE: abas internas usam .active para controlar o modo visível.
@@ -598,7 +611,7 @@ function renderLocation() {
 function renderEvents() {
   const target = document.querySelector('#events-list');
   if (!target) return;
-  target.innerHTML = events.map((item) => `<article class="event-card"><span class="product-badge">${item.status}</span><h3>${item.title}</h3><p><strong>Local:</strong> ${item.location}</p><p>Dados demonstrativos, sem integração oficial.</p><button class="secondary-button event-route-button" data-event-route="${item.id}">Ver rota até o evento</button></article>`).join('');
+  target.innerHTML = events.map((item) => `<article class="event-card"><span class="product-badge">${item.status}</span><h3>${item.title}</h3><p><strong>Local:</strong> ${item.location}</p><p>Rota sugerida disponível · Dados demonstrativos.</p><button class="secondary-button event-route-button" data-event-route="${item.id}">Ver rota</button></article>`).join('');
 }
 
 function goToEventRoute(eventId) {
