@@ -4,7 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CampusMove | MinhaJardineira</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/screens.css">
+  <link rel="stylesheet" href="./css/maps.css">
+  <link rel="stylesheet" href="./css/accessibility.css">
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
   <main class="phone-frame" aria-label="Protótipo CampusMove">
@@ -15,7 +21,7 @@
           <strong id="screen-context">MinhaJardineira</strong>
           <span id="header-subtitle">IFCE Campus Maracanaú</span>
         </div>
-        <button class="icon-button" data-go="accessibility" aria-label="Abrir acessibilidade">♿</button>
+        <button class="icon-button" data-go="accessibility" aria-label="Abrir acessibilidade">Aa</button>
       </header>
 
       <div class="screen-area">
@@ -34,7 +40,7 @@
           <span class="product-badge">MVP piloto: MinhaJardineira — IFCE Maracanaú</span>
           <article class="assistant-card featured">
             <img src="assets/movinho.png" alt="Movinho, assistente do CampusMove">
-            <div><strong>Movinho</strong><p data-simple-key="welcomeHelper">Vou te ajudar a encontrar campus, rota e horários.</p></div>
+            <div><strong>Movinho</strong><p data-simple-key="welcomeHelper">Eu sou o Movinho. Vou te ajudar a encontrar campus, rotas e transporte institucional.</p></div>
           </article>
           <button class="primary-button" data-go="profile-select">Começar</button>
           <div class="shortcut-row" aria-label="Atalhos de acessibilidade">
@@ -157,37 +163,39 @@
           <article class="hero-card">
             <div class="hero-kicker">Próxima viagem</div>
             <div class="hero-route"><small>Rota</small><h3 data-simple-key="homeRoute">IFCE Campus Maracanaú → Estação Virgílio Távora</h3></div>
-            <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">🗓️ AGENDADA</span></div>
+            <div class="hero-meta"><span>Saída: <time>17:30</time></span><span class="status-pill scheduled">Agendada</span><span class="vehicle-badge" aria-label="Transporte institucional" role="img"></span></div>
             <strong class="countdown">Faltam <span>18</span> min</strong>
           </article>
           <div class="home-grid">
             <article class="status-card"><span class="pulse-dot"></span><strong>Operação online</strong><small>Atualizado no navegador</small></article>
-            <article class="status-card"><strong>📍 Localização</strong><small>Saindo do campus</small></article>
+            <article class="status-card"><strong>Localização</strong><small>Rota institucional simulada</small></article>
           </div>
-          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Sua próxima viagem aparece aqui. Eu aviso se houver atraso ou mudança.</p></div></article>
-          <div class="action-list"><button data-go="schedules">Ver horários</button><button data-go="location">Ver localização</button><button data-go="events">Ver eventos</button></div>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Sua próxima viagem aparece aqui. Eu aviso se houver mudança.</p></div></article>
+          <div class="action-list home-actions"><button data-go="schedules"><span>Horários</span><small>Transporte institucional</small></button><button data-go="location"><span>Localização</span><small>Rotas demonstrativas</small></button><button data-go="events"><span>Eventos</span><small>Rotas sugeridas</small></button></div>
         </section>
 
-        <section id="schedules" class="screen internal" data-title="Horários" data-subtitle="Jardineira IFCE" aria-labelledby="schedules-title">
-          <p class="eyebrow">Jardineira IFCE</p><h2 id="schedules-title">Horários da Jardineira</h2>
-          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha o horário que melhor se encaixa no seu dia.</p></div></article>
-          <section class="schedule-card"><h3>IFCE → Estação Virgílio Távora</h3><div class="time-grid"><time>07:00</time><time>09:00</time><time>11:00</time><time>13:00</time><time>15:00</time><time>17:30</time></div></section>
-          <section class="schedule-card alt"><h3>Estação Virgílio Távora → IFCE</h3><div class="time-grid"><time>07:30</time><time>09:30</time><time>11:30</time><time>13:30</time><time>15:30</time><time>18:00</time></div></section>
+        <section id="schedules" class="screen internal" data-title="Horários" data-subtitle="Transporte institucional" aria-labelledby="schedules-title">
+          <p class="eyebrow">Transporte institucional</p><h2 id="schedules-title">Horários do transporte</h2>
+          <p class="section-subtitle">Consulte os horários demonstrativos do transporte institucional.</p>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha o sentido e veja os horários disponíveis.</p></div></article>
+          <section class="schedule-card direction-card"><span class="vehicle-badge" aria-label="Transporte institucional" role="img"></span><h3>IFCE → Estação Virgílio Távora</h3><div class="time-grid"><time>07:00</time><time>09:00</time><time>11:00</time><time>13:00</time><time>15:00</time><time>17:30</time></div><small>Dados demonstrativos do MVP.</small></section>
+          <section class="schedule-card direction-card alt"><span class="vehicle-badge" aria-label="Transporte institucional" role="img"></span><h3>Estação Virgílio Távora → IFCE</h3><div class="time-grid"><time>07:30</time><time>09:30</time><time>11:30</time><time>13:30</time><time>15:30</time><time>18:00</time></div><small>Dados demonstrativos do MVP.</small></section>
         </section>
 
-        <section id="location" class="screen internal" data-title="Localização" data-subtitle="MinhaJardineira" aria-labelledby="location-title">
-          <p class="eyebrow">Rota demonstrativa atual</p><h2 id="location-title">IFCE Campus Maracanaú → Estação Virgílio Távora</h2>
-          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Veja uma simulação visual da rota da jardineira.</p></div></article>
-          <div class="map-card" role="img" aria-label="Mapa simulado com rota até o campus"><svg viewBox="0 0 360 260" aria-hidden="true"><defs><linearGradient id="routeGradient" x1="0" x2="1"><stop stop-color="#22C55E"/><stop offset="1" stop-color="#86EFAC"/></linearGradient></defs><path class="map-street" d="M14 64 C74 20 123 83 183 52 S292 38 345 84"/><path class="map-street thin" d="M22 210 C92 157 170 230 240 172 S310 132 346 148"/><path class="map-route" d="M46 210 L96 166 L160 170 L229 119 L315 75"/><circle class="marker student" cx="46" cy="210" r="11"/><circle class="marker stop" cx="96" cy="166" r="10"/><circle class="marker metro" cx="160" cy="170" r="10"/><rect class="marker shuttle" x="216" y="107" width="28" height="20" rx="7"/><circle class="marker campus" cx="315" cy="75" r="12"/><text x="24" y="238">Você</text><text x="70" y="154">Parada</text><text x="135" y="198">Metrô</text><text x="200" y="96">Jardineira</text><text x="281" y="56">Campus</text></svg></div>
-          <article class="status-card wide"><span class="pulse-dot"></span><div><strong>Status: Sistema online</strong><small>Atualizado no navegador</small></div></article>
-          <p class="route-text">Rota atual: IFCE Campus Maracanaú → Estação Virgílio Távora</p>
-          <ol class="route-steps"><li>Caminhe 4 min até a parada</li><li>Ônibus até a estação</li><li>Metrô até Virgílio Távora</li><li>Jardineira IFCE até o campus</li></ol>
+        <section id="location" class="screen internal" data-title="Localização" data-subtitle="Rotas demonstrativas" aria-labelledby="location-title">
+          <p class="eyebrow">Mobilidade SaaS</p>
+          <h2 id="location-title">Localização e rotas</h2>
+          <p class="section-subtitle">Simule caminhos e visualize a operação do transporte institucional.</p>
+          <article class="saas-platform-card location-context"><div><strong>Mobilidade do campus</strong><p>Neste protótipo, as rotas são demonstrativas e ajudam a visualizar como o CampusMove orienta deslocamentos acadêmicos.</p></div><div class="badge-row"><span>Rotas simuladas</span><span>Transporte institucional</span><span>Serviço ativo: MinhaJardineira</span><span>Estimativa local</span></div><small>Dados demonstrativos, sem integração oficial em tempo real.</small></article>
+          <article class="assistant-card location-assistant"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Escolha uma origem e destino para ver uma rota demonstrativa.</p></div></article>
+          <div class="location-tabs" id="location-tabs" aria-label="Modos de localização"></div>
+          <div id="location-panels"></div>
         </section>
 
         <section id="events" class="screen internal" data-title="Eventos" data-subtitle="Rotas públicas" aria-labelledby="events-title">
           <p class="eyebrow">Eventos no campus</p><h2 id="events-title">Eventos no campus</h2>
-          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Se você veio para um evento, posso sugerir uma rota pública.</p></div></article>
-          <article class="event-card"><span class="product-badge">Hoje — 18:00</span><h3>Semana da Computação</h3><p>Local: Auditório do IFCE Maracanaú</p><p>Rota sugerida: Estação Virgílio Távora → IFCE Maracanaú</p><strong>Aviso: Horário especial da jardineira às 18:00</strong><p class="privacy-note">Em fases futuras, o CampusMove poderá mostrar a melhor rota até o local do evento.</p></article>
+          <article class="assistant-card"><img src="assets/movinho.png" alt="Movinho, assistente do CampusMove"><div><strong>Movinho</strong><p>Se você vai para um evento, posso abrir uma rota sugerida.</p></div></article>
+          <div id="events-list" class="events-list"></div>
         </section>
 
         <section id="user-profile" class="screen internal" data-title="Perfil" data-subtitle="IFCE Campus Maracanaú" aria-labelledby="user-profile-title">
@@ -208,10 +216,10 @@
       </div>
 
       <nav class="bottom-nav" aria-label="Navegação principal">
-        <button data-tab="home">⌂<span>Início</span></button><button data-tab="schedules">◷<span>Horários</span></button><button data-tab="location">◇<span>Localização</span></button><button data-tab="events">✦<span>Eventos</span></button><button data-tab="user-profile">♙<span>Perfil</span></button>
+        <button data-tab="home"><span class="nav-icon home-icon" aria-hidden="true"></span><span>Início</span></button><button data-tab="schedules"><span class="nav-icon clock-icon" aria-hidden="true"></span><span>Horários</span></button><button data-tab="location"><span class="nav-icon route-icon" aria-hidden="true"></span><span>Localização</span></button><button data-tab="events"><span class="nav-icon event-icon" aria-hidden="true"></span><span>Eventos</span></button><button data-tab="user-profile"><span class="nav-icon profile-icon" aria-hidden="true"></span><span>Perfil</span></button>
       </nav>
     </div>
   </main>
-  <script src="js/app.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>

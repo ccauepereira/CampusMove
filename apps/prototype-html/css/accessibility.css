@@ -1,0 +1,2 @@
+/* Accessibility */
+body.reduce-motion * { animation: none !important; transition: none !important; }
