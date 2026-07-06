@@ -439,3 +439,52 @@ body.reduce-motion .map-route-line::after, body.reduce-motion .map-marker.transp
 .event-card p { margin: 0; color: #CBD5E1; line-height: 1.35; }
 .event-card strong { display: inline; margin: 0; color: #BBF7D0; }
 .event-route-button { min-height: 42px; text-align: center; }
+
+/* Prompt 3.1.1 fixes */
+html { --font-size: 15.5px; }
+h1 { font-size: 1.62rem; }
+h2 { font-size: 1.24rem; line-height: 1.18; }
+h3 { font-size: .96rem; }
+.screen { padding-bottom: 128px; }
+.hero-route h3 { font-size: 1.05rem; line-height: 1.2; }
+.primary-button, .secondary-button, .action-list button, .toggle-list button { font-size: .9rem; }
+.schedule-card + .schedule-card, .direction-card + .direction-card { margin-top: 12px; }
+.time-grid { gap: 10px; }
+.time-grid time { min-height: 36px; font-size: .86rem; }
+
+/* Icon cleanup */
+.role-icon { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(134,239,172,.28); border-radius: 12px; background: rgba(8,15,29,.48); color: #BBF7D0; font-size: .72rem !important; font-weight: 900; letter-spacing: .03em; }
+.vehicle-badge { position: relative; overflow: hidden; }
+.vehicle-badge::before { content: ""; width: 17px; height: 10px; border: 2px solid currentColor; border-radius: 4px 4px 3px 3px; }
+.vehicle-badge::after { content: ""; position: absolute; bottom: 7px; left: 9px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; box-shadow: 10px 0 0 currentColor; }
+.nav-icon { position: relative; display: block; width: 18px; height: 18px; margin: 0 auto 3px; color: currentColor; }
+.nav-icon::before, .nav-icon::after { content: ""; position: absolute; border-color: currentColor; }
+.home-icon::before { inset: 5px 3px 2px; border: 2px solid; border-top: 0; border-radius: 2px; }
+.home-icon::after { left: 3px; top: 2px; width: 10px; height: 10px; border-left: 2px solid; border-top: 2px solid; transform: rotate(45deg); }
+.clock-icon::before { inset: 2px; border: 2px solid; border-radius: 50%; }
+.clock-icon::after { left: 9px; top: 5px; width: 5px; height: 5px; border-left: 2px solid; border-bottom: 2px solid; }
+.route-icon::before { left: 2px; top: 2px; width: 5px; height: 5px; border: 2px solid; border-radius: 50%; box-shadow: 9px 9px 0 -1px currentColor; }
+.route-icon::after { left: 7px; top: 8px; width: 7px; border-top: 2px solid; transform: rotate(38deg); }
+.event-icon::before { inset: 3px; border: 2px solid; border-radius: 4px; }
+.event-icon::after { left: 5px; right: 5px; top: 7px; border-top: 2px solid; }
+.profile-icon::before { left: 6px; top: 2px; width: 6px; height: 6px; border: 2px solid; border-radius: 50%; }
+.profile-icon::after { left: 3px; right: 3px; bottom: 2px; height: 6px; border: 2px solid; border-radius: 999px 999px 4px 4px; }
+
+/* Route map spacing */
+.simulated-map { min-height: 184px; }
+.map-detail { position: absolute; border: 1px solid rgba(148,163,184,.12); border-radius: 999px; transform: rotate(-14deg); }
+.map-detail.detail-a { left: 38px; right: 88px; top: 36px; height: 34px; }
+.map-detail.detail-b { left: 96px; right: 42px; bottom: 48px; height: 28px; transform: rotate(12deg); }
+.map-marker b { top: 24px; width: 72px; font-size: .65rem; }
+.map-marker.origin b { left: -10px; }
+.map-marker.transport b { left: -27px; }
+.map-marker.destination b { right: -10px; }
+.compact-timeline .route-step { grid-template-columns: 12px 1fr auto; }
+.compact-timeline .route-step strong { white-space: normal; line-height: 1.25; }
+.compact-timeline .route-step small { font-size: .78rem; }
+.compact-timeline .route-confidence { grid-column: 2 / 4; width: fit-content; }
+
+/* Return route options */
+.location-tab, .type-chip { font-size: .76rem; }
+.route-hero-summary p { align-items: flex-start; }
+.route-hero-summary span { max-width: 58%; line-height: 1.25; }
