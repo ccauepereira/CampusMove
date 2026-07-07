@@ -111,3 +111,81 @@ body.reduce-motion * { animation: none !important; transition: none !important; 
 .product-badge.muted { border-color: rgba(148,163,184,.2); background: rgba(148,163,184,.1); color: #DCE8F8; }
 .event-product-card small { color: #94A3B8; line-height: 1.35; }
 .event-product-card .secondary-button { position: relative; z-index: 1; }
+
+/* Prompt 4 intelligent demonstrative schedules */
+.schedule-screen-shell { display: grid; gap: 14px; padding-bottom: 12px; }
+.schedule-now-card, .schedule-hero, .schedule-detail, .schedule-alert { border: 1px solid rgba(134,239,172,.2); border-radius: 24px; background: linear-gradient(145deg, rgba(31,41,55,.9), rgba(8,15,29,.92)); box-shadow: var(--shadow); }
+.schedule-now-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
+.schedule-now-card div { display: grid; gap: 3px; min-width: 0; }
+.schedule-now-card span, .schedule-hero small, .schedule-detail small, .schedule-alert small, .home-arrival { color: #CBD5E1; font-size: .78rem; }
+.schedule-now-card strong { color: #F8FAFC; font-size: 1.18rem; }
+.schedule-direction-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.schedule-direction-tab { min-height: 72px; border: 1px solid rgba(148,163,184,.18); border-radius: 20px; padding: 11px; background: rgba(15,23,42,.84); color: #F8FAFC; text-align: left; box-shadow: var(--shadow); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.schedule-direction-tab strong, .schedule-direction-tab span { display: block; }
+.schedule-direction-tab strong { margin-bottom: 5px; color: #BBF7D0; }
+.schedule-direction-tab span { color: #CBD5E1; font-size: .72rem; line-height: 1.25; }
+.schedule-direction-tab.active { border-color: rgba(34,197,94,.75); background: linear-gradient(145deg, rgba(27,107,58,.34), rgba(15,23,42,.94)); }
+.schedule-hero { position: relative; overflow: hidden; display: grid; gap: 7px; padding: 16px; }
+.schedule-hero.has-next { border-color: rgba(34,197,94,.62); box-shadow: 0 0 0 1px rgba(34,197,94,.18), 0 18px 38px rgba(34,197,94,.12); }
+.schedule-hero.has-next::after { content: ""; position: absolute; inset: -40% auto auto 64%; width: 170px; height: 170px; border-radius: 999px; background: rgba(34,197,94,.18); filter: blur(18px); animation: schedule-glow 2.4s ease-in-out infinite; }
+.schedule-hero > * { position: relative; z-index: 1; }
+.schedule-hero h3 { margin: 0; color: #F8FAFC; font-size: 2.1rem; letter-spacing: -.04em; }
+.schedule-hero strong { color: #BBF7D0; font-size: 1.08rem; }
+.schedule-hero p { margin: 0; color: #DCE8F8; }
+.schedule-status { display: inline-flex; width: fit-content; border-radius: 999px; padding: 5px 9px; border: 1px solid rgba(134,239,172,.22); background: rgba(27,107,58,.22); color: #BBF7D0; font-size: .7rem; font-weight: 900; }
+.schedule-status--ended-today, .schedule-status--no-service-today { border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.12); color: #FDE68A; }
+.schedule-status--unavailable { border-color: rgba(148,163,184,.22); background: rgba(148,163,184,.12); color: #DCE8F8; }
+.smart-schedule-card h3 { margin-bottom: 12px; }
+.schedule-time-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.schedule-chip { display: grid; gap: 3px; min-height: 54px; border: 1px solid rgba(148,163,184,.18); border-radius: 16px; padding: 8px; background: rgba(15,23,42,.82); color: #F8FAFC; text-align: center; }
+.schedule-chip strong { font-size: .98rem; }
+.schedule-chip span { color: #CBD5E1; font-size: .66rem; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+.schedule-chip--past { opacity: .62; }
+.schedule-chip--next { border-color: rgba(34,197,94,.8); background: rgba(27,107,58,.34); box-shadow: 0 0 0 1px rgba(34,197,94,.18); animation: schedule-chip-pulse 1.8s ease-in-out infinite; }
+.schedule-chip--next span { color: #BBF7D0; }
+.schedule-chip.selected { outline: 2px solid rgba(134,239,172,.72); outline-offset: 2px; }
+.schedule-detail, .schedule-alert { display: grid; gap: 8px; padding: 15px; }
+.schedule-detail h3 { margin: 0; font-size: 1.45rem; }
+.schedule-detail p, .schedule-alert p { margin: 0; color: #DCE8F8; line-height: 1.4; }
+.schedule-alert { border-color: rgba(245,158,11,.24); background: linear-gradient(145deg, rgba(245,158,11,.12), rgba(15,23,42,.92)); }
+.schedule-alert strong { color: #FDE68A; }
+.home-arrival { margin: 8px 0 0; }
+.hero-card small { display: block; margin-top: 10px; color: #CBD5E1; line-height: 1.35; }
+button:focus-visible, .schedule-chip:focus-visible, .schedule-direction-tab:focus-visible { outline: 2px solid #86EFAC; outline-offset: 3px; }
+@keyframes schedule-glow { 0%, 100% { opacity: .48; transform: scale(.95); } 50% { opacity: .9; transform: scale(1.06); } }
+@keyframes schedule-chip-pulse { 0%, 100% { box-shadow: 0 0 0 1px rgba(34,197,94,.18); } 50% { box-shadow: 0 0 0 4px rgba(34,197,94,.14); } }
+body.reduce-motion .schedule-hero.has-next::after, body.reduce-motion .schedule-chip--next { animation: none; }
+@media (prefers-reduced-motion: reduce) { .schedule-hero.has-next::after, .schedule-chip--next { animation: none; } .schedule-direction-tab { transition: none; } }
+
+/* Prompt 4B selected-hour details and readiness */
+.schedule-detail-grid, .readiness-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.schedule-detail-grid p, .readiness-grid p { display: grid; gap: 3px; margin: 0; padding: 10px; border: 1px solid rgba(148,163,184,.14); border-radius: 14px; background: rgba(8,15,29,.45); }
+.schedule-detail-grid strong, .readiness-grid strong { color: #86EFAC; font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; }
+.schedule-detail-grid span, .readiness-grid span { color: #F8FAFC; font-weight: 800; line-height: 1.25; }
+.schedule-hour-group { display: grid; gap: 6px; margin-top: 4px; padding: 12px; border: 1px solid rgba(34,197,94,.18); border-radius: 16px; background: rgba(27,107,58,.14); }
+.schedule-hour-group h4, .readiness-card h4, .plan-b-card h4 { margin: 0; color: #BBF7D0; }
+.schedule-hour-group p { margin: 0; color: #DCE8F8; }
+.readiness-card, .plan-b-card { display: grid; gap: 9px; margin-top: 12px; padding: 14px; border: 1px solid rgba(134,239,172,.22); border-radius: 20px; background: linear-gradient(145deg, rgba(31,41,55,.94), rgba(8,15,29,.9)); box-shadow: var(--shadow); }
+.readiness-card p, .plan-b-card p { margin: 0; color: #DCE8F8; line-height: 1.4; }
+.readiness-card--on-time { border-color: rgba(34,197,94,.46); }
+.readiness-card--tight { border-color: rgba(250,204,21,.42); }
+.readiness-card--risk, .readiness-card--late, .readiness-card--ended, .readiness-card--no-service { border-color: rgba(245,158,11,.42); }
+.plan-b-card { border-color: rgba(245,158,11,.28); background: linear-gradient(145deg, rgba(245,158,11,.12), rgba(15,23,42,.92)); }
+.plan-b-card .product-badge { border-color: rgba(245,158,11,.32); background: rgba(245,158,11,.13); color: #FDE68A; }
+@media (max-width: 380px) { .schedule-detail-grid, .readiness-grid { grid-template-columns: 1fr; } }
+
+/* Prompt 4C vehicle imagery and operating-window refinements */
+.vehicle-visual, .schedule-service-visual { width: 64px; height: 44px; object-fit: contain; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(134,239,172,.16); padding: 4px; }
+.hero-vehicle { float: right; margin: -4px 0 8px 12px; }
+.schedule-now-card .vehicle-visual { align-self: center; justify-self: center; }
+.schedule-detail-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.schedule-window-grid { grid-template-columns: 1fr; }
+.schedule-window-chip { text-align: left; }
+.schedule-window-chip small { color: #CBD5E1; font-size: .68rem; line-height: 1.25; }
+.pass-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.pass-list p { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; padding: 8px 10px; border: 1px solid rgba(148,163,184,.14); border-radius: 12px; background: rgba(8,15,29,.42); }
+.pass-list strong { color: #F8FAFC; }
+.pass-list span { color: #BBF7D0; font-size: .78rem; font-weight: 800; }
+.live-vehicle-card { position: relative; overflow: hidden; }
+.live-vehicle-card .vehicle-visual { float: right; margin-left: 10px; }
+@media (max-width: 380px) { .pass-list { grid-template-columns: 1fr; } .vehicle-visual, .schedule-service-visual { width: 56px; height: 40px; } }

@@ -23,7 +23,12 @@ export const appState = {
   routeContext: 'normal',
   selectedEventId: null,
   selectedSpecialRouteId: null,
-  departureEstimateResult: null
+  departureEstimateResult: null,
+  selectedScheduleDirection: 'station-to-campus',
+  selectedScheduleTime: null,
+  selectedScheduleWindow: 'metro-to-campus-0700',
+  selectedArrivalTargetTime: '18:30',
+  routeReadinessContext: 'demo'
 };
 
 export function updateState(patch) {

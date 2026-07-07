@@ -4,6 +4,8 @@ import { showScreen, goBack, registerScreenHook } from './router.js';
 import { updateAccessibilityUi, toggleAccessibility } from './modules/accessibility.js';
 import { setLocationMode, setRouteDirection, selectRouteScenario, simulateRoute, renderLocation, goToEventRoute, selectEventDestination, clearEventRoute } from './modules/location.js';
 import { renderEvents } from './modules/events.js';
+import { renderSchedules, selectScheduleDirection, selectScheduleTime, selectScheduleWindow } from './modules/schedules.js';
+import { renderHome } from './modules/home.js';
 
 const selectorUi = {
   openField: null,
@@ -462,6 +464,9 @@ document.addEventListener('click', (event) => {
   if (button.dataset.action === 'clear-event-route') clearEventRoute();
   if (button.dataset.eventRoute) goToEventRoute(button.dataset.eventRoute);
   if (button.dataset.eventDestination) selectEventDestination(button.dataset.eventDestination);
+  if (button.dataset.scheduleDirection) selectScheduleDirection(button.dataset.scheduleDirection);
+  if (button.dataset.scheduleTime) selectScheduleTime(button.dataset.scheduleTime);
+  if (button.dataset.scheduleWindow) selectScheduleWindow(button.dataset.scheduleWindow);
 });
 
 document.addEventListener('click', (event) => {
@@ -496,11 +501,15 @@ document.addEventListener('error', (event) => {
   image.parentElement.classList.add('logo-fallback', 'logo-missing');
 }, true);
 
+registerScreenHook('home', renderHome);
+registerScreenHook('schedules', renderSchedules);
 registerScreenHook('location', renderLocation);
 registerScreenHook('events', renderEvents);
 
 renderRoles();
 renderSaasSelector();
+renderHome();
+renderSchedules();
 renderLocation();
 renderEvents();
 updateContinueButton();
