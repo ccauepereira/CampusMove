@@ -139,3 +139,74 @@ export function getDeparturesForHour(times = [], hour) {
   if (!Number.isInteger(hour)) return [];
   return (Array.isArray(times) ? times : []).filter((time) => getScheduleHourGroup(time) === hour);
 }
+
+export function addMinutesToTime(timeString, minutesToAdd) {
+  const minutes = parseTimeToMinutes(timeString);
+  if (minutes === null || !Number.isFinite(minutesToAdd)) return '—';
+  return formatMinutesToTime(minutes + minutesToAdd);
+}
+
+export function formatMinutesHuman(minutes) {
+  if (!Number.isFinite(minutes)) return '—';
+  const abs = Math.abs(Math.round(minutes));
+  if (abs < 60) return `${abs} min`;
+  const hours = Math.floor(abs / 60);
+  const mins = abs % 60;
+  return mins ? `${hours}h${String(mins).padStart(2, '0')}` : `${hours}h`;
+}
+
+export function formatDelayHuman(minutes) {
+  return `Atraso estimado: ${formatMinutesHuman(minutes)}`;
+}
+
+export function generatePassesForWindow(window) {
+  const start = parseTimeToMinutes(window?.startTime);
+  const end = parseTimeToMinutes(window?.endTime);
+  const interval = Number(window?.intervalMinutes || 15);
+  if (start === null || end === null || !Number.isFinite(interval) || interval <= 0) return [];
+  const passes = [];
+  for (let cursor = start; cursor <= end; cursor += interval) {
+    passes.push({ time: formatMinutesToTime(cursor), minutes: cursor, arrivalTime: formatMinutesToTime(cursor + (window.estimatedTripDurationMinutes || 8)) });
+  }
+  return passes;
+}
+
+export function getCurrentOrNextOperatingWindow(windows = [], now = new Date(), direction = null) {
+  const nowMinutes = getCurrentMinutes(now);
+  const candidates = (Array.isArray(windows) ? windows : []).filter((window) => !direction || window.direction === direction);
+  const normalized = candidates.map((window) => ({ ...window, startMinutes: parseTimeToMinutes(window.startTime), endMinutes: parseTimeToMinutes(window.endTime) })).filter((window) => window.startMinutes !== null && window.endMinutes !== null).sort((a, b) => a.startMinutes - b.startMinutes);
+  const current = normalized.find((window) => nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes);
+  if (current) return { window: current, state: 'current', minutesUntilWindow: 0 };
+  const next = normalized.find((window) => window.startMinutes > nowMinutes);
+  if (next) return { window: next, state: 'next', minutesUntilWindow: next.startMinutes - nowMinutes };
+  return normalized[0] ? { window: normalized[0], state: 'tomorrow', minutesUntilWindow: (24 * 60 - nowMinutes) + normalized[0].startMinutes } : { window: null, state: 'unavailable', minutesUntilWindow: null };
+}
+
+export function getNextPassFromWindows(windows = [], now = new Date(), direction = null) {
+  const nowMinutes = getCurrentMinutes(now);
+  const result = getCurrentOrNextOperatingWindow(windows, now, direction);
+  if (!result.window) return { ...result, pass: null, status: 'unavailable' };
+  const passes = generatePassesForWindow(result.window);
+  const pass = result.state === 'current' ? passes.find((item) => item.minutes >= nowMinutes) : passes[0];
+  if (!pass) return { ...result, pass: null, status: 'ended' };
+  return { ...result, pass: { ...pass, minutesUntil: result.state === 'tomorrow' ? result.minutesUntilWindow : pass.minutes - nowMinutes }, status: result.state === 'current' ? 'current-window' : result.state };
+}
+
+export function getOperatingWindowsForHour(windows = [], hour) {
+  if (!Number.isInteger(hour)) return [];
+  return (Array.isArray(windows) ? windows : []).filter((window) => {
+    const start = parseTimeToMinutes(window.startTime);
+    const end = parseTimeToMinutes(window.endTime);
+    return start !== null && end !== null && hour * 60 <= end && hour * 60 + 59 >= start;
+  });
+}
+
+export function getRealTransitTimesForHour(schedule, lineId, directionId, stationId, hour) {
+  const station = schedule?.[lineId]?.directions?.[directionId]?.stations?.[stationId];
+  return { station, times: station?.timesByHour?.[hour] || [], note: schedule?.[lineId]?.note, sourceLabel: schedule?.[lineId]?.sourceLabel };
+}
+
+export function getMetroDemoTimesForHour(hour) {
+  if (!Number.isInteger(hour)) return [];
+  return [0, 15, 30, 45].map((minute) => `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+}

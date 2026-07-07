@@ -1,7 +1,7 @@
 import { appState } from '../state.js';
 import { transitLines, routeScenarios, eventRoutes } from '../data/routes.js';
-import { getDirectionNextDeparture } from './schedules.js';
-import { calculateArrivalMargin, calculateEstimatedArrival, classifyTripReadiness, formatMinutesToTime, formatRelativeDeparture, getPlanBRecommendation, getReadinessRecommendation, parseDurationToMinutes } from '../utils.js';
+import { getDirectionNextDeparture, getInstitutionalLiveStatus } from './schedules.js';
+import { calculateArrivalMargin, calculateEstimatedArrival, classifyTripReadiness, formatDelayHuman, formatMinutesHuman, formatMinutesToTime, formatRelativeDeparture, getPlanBRecommendation, getReadinessRecommendation, parseDurationToMinutes } from '../utils.js';
 import { events } from '../data/events.js';
 import { showScreen } from '../router.js';
 
@@ -154,8 +154,8 @@ function renderInstitutionalScheduleEstimate(route) {
     const message = status.id === 'no-service-today' ? 'Sem operação demonstrativa hoje.' : status.id === 'ended-today' ? 'Transporte institucional encerrado hoje no dado demonstrativo.' : status.label;
     return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p>${message}</p><small>${schedule.disclaimer} ${schedule.timezoneNote}</small></article>`;
   }
-  const arrival = formatMinutesToTime(next.minutes + (direction.averageDurationMinutes || 0));
-  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>${schedule.serviceName}:</strong> ${direction.label}</p><p><strong>Próxima saída demonstrativa:</strong> ${next.time} · ${formatRelativeDeparture(next.minutesUntil)}</p><p><strong>Chegada estimada:</strong> ${arrival}</p><small>Estimativa por dados demonstrativos. Cálculo local baseado no horário do navegador, sem integração oficial.</small></article>`;
+  const arrival = next.arrivalTime || formatMinutesToTime(next.minutes + (direction.averageDurationMinutes || 0));
+  return `<article class="departure-estimate"><h4>Estimativa saindo agora</h4><p><strong>${schedule.serviceName}:</strong> ${direction.label}</p><p><strong>Próxima passagem:</strong> ${next.time} · ${formatRelativeDeparture(next.minutesUntil)}</p><p><strong>Chegada estimada:</strong> ${arrival}</p><small>Estimativa por dados demonstrativos. Cálculo local baseado no horário do navegador, sem integração oficial.</small></article>`;
 }
 
 
@@ -188,7 +188,7 @@ function renderTripReadiness(route, event = null) {
   const margin = calculateArrivalMargin(targetTime, estimatedArrival);
   const readinessStatus = classifyTripReadiness(margin, status.id);
   const title = event ? 'Chego a tempo para o evento?' : 'Chego a tempo?';
-  const marginText = Number.isFinite(margin) ? `${margin} min` : '—';
+  const marginText = Number.isFinite(margin) ? (margin < 0 ? (event ? `Evento já começou há ${formatMinutesHuman(margin)}` : formatDelayHuman(margin)) : `${margin} min`) : '—';
   const arrivalText = estimatedArrival !== null ? formatMinutesToTime(estimatedArrival) : '—';
   return `<article class="readiness-card readiness-card--${readinessStatus}"><span class="product-badge">Cálculo local do protótipo</span><h4>${title}</h4>${event ? `<p><strong>Evento:</strong> ${event.title}</p><p><strong>Início:</strong> ${targetTime} <small>${event.timeNote || 'Horário demonstrativo'}</small></p>` : ''}<div class="readiness-grid"><p><strong>Próxima saída</strong><span>${next?.time || '—'}</span></p><p><strong>Tempo estimado da rota</strong><span>${route.estimatedTime || '—'}</span></p><p><strong>Chegada estimada</strong><span>${arrivalText}</span></p><p><strong>Horário alvo</strong><span>${targetTime || '—'}</span></p><p><strong>Margem</strong><span>${marginText}</span></p><p><strong>Status</strong><span>${readinessLabel(readinessStatus)}</span></p></div><p><strong>Recomendação:</strong> ${getReadinessRecommendation(readinessStatus)}</p><small>Baseado no horário do navegador, em horários demonstrativos e sem rastreamento real.</small></article>${renderPlanB(readinessStatus, Boolean(event))}`;
 }
@@ -258,7 +258,12 @@ function renderShuttlePanel() {
 
 function renderLivePanel() {
   const route = { steps: [{ mode: 'shuttle', from: 'Ponto de embarque', to: 'Campus' }] };
-  return `<section class="location-panel active"><h3>Ao vivo institucional</h3><p class="section-subtitle">Visualização simulada da operação do transporte institucional.</p>${renderSimulatedMap(route, 'live')}<article class="live-card"><h4>Jardineira 1</h4><p><strong>Status:</strong> Em movimento</p><p><strong>Posição simulada:</strong> Saindo do ponto de embarque</p><p><strong>Estimativa:</strong> Chega ao campus em 7 min</p></article><article class="live-card"><h4>Jardineira 2</h4><p><strong>Status:</strong> Aguardando saída</p><p><strong>Posição simulada:</strong> Campus</p><p><strong>Estimativa:</strong> Próxima saída operacional</p></article><p class="route-warning">Protótipo sem rastreamento real.</p></section>`;
+  const live = getInstitutionalLiveStatus();
+  const statusText = live.status === 'current-window' ? 'Em janela de operação' : live.status === 'next' ? 'Próxima janela' : live.status === 'tomorrow' ? 'Operação encerrada hoje' : 'Análise indisponível';
+  const windowText = live.window ? `${live.window.startTime}–${live.window.endTime}` : '—';
+  const countdown = live.pass ? formatRelativeDeparture(live.pass.minutesUntil) : 'Horário indisponível';
+  const cards = ['Jardineira 1', 'Jardineira 2'].map((name, index) => `<article class="live-card live-vehicle-card"><img class="vehicle-visual" src="assets/vehicles/jardineira.png" alt="Imagem ilustrativa da MinhaJardineira"><h4>${name}</h4><p><strong>Status:</strong> ${index === 0 ? statusText : 'Apoio demonstrativo da janela'}</p><p><strong>Sentido:</strong> ${live.window?.label || '—'}</p><p><strong>Próxima passagem:</strong> ${live.pass?.time || '—'} · ${countdown}</p><p><strong>Janela:</strong> ${windowText}</p><p><strong>Intervalo:</strong> A cada ${live.window?.intervalMinutes || 15} min</p><small>Sem rastreamento real.</small></article>`).join('');
+  return `<section class="location-panel active"><h3>Ao vivo institucional</h3><p class="section-subtitle">Cálculo local da próxima passagem por janelas operacionais, sem GPS.</p>${renderSimulatedMap(route, 'live')}${cards}<p class="route-warning">Sem rastreamento real. Cálculo baseado no horário do navegador.</p></section>`;
 }
 
 // FELIPE: abas internas usam .active para controlar o modo visível.
